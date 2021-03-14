@@ -1,0 +1,528 @@
+#+title: Emacs config file in org format
+#+author: John Lord
+#+PROPERTY: header-args :tangle "~/.emacs.d/init.el"
+
+* Package Management
+#+begin_src elisp :results silent :tangle "~/.emacs.d/early-init.el"
+  (setq package-enable-at-startup nil)
+#+end_src
+
+#+begin_src elisp :results silent
+  (server-start)
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+  (straight-use-package 'use-package)
+#+end_src
+
+* Themes and Early inits
+#+begin_src elisp :results silent
+  ;; (load-theme 'tango-dark)
+  (setq line-spacing 0.1)
+  (menu-bar-mode 1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (setq inhibit-startup-screen t)
+  (setq initial-scratch-message "")
+  (put 'narrow-to-region 'disabled nil)
+#+end_src
+
+#+begin_src elisp :results silent
+  (use-package doom-themes
+    :straight t
+    :config
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-one t)
+    )
+#+end_src
+
+* Evil
+#+name: evil
+#+begin_src elisp :results silent
+  (use-package evil
+    :straight t
+    :init
+    (setq evil-emacs-state-cursor '("red" box)
+          evil-normal-state-cursor '("green" box)
+          evil-visual-state-cursor '("orange" box)
+          evil-insert-state-cursor '("red" bar)
+          evil-replace-state-cursor '("red" bar)
+          evil-operator-state-cursor '("red" hollow)
+          evil-want-keybinding nil
+          )
+    :config
+    (evil-mode 1)
+    )
+#+end_src
+
+#+name: evil-collection
+#+begin_src elisp :results silent
+  (use-package evil-collection
+    :straight t
+    :after evil
+    :config
+    (evil-collection-init)
+    )
+#+end_src
+
+* Beancount
+#+begin_src elisp :results silent
+  (use-package general
+    :straight t)
+  (use-package beancount-mode
+    :straight (beancount-mode :type git :host github :repo "beancount/beancount-mode")
+    :init
+    (add-hook 'beancount-mode-hook #'outline-minor-mode)
+  
+    ;; :load-path "~/.emacs.d/site-lisp/beancount-mode"
+    :mode ("\\.beancount\\'" . beancount-mode)
+    :general
+    (:states 'normal
+     :keymaps 'beancount-mode-map
+     "C-j" 'outline-next-visible-heading
+     "C-k" 'outline-previous-visible-heading
+                )
+    :config
+    (add-hook 'beancount-mode-hook 'outline-minor-mode)
+    )
+#+end_src
+
+* Magit
+#+begin_src elisp :results silent
+  (use-package magit
+    :straight t
+    :defer
+    )
+#+end_src
+
+* Mu4e
+#+name: mu4e
+#+begin_src elisp :results silent
+  (use-package mu4e
+    :straight t
+    :commands mu4e
+    :init
+    (require 'auth-source-pass)
+    (require 'smtpmail)
+    (setq mail-user-agent 'mu4e-user-agent)
+    :config
+    (defun my-remove-attachment (msg num)
+      "Remove attachment."
+      (let* ((attach (mu4e~view-get-attach msg num))
+             (path (mu4e-msg-field msg :path))
+             (filename (and attach (plist-get attach :name)))
+             (cmd (format "altermime --input='%s' --remove='%s'"  path filename)))
+        (when (and filename
+                   (yes-or-no-p
+                    (format "Are you sure you want to remove '%s'?" filename)))
+          (shell-command cmd)
+          (message cmd))))
+    (add-hook 'mu4e-compose-mode-hook 'turn-off-auto-fill)
+    (add-hook 'mu4e-compose-mode-hook 'visual-line-mode)
+    (add-to-list 'mu4e-view-actions
+                 '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+    (add-to-list 'mu4e-view-attachment-actions
+                 '("remove-attachment" . my-remove-attachment))
+    (advice-add #'shr-colorize-region :around (defun shr-no-colourise-region (&rest ignore)))
+    (auth-source-pass-enable)
+    (setq
+     auth-source-debug t
+     auth-source-do-cache nil
+     auth-sources '(password-store)
+     message-kill-buffer-on-exit t
+     message-send-mail-function 'smtpmail-send-it
+     mu4e-change-filenames-when-moving t
+     mu4e-completing-read-function 'ivy-completing-read
+     mu4e-compose-format-flowed t
+     mu4e-compose-in-new-frame t
+     mu4e-attachment-dir "~/Downloads"
+     mu4e-enable-mode-line t
+     mu4e-flowed-encode-column 998
+     mu4e-get-mail-command "mbsync -a"
+     mu4e-headers-date-format "%Y-%m-%d"
+     mu4e-headers-auto-update t
+     mu4e-html2text-command 'mu4e-shr2text
+     mu4e-org-link-query-in-headers-mode nil
+     mu4e-sent-messages-behavior 'delete
+     mu4e-update-interval 180
+     mu4e-view-html-plaintext-ratio-heuristic most-positive-fixnum
+     mu4e-view-show-images t
+     send-mail-function 'smtpmail-send-it
+     shr-color-visible-distance-min 5
+     shr-color-visible-luminance-min 60
+     shr-use-colors nil
+     smtpmail-queue-mail nil
+     mu4e-contexts
+     `(
+       ,(make-mu4e-context
+         :name "Lordsonline"
+         :enter-func (lambda () (mu4e-message "Entering Lordsonline context"))
+         :leave-func (lambda () (mu4e-message "Leaving Lordsonline context"))
+         ;; we match based on the maildir of the message
+         :match-func (lambda (msg)
+                       (when msg
+                         (string-prefix-p "/lordsonline" (mu4e-message-field msg :maildir))))
+         :vars '(
+                 (user-mail-address . "john@lordsonline.org")
+                 (user-full-name . "John Lord")
+                 (org-msg-signature . "
+
+  Best regards,
+
+  John
+  ,#+begin_signature
+  -- 
+  ,*John Lord* \\\\
+  Tel (US): /+1-512-550-4917/
+  Tel (DK): /+45-31-50-90-11/
+  ,#+end_signature"
+                                    )
+                 (mu4e-drafts-folder . "/lordsonline/[Gmail].Drafts")
+                 (mu4e-sent-folder   . "/lordsonline/[Gmail].Sent Mail")
+                 (mu4e-trash-folder  . "/lordsonline/[Gmail].Trash")
+                 (mu4e-refile-folder . "/lordsonline/[Gmail].All Mail")
+                 (mu4e-maildir-shortcuts
+                  . (
+                     (:maildir "/lordsonline/INBOX"              :key ?i)
+                     (:maildir "/lordsonline/[Gmail].Sent Mail"  :key ?s)
+                     (:maildir "/lordsonline/[Gmail].Trash"      :key ?t)
+                     (:maildir "/lordsonline/[Gmail].Drafts"     :key ?d)
+                     (:maildir "/lordsonline/[Gmail].All Mail"   :key ?a)
+                     (:maildir "/archive"                        :key ?A)
+                     )
+                  )
+                 (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
+                 (smtpmail-smtp-user . "john@lordsonline.org")
+                 (smtpmail-smtp-server . "smtp.gmail.com")
+                 (smtpmail-smtp-service . 587)
+                 )
+         )
+       ,(make-mu4e-context
+         :name "ProtonMail"
+         :enter-func (lambda () (mu4e-message "Entering ProtonMail context"))
+         :leave-func (lambda () (mu4e-message "Leaving ProtonMail context"))
+         :match-func (lambda (msg)
+                       (when msg
+                         (string-prefix-p "/protonmail" (mu4e-message-field msg :maildir))))
+         :vars '(
+                 (user-mail-address . "lordjd1@pm.me")
+                 (user-full-name . "John Lord")
+                 (org-msg-signature . "
+
+  Best regards,
+
+  John
+  ,#+begin_signature
+  -- 
+  ,*John Lord* \\\\
+  Tel (US): /+1-512-550-4917/
+  Tel (DK): /+45-31-50-90-11/
+  ,#+end_signature"
+                                    )
+                 (mu4e-drafts-folder . "/protonmail/Drafts")
+                 (mu4e-sent-folder   . "/protonmail/Sent")
+                 (mu4e-trash-folder  . "/protonmail/Trash")
+                 (mu4e-refile-folder . "/protonmail/Archive")
+                 (mu4e-maildir-shortcuts
+                   . (
+                      (:maildir "/protonmail/INBOX"     :key ?i)
+                      (:maildir "/protonmail/Sent"      :key ?s)
+                      (:maildir "/protonmail/Trash"     :key ?t)
+                      (:maildir "/protonmail/Archive"   :key ?a)
+                      )
+                   )
+                 (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
+                 (smtpmail-smtp-user . "lordjd1@pm.me")
+                 (smtpmail-smtp-server . "127.0.0.1")
+                 (smtpmail-smtp-service . 1025)
+                 )
+         )
+       )
+     )
+    )
+#+end_src
+
+#+name: org-msg
+#+begin_src elisp :results silent
+  (use-package org-msg
+    :straight t
+    :after mu4e 
+    :config
+    (setq
+     org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+     org-msg-startup "hidestars indent inlineimages"
+     org-msg-greeting-fmt "\nHi %s,\n\n"
+     org-msg-recipient-names '(("john@lordsonline.org" . "John Lord"))
+     org-msg-greeting-name-limit 3
+     org-msg-default-alternatives '(text html)
+     org-msg-convert-citation t
+     )
+    (org-msg-mode)
+    )
+#+end_src
+
+* Completions and Projects
+#+name: counsel
+#+begin_src elisp :results silent
+  (use-package counsel
+    :straight t
+    :config
+    (ivy-mode 1)
+    ;; (require 'ivy-hydra)
+    (setq ivy-use-virtual-buffers t
+          enable-recursive-minibuffers t
+          ivy-count-format "(%d/%d) "
+          )
+    (counsel-mode)
+    (global-set-key (kbd "C-s") 'swiper-isearch)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "M-y") 'counsel-yank-pop)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "<f2> j") 'counsel-set-variable)
+    (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+    (global-set-key (kbd "C-c v") 'ivy-push-view)
+    (global-set-key (kbd "C-c V") 'ivy-pop-view)
+    )
+#+end_src
+
+#+name: counsel-projectile
+#+begin_src elisp :results silent
+  (use-package counsel-projectile
+    :straight t
+    :config
+    (counsel-projectile-mode)
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    )
+#+end_src
+
+#+name: company
+#+begin_src elisp :results silent
+  (use-package company
+    :straight t
+    :diminish company-mode
+    :config
+    (global-company-mode)
+    )
+#+end_src
+
+#+name: ivy-hydra
+#+begin_src elisp :results silent
+  (use-package ivy-hydra
+    :straight t
+    )
+#+end_src
+
+* Org
+#+name: org
+#+begin_src elisp :results silent
+  (use-package org
+    :straight t
+    :bind (
+           ("C-c l" . org-store-link)
+           ("C-c a" . org-agenda)
+           ("C-c c" . org-capture)
+           )
+    :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
+    :config
+    (setq
+     org-agenda-compact-blocks t
+     org-agenda-custom-commands
+     '(
+       ("h" "Agenda and home tasks"
+        ((agenda "")
+         (tags "INBOX" ((org-agenda-overriding-header "File")))
+         (tags-todo "NEXT" ((org-agenda-overriding-header "Next")))
+         (tags-todo "-INBOX-NEXT-CANCELLED-DONE-WAITING-SOMETIME"
+                    ((org-agenda-overriding-header "Todo")))
+         (tags-todo "WAITING" ((org-agenda-overriding-header "Waiting")))
+         (tags-todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
+         )
+        )
+       )
+     org-agenda-dim-blocked-tasks nil
+     org-agenda-files '("~/git/gtd")
+     org-agenda-tags-todo-honor-ignore-options t
+     org-agenda-todo-ignore-scheduled 'all
+     org-agenda-todo-ignore-deadlines 'all
+     org-capture-templates
+     '(
+       ("t" "Todo" entry (file "~/git/gtd/inbox.org") "* TODO %i%?")
+       ("l" "Linked Todo" entry (file "~/git/gtd/inbox.org")
+        "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
+       ("n" "Note" entry (file "~/git/gtd/inbox.org") "* %? :NOTE:\n%U\n")
+       ("m" "Meeting" entry (file "~/git/gtd/inbox.org")
+        "* Meeting with %? :MEETING:\n%^T--%^T\n\n** Location: \n\n** Invitees:
+   - [ ] 
+   - [ ] 
+   - [ ] \n\n** Agenda:
+   - \n\n** Notes:
+   - "
+        )
+       )
+     org-default-notes-file "~/git/gtd/inbox.org"
+     org-directory "~/git/gtd"
+     org-hide-emphasis-markers t
+     org-log-done 'note
+     org-log-into-drawer t
+     org-outline-path-complete-in-steps nil
+     org-refile-targets
+     '(
+       ("~/git/gtd/gtd.org" . (:maxlevel . 3))
+       ("~/git/gtd/maxwell.org" . (:maxlevel . 3))
+       )
+     org-refile-use-outline-path t
+     org-startup-indented t
+     org-tag-alist '(("@work" . ?w) ("@home" . ?h))
+     org-todo-keywords
+     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
+     org-todo-keyword-faces
+     '(
+       ("TODO" :foreground "red" :weight bold)
+       ("NEXT" :foreground "light blue" :weight bold)
+       ("WAITING" :foreground "orange" :weight bold)
+       ("SOMETIME" :foreground "magenta" :weight bold)
+       ("DONE" :foreground "forest green" :weight bold)
+       ("CANCELLED" :foreground "forest green" :weight bold)
+       )
+     org-todo-state-tags-triggers
+     '(
+       ("CANCELLED" ("WAITING") ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED" . t))
+       ("WAITING" ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED") ("WAITING" . t))
+       ("SOMETIME" ("NEXT") ("DONE") ("CANCELLED") ("WAITING") ("SOMETIME" . t))
+       ("" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
+       ("TODO" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
+       ("NEXT" ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED") ("NEXT" . t))
+       ("DONE" ("SOMETIME") ("NEXT") ("WAITING") ("CANCELLED") ("DONE" . t))
+       )
+     org-treat-S-cursor-todo-selection-as-state-change nil
+     org-use-fast-todo-selection t
+     )
+    )
+#+end_src
+
+#+name: evil-org
+#+begin_src elisp :results silent
+  (use-package evil-org
+    :straight t
+    :after org
+    :hook (org-mode . (lambda () evil-org-mode))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys)
+    )
+#+end_src
+
+#+name: org-babel
+#+begin_src elisp :results silent
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (R . t)
+     (python .t)
+     (shell .t)
+     )
+   )
+#+end_src
+
+* Python
+#+name: python
+#+begin_src elisp :results silent
+  (use-package elpy
+    :straight t
+    :init
+    (elpy-enable)
+    :config
+    (setq python-indent-offset 4)
+    (setenv "WORKON_HOME" "~/src")
+    (setq python-shell-interpreter "jupyter"
+          python-shell-interpreter-args "console --simple-prompt"
+          python-shell-prompt-detect-failure-warning nil)
+    (add-to-list 'python-shell-completion-native-disabled-interpreters
+                 "jupyter")
+    )
+#+end_src
+
+#+name: ein
+#+begin_src elisp :results silent
+  (use-package ein
+    :straight t
+   ) 
+#+end_src
+
+* Yaml
+#+name: yaml
+#+begin_src elisp :results silent
+  (use-package yaml-mode
+    :straight t
+    )
+#+end_src
+
+* Dired
+#+name: diredc
+#+begin_src elisp :results silent
+  (setq dired-listing-switches "-alh -v --group-directories-first"
+        dired-auto-revert-buffer t  ; don't prompt to revert; just do it
+        dired-dwim-target t  ; suggest a target for moving/copying intelligently
+        dired-hide-details-hide-symlink-targets nil
+        ;; Always copy/delete recursively
+        dired-recursive-copies  'always
+        dired-recursive-deletes 'top
+        ;; Ask whether destination dirs should get created when copying/removing files.
+        dired-create-destination-dirs 'ask
+        image-dired-thumb-size 150
+        )
+#+end_src
+
+#+name: dired-rsync
+#+begin_src elisp :results silent
+  (use-package dired-rsync
+    :straight t
+    :config
+    (bind-key "C-c C-r" 'dired-rsync dired-mode-map)
+    ) 
+#+end_src
+
+#+name: diredfl
+#+begin_src elisp :results silent
+  (use-package diredfl
+    :straight t
+    :hook (dired-mode . diredfl-mode)
+    ) 
+#+end_src
+
+#+name: diff-hl
+#+begin_src elisp :results silent
+  (use-package diff-hl
+    :straight t
+    :hook (dired-mode . diff-hl-dired-mode-unless-remote)
+    :hook (magit-post-refresh . diff-hl-magit-post-refresh)
+    :config
+    ;; use margin instead of fringe
+    (diff-hl-margin-mode)
+    )
+#+end_src
+
+* Terminals
+#+name: vterm
+#+begin_src elisp :results silent
+  (use-package vterm
+    :straight t
+    ) 
+#+end_src
