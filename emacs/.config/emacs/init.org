@@ -47,6 +47,19 @@
     )
 #+end_src
 
+#+name: auth-source-pass
+#+begin_src elisp :results silent
+  (use-package auth-source-pass
+    :straight t
+    :config
+    (auth-source-pass-enable)
+    (setq auth-source-debug t
+          auth-source-do-cache nil
+          auth-sources '(password-store)
+          )
+    )
+#+end_src
+
 * Evil
 #+name: evil
 #+begin_src elisp :results silent
@@ -113,7 +126,6 @@
     :straight t
     :commands mu4e
     :init
-    (require 'auth-source-pass)
     (require 'smtpmail)
     (setq mail-user-agent 'mu4e-user-agent)
     :config
@@ -135,11 +147,7 @@
     (add-to-list 'mu4e-view-attachment-actions
                  '("remove-attachment" . my-remove-attachment))
     (advice-add #'shr-colorize-region :around (defun shr-no-colourise-region (&rest ignore)))
-    (auth-source-pass-enable)
     (setq
-     auth-source-debug t
-     auth-source-do-cache nil
-     auth-sources '(password-store)
      message-kill-buffer-on-exit t
      message-send-mail-function 'smtpmail-send-it
      mu4e-change-filenames-when-moving t
