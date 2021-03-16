@@ -351,6 +351,8 @@
 #+begin_src elisp :results silent
   (use-package which-key
     :straight t
+    :config
+    (which-key-mode)
     )
 #+end_src
 
