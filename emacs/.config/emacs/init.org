@@ -34,6 +34,10 @@
   (setq inhibit-startup-screen t)
   (setq initial-scratch-message "")
   (put 'narrow-to-region 'disabled nil)
+  (setq max-mini-window-height 0.5)
+  (setq help-window-select t)
+  (add-to-list 'display-buffer-alist
+           '("*Apropos*" display-buffer-same-window))
 #+end_src
 
 #+begin_src elisp :results silent
