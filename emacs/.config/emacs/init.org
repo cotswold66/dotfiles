@@ -64,6 +64,13 @@
     )
 #+end_src
 
+#+name: undo-tree
+#+begin_src elisp :results silent
+  (use-package undo-tree
+    :straight t
+    )
+#+end_src
+
 * Evil
 #+name: evil
 #+begin_src elisp :results silent
