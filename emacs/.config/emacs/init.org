@@ -347,6 +347,13 @@
     )
 #+end_src
 
+#+name: which-key
+#+begin_src elisp :results silent
+  (use-package which-key
+    :straight t
+    )
+#+end_src
+
 * Org
 #+name: org
 #+begin_src elisp :results silent
