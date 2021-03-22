@@ -28,7 +28,7 @@
 #+begin_src elisp :results silent
   ;; (load-theme 'tango-dark)
   (setq line-spacing 0.1)
-  (menu-bar-mode -1)
+  (menu-bar-mode 1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (setq inhibit-startup-screen t)
@@ -88,6 +88,13 @@
     :config
     (evil-mode 1)
     )
+    ;; Make movement keys work like they should
+    (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+    (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+    (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+    (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+                                          ; Make horizontal movement cross lines
+    (setq-default evil-cross-lines t)
 #+end_src
 
 #+name: evil-collection
@@ -366,6 +373,41 @@
     )
 #+end_src
 
+* Coding
+#+name: highlight-parentheses
+#+begin_src elisp :results silent
+  (use-package highlight-parentheses
+    :straight t
+    :config
+    (progn
+      (highlight-parentheses-mode)
+      (global-highlight-parentheses-mode))
+    )
+#+end_src
+
+* Latex
+#+name: auctex
+#+begin_src elisp :results silent
+  (use-package tex
+    :straight auctex
+    :defer t
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t)
+    (setq-default TeX-engine 'xetex)
+    )
+#+end_src
+
+#+name: moderncv
+#+begin_src elisp :results silent
+  ;; (use-package general
+  ;;   :straight t)
+  ;; (use-package ox-moderncv
+  ;;   :straight (ox-moderncv :type git :host gitlab :repo "Titan-C/org-cv")
+  ;;   :init (require 'ox-moderncv)
+  ;;   )
+#+end_src
+
 * Org
 #+name: org
 #+begin_src elisp :results silent
@@ -475,10 +517,63 @@
      (R . t)
      (python .t)
      (shell .t)
+     (org . t)
      )
    )
+  (setq org-confirm-babel-evaluate nil)
 #+end_src
 
+#+name: zotxt
+#+begin_src elisp :results silent :tangle no 
+  (use-package zotxt
+    :straight t
+    :after org
+    ;; Activate org-zotxt-mode in org-mode buffers
+    :hook (org-mode . (lambda () org-zotxt-mode nil))
+    :config
+    (define-key org-mode-map (kbd "C-c \" \"") (lambda () (interactive)
+                                                 (org-zotxt-insert-reference-link '(4))))
+    )
+#+end_src
+
+#+name: org-ref
+#+begin_src elisp :results silent
+  (use-package org-ref
+    :straight t
+    :after org
+    :demand t
+    :config
+    (require 'doi-utils)
+    (setq reftex-default-bibliography '("~/git/bibliography/references.bib"))
+    (setq org-ref-default-bibliography '("~/git/bibliography/references.bib")
+          org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+          bibtex-completion-pdf-field "file"
+          org-ref-bibliography-notes "~/git/bibliography/notes.org"
+          ;; org-ref-pdf-directory "~/git/bibliography/bibtex-pdfs/"
+          )
+    (defun org-ref-grep-pdf (&optional _candidate)
+      "Search pdf files of marked CANDIDATEs."
+      (interactive)
+      (let ((keys (helm-marked-candidates))
+            (get-pdf-function org-ref-get-pdf-filename-function))
+        (helm-do-pdfgrep-1
+         (-remove (lambda (pdf)
+                    (string= pdf ""))
+                  (mapcar (lambda (key)
+                            (funcall get-pdf-function key))
+                          keys)))))
+
+    (defun org-ref-open-pdf-at-point-in-emacs ()
+      "Open the pdf for bibtex key under point if it exists."
+      (interactive)
+      (let* ((results (org-ref-get-bibtex-key-and-file))
+             (key (car results))
+             (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+        (if (file-exists-p pdf-file)
+            (find-file-other-window pdf-file)
+          (message "no pdf found for %s" key))))
+    )
+#+end_src
 * Python
 #+name: python
 #+begin_src elisp :results silent
@@ -568,11 +663,28 @@
 * Attachments
 #+name: pdf-tools
 #+begin_src elisp :results silent
-  (use-package pdf-tools
+  ;; (use-package pdf-tools
+  ;;   :straight t
+  ;;   :config
+  ;;   (pdf-loader-install)
+  ;;   ) 
+#+end_src
+
+*xtable Statistics
+#+name: ess
+#+begin_src elisp :results silent
+  (use-package ess
     :straight t
     :config
-    (pdf-loader-install)
-    ) 
+    (load "ess-autoloads")
+    )
+#+end_src
+
+#+name: ess-smart-underscore
+#+begin_src elisp :results_ silent
+  (use-package ess-smart-underscore
+    :straight t
+    )
 #+end_src
 
 * Local Variables
@@ -580,3 +692,4 @@
 ;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Reload?")(load-file user-init-file))) nil t) 
 ;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Tangle?")(org-babel-tangle))) nil t) 
 ;; End:
+
