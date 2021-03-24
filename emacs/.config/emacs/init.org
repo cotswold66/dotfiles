@@ -1,13 +1,13 @@
 #+title: Emacs config file in org format
 #+author: John Lord
-#+PROPERTY: header-args :tangle "~/.emacs.d/init.el"
+#+PROPERTY: header-args :results silent :tangle "/home/john/.emacs.d/init.el"
 
 * Package Management
-#+begin_src elisp :results silent :tangle "~/.emacs.d/early-init.el"
+#+begin_src elisp :tangle "/home/john/.emacs.d/early-init.el"
   (setq package-enable-at-startup nil)
 #+end_src
 
-#+begin_src elisp :results silent
+#+begin_src elisp
   (server-start)
   (defvar bootstrap-version)
   (let ((bootstrap-file
@@ -99,14 +99,315 @@
 
 #+name: evil-collection
 #+begin_src elisp :results silent
-  (use-package evil-collection
+    (use-package evil-collection
+      :straight t
+      :after evil
+      :custom (evil-collection-setup-minibuffer t)
+      :init
+      (evil-collection-init)
+      )
+#+end_src
+
+* Org
+** org
+#+begin_src elisp :results silent
+  (use-package org
     :straight t
-    :after evil
+    :bind (
+           ("C-c l" . org-store-link)
+           ("C-c a" . org-agenda)
+           ("C-c c" . org-capture)
+           )
+    :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :config
-    (evil-collection-init)
+    (setq
+     org-agenda-compact-blocks t
+     org-agenda-custom-commands
+     '(
+       ("h" "Agenda and home tasks"
+        ((agenda "")
+         (tags "INBOX" ((org-agenda-overriding-header "File")))
+         (tags-todo "NEXT" ((org-agenda-overriding-header "Next")))
+         (tags-todo "-INBOX-NEXT-CANCELLED-DONE-WAITING-SOMETIME"
+                    ((org-agenda-overriding-header "Todo")))
+         (tags-todo "WAITING" ((org-agenda-overriding-header "Waiting")))
+         (tags-todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
+         )
+        )
+       )
+     org-agenda-dim-blocked-tasks nil
+     org-agenda-files '("/home/john/git/gtd")
+     org-agenda-tags-todo-honor-ignore-options t
+     org-agenda-todo-ignore-scheduled 'all
+     org-agenda-todo-ignore-deadlines 'all
+     org-capture-templates
+     '(
+       ("t" "Todo" entry (file "/home/john/git/gtd/inbox.org") "* TODO %i%?")
+       ("l" "Linked Todo" entry (file "/home/john/git/gtd/inbox.org")
+        "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
+       ("n" "Note" entry (file "/home/john/git/gtd/inbox.org") "* %? :NOTE:\n%U\n")
+       ("m" "Meeting" entry (file "/home/john/git/gtd/inbox.org")
+        "* Meeting with %? :MEETING:\n%^T--%^T\n\n** Location: \n\n** Invitees:
+   - [ ] 
+   - [ ] 
+   - [ ] \n\n** Agenda:
+   - \n\n** Notes:
+   - "
+        )
+       )
+     org-default-notes-file "/home/john/git/gtd/inbox.org"
+     org-directory "/home/john/git/gtd"
+     org-hide-emphasis-markers t
+     org-log-done 'note
+     org-log-into-drawer t
+     org-outline-path-complete-in-steps nil
+     org-refile-targets
+     '(
+       ("/home/john/git/gtd/gtd.org" . (:maxlevel . 3))
+       ("/home/john/git/gtd/maxwell.org" . (:maxlevel . 3))
+       )
+     org-refile-use-outline-path t
+     org-startup-indented t
+     org-tag-alist '(("@work" . ?w) ("@home" . ?h))
+     org-todo-keywords
+     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
+     org-todo-keyword-faces
+     '(
+       ("TODO" :foreground "red" :weight bold)
+       ("NEXT" :foreground "light blue" :weight bold)
+       ("WAITING" :foreground "orange" :weight bold)
+       ("SOMETIME" :foreground "magenta" :weight bold)
+       ("DONE" :foreground "forest green" :weight bold)
+       ("CANCELLED" :foreground "forest green" :weight bold)
+       )
+     org-todo-state-tags-triggers
+     '(
+       ("CANCELLED" ("WAITING") ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED" . t))
+       ("WAITING" ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED") ("WAITING" . t))
+       ("SOMETIME" ("NEXT") ("DONE") ("CANCELLED") ("WAITING") ("SOMETIME" . t))
+       ("" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
+       ("TODO" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
+       ("NEXT" ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED") ("NEXT" . t))
+       ("DONE" ("SOMETIME") ("NEXT") ("WAITING") ("CANCELLED") ("DONE" . t))
+       )
+     org-treat-S-cursor-todo-selection-as-state-change nil
+     org-use-fast-todo-selection t
+     )
     )
 #+end_src
 
+** evil-org
+#+begin_src elisp :results silent
+  (use-package evil-org
+    :straight t
+    :after org
+    :hook (org-mode . (lambda () evil-org-mode))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys)
+    )
+#+end_src
+
+** org-babel
+#+begin_src elisp :results silent
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (R . t)
+     (python .t)
+     (shell .t)
+     (org . t)
+     )
+   )
+  (setq org-confirm-babel-evaluate nil)
+#+end_src
+
+** variables
+#+begin_src elisp :results silent :session
+  (setq
+     org_notes "/home/john/git/gtd/"
+     zot_bib "/home/john/git/bibliography/references.bib"
+     org-directory org_notes
+     deft-directory org_notes
+     org-roam-directory org_notes
+     )
+#+end_src
+
+** deft
+#+begin_src elisp
+  (use-package deft
+    :straight t
+    :bind ("<f8>" . deft)
+    :commands deft
+    :init
+    (setq deft-default-extension "org"
+          ;; de-couples filename and note title:
+          deft-use-filename-as-title nil
+          deft-use-filter-string-for-filename t
+          ;; disable auto-save
+          deft-auto-save-interval -1.0
+          ;; converts the filter string into a readable file-name using kebab-case:
+          deft-file-naming-rules
+          '((noslash . "-")
+            (nospace . "-")
+            (case-fn . downcase)))
+    :config
+    (add-to-list 'deft-extensions "tex")
+    )
+#+end_src
+
+** helm-bibtex
+#+begin_src elisp
+  (setq
+   bibtex-completion-notes-path "/home/john/git/gtd/"
+   bibtex-completion-bibliography "/home/john/git/bibliography/references.bib"
+   bibtex-completion-pdf-field "file"
+   bibtex-completion-notes-template-multiple-files
+   (concat
+    "#+TITLE: ${title}\n"
+    "#+ROAM_KEY: cite:${=key=}\n"
+    "* TODO Read ${author-abbrev} (${year}) :NOTE:\n"
+    ":PROPERTIES:\n"
+    ":Custom_ID: ${=key=}\n"
+    ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
+    ":TITLE: ${title}\n"
+    ":AUTHOR: ${author}\n"
+    ":JOURNAL: ${journaltitle}\n"
+    ":DATE: ${date}\n"
+    ":YEAR: ${year}\n"
+    ":DOI: ${doi}\n"
+    ":URL: ${url}\n"
+    ":END:\n\n"
+    )
+   )
+#+end_src
+
+** zotxt
+#+begin_src elisp :results silent :tangle no 
+  (use-package zotxt
+    :straight t
+    :after org
+    ;; Activate org-zotxt-mode in org-mode buffers
+    :hook (org-mode . (lambda () org-zotxt-mode nil))
+    :config
+    (define-key org-mode-map (kbd "C-c \" \"") (lambda () (interactive)
+                                                 (org-zotxt-insert-reference-link '(4))))
+    )
+#+end_src
+
+** org-ref
+#+begin_src elisp :results silent
+  (use-package org-ref
+    :straight t
+    :demand t
+    :config
+    (setq
+           org-ref-completion-library 'org-ref-ivy-cite
+           org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+           org-ref-default-bibliography (list "/home/john/git/bibliography/references.bib")
+           org-ref-bibliography-notes "/home/john/git/gtd/bibnotes.org"
+           org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n"
+           org-ref-notes-directory "/home/john/git/gtd/"
+           org-ref-notes-function 'orb-edit-notes
+      ))
+#+end_src
+
+** org-roam
+#+begin_src elisp
+  (use-package org-roam
+    :straight t
+    :hook (after-init . org-roam-mode)
+    ;; :commands (org-roam-buffer-toggle-display
+    ;;            org-roam-find-file
+    ;;            org-roam-graph
+    ;;            org-roam-insert
+    ;;            org-roam-switch-to-buffer
+    ;;            org-roam-dailies-date
+    ;;            org-roam-dailies-today
+    ;;            org-roam-dailies-tomorrow
+    ;;            org-roam-dailies-yesterday)
+    :custom
+    (org-roam-directory "/home/john/git/gtd/")
+    :bind (:map org-roam-mode-map
+               (("C-c n l" . org-roam)
+                ("C-c n f" . org-roam-find-file)
+                ("C-c n g" . org-roam-graph))
+               :map org-mode-map
+               (("C-c n i" . org-roam-insert))
+               (("C-c n I" . org-roam-insert-immediate)))
+  )
+
+  ;; Since the org module lazy loads org-protocol (waits until an org URL is
+  ;; detected), we can safely chain `org-roam-protocol' to it.
+  (use-package org-roam-protocol
+    :after org-protocol)
+
+#+end_src
+
+** org-roam-bibtex
+#+begin_src elisp :tangle no
+   (use-package org-roam-bibtex
+    :straight t
+    :after (org-roam)
+    :hook (org-roam-mode . org-roam-bibtex-mode)
+    :config
+    (setq org-roam-bibtex-preformat-keywords
+     '("citekey" "title" "url" "file" "author" "keywords"))
+    (setq orb-templates
+          '(("r" "ref" plain (function org-roam-capture--get-point)
+             ""
+             :file-name "${slug}"
+             :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}
+
+  - tags ::
+  - keywords :: ${keywords}
+
+  \n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
+
+             :unnarrowed t))
+          )
+    )
+#+end_src
+
+** org-noter
+#+begin_src elisp
+  (use-package org-noter
+    :straight t
+    :after (:any org pdf-view)
+    :config
+    (setq
+     ;; The WM can handle splits
+     org-noter-notes-window-location 'other-frame
+     ;; Please stop opening frames
+     org-noter-always-create-frame nil
+     ;; I want to see the whole file
+     org-noter-hide-other nil
+     ;; Everything is relative to the main notes file
+     org-noter-notes-search-path (list org_notes)
+     )
+    )
+#+end_src
+
+** templates
+#+begin_src  elisp :tangle no
+  ;; Actually start using templates
+  (after! org-capture
+    ;; Firefox and Chrome
+    (add-to-list 'org-capture-templates
+                 '("P" "Protocol" entry ; key, name, type
+                   (file+headline +org-capture-notes-file "Inbox") ; target
+                   "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"
+                   :prepend t ; properties
+                   :kill-buffer t))
+    (add-to-list 'org-capture-templates
+                 '("L" "Protocol Link" entry
+                   (file+headline +org-capture-notes-file "Inbox")
+                   "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n"
+                   :prepend t
+                   :kill-buffer t))
+  )
+#+end_src
 * Beancount
 #+begin_src elisp :results silent
   (use-package general
@@ -116,7 +417,7 @@
     :init
     (add-hook 'beancount-mode-hook #'outline-minor-mode)
   
-    ;; :load-path "~/.emacs.d/site-lisp/beancount-mode"
+    ;; :load-path "/home/john/emacs.d/site-lisp/beancount-mode"
     :mode ("\\.beancount\\'" . beancount-mode)
     :general
     (:states 'normal
@@ -172,7 +473,7 @@
      mu4e-completing-read-function 'ivy-completing-read
      mu4e-compose-format-flowed t
      mu4e-compose-in-new-frame t
-     mu4e-attachment-dir "~/Downloads"
+     mu4e-attachment-dir "/home/john/Downloads"
      mu4e-enable-mode-line t
      mu4e-flowed-encode-column 998
      mu4e-get-mail-command "mbsync -a"
@@ -228,7 +529,7 @@
                      (:maildir "/archive"                        :key ?A)
                      )
                   )
-                 (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
+                 (smtpmail-queue-dir . "/home/john/Maildir/lordsonline/queue/cur")
                  (smtpmail-smtp-user . "john@lordsonline.org")
                  (smtpmail-smtp-server . "smtp.gmail.com")
                  (smtpmail-smtp-service . 587)
@@ -268,12 +569,12 @@
                       (:maildir "/protonmail/Archive"   :key ?a)
                       )
                    )
-                 (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
+                 (smtpmail-queue-dir . "/home/john/Maildir/protonmail/queue/cur")
                  (smtpmail-smtp-user . "lordjd1@pm.me")
                  (smtpmail-smtp-server . "127.0.0.1")
                  (smtpmail-smtp-service . 1025)
                  )
-         )
+		 )
        )
      )
     )
@@ -408,172 +709,6 @@
   ;;   )
 #+end_src
 
-* Org
-#+name: org
-#+begin_src elisp :results silent
-  (use-package org
-    :straight t
-    :bind (
-           ("C-c l" . org-store-link)
-           ("C-c a" . org-agenda)
-           ("C-c c" . org-capture)
-           )
-    :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
-    :config
-    (setq
-     org-agenda-compact-blocks t
-     org-agenda-custom-commands
-     '(
-       ("h" "Agenda and home tasks"
-        ((agenda "")
-         (tags "INBOX" ((org-agenda-overriding-header "File")))
-         (tags-todo "NEXT" ((org-agenda-overriding-header "Next")))
-         (tags-todo "-INBOX-NEXT-CANCELLED-DONE-WAITING-SOMETIME"
-                    ((org-agenda-overriding-header "Todo")))
-         (tags-todo "WAITING" ((org-agenda-overriding-header "Waiting")))
-         (tags-todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
-         )
-        )
-       )
-     org-agenda-dim-blocked-tasks nil
-     org-agenda-files '("~/git/gtd")
-     org-agenda-tags-todo-honor-ignore-options t
-     org-agenda-todo-ignore-scheduled 'all
-     org-agenda-todo-ignore-deadlines 'all
-     org-capture-templates
-     '(
-       ("t" "Todo" entry (file "~/git/gtd/inbox.org") "* TODO %i%?")
-       ("l" "Linked Todo" entry (file "~/git/gtd/inbox.org")
-        "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
-       ("n" "Note" entry (file "~/git/gtd/inbox.org") "* %? :NOTE:\n%U\n")
-       ("m" "Meeting" entry (file "~/git/gtd/inbox.org")
-        "* Meeting with %? :MEETING:\n%^T--%^T\n\n** Location: \n\n** Invitees:
-   - [ ] 
-   - [ ] 
-   - [ ] \n\n** Agenda:
-   - \n\n** Notes:
-   - "
-        )
-       )
-     org-default-notes-file "~/git/gtd/inbox.org"
-     org-directory "~/git/gtd"
-     org-hide-emphasis-markers t
-     org-log-done 'note
-     org-log-into-drawer t
-     org-outline-path-complete-in-steps nil
-     org-refile-targets
-     '(
-       ("~/git/gtd/gtd.org" . (:maxlevel . 3))
-       ("~/git/gtd/maxwell.org" . (:maxlevel . 3))
-       )
-     org-refile-use-outline-path t
-     org-startup-indented t
-     org-tag-alist '(("@work" . ?w) ("@home" . ?h))
-     org-todo-keywords
-     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
-     org-todo-keyword-faces
-     '(
-       ("TODO" :foreground "red" :weight bold)
-       ("NEXT" :foreground "light blue" :weight bold)
-       ("WAITING" :foreground "orange" :weight bold)
-       ("SOMETIME" :foreground "magenta" :weight bold)
-       ("DONE" :foreground "forest green" :weight bold)
-       ("CANCELLED" :foreground "forest green" :weight bold)
-       )
-     org-todo-state-tags-triggers
-     '(
-       ("CANCELLED" ("WAITING") ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED" . t))
-       ("WAITING" ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED") ("WAITING" . t))
-       ("SOMETIME" ("NEXT") ("DONE") ("CANCELLED") ("WAITING") ("SOMETIME" . t))
-       ("" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
-       ("TODO" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
-       ("NEXT" ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED") ("NEXT" . t))
-       ("DONE" ("SOMETIME") ("NEXT") ("WAITING") ("CANCELLED") ("DONE" . t))
-       )
-     org-treat-S-cursor-todo-selection-as-state-change nil
-     org-use-fast-todo-selection t
-     )
-    )
-#+end_src
-
-#+name: evil-org
-#+begin_src elisp :results silent
-  (use-package evil-org
-    :straight t
-    :after org
-    :hook (org-mode . (lambda () evil-org-mode))
-    :config
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys)
-    )
-#+end_src
-
-#+name: org-babel
-#+begin_src elisp :results silent
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (emacs-lisp . t)
-     (R . t)
-     (python .t)
-     (shell .t)
-     (org . t)
-     )
-   )
-  (setq org-confirm-babel-evaluate nil)
-#+end_src
-
-#+name: zotxt
-#+begin_src elisp :results silent :tangle no 
-  (use-package zotxt
-    :straight t
-    :after org
-    ;; Activate org-zotxt-mode in org-mode buffers
-    :hook (org-mode . (lambda () org-zotxt-mode nil))
-    :config
-    (define-key org-mode-map (kbd "C-c \" \"") (lambda () (interactive)
-                                                 (org-zotxt-insert-reference-link '(4))))
-    )
-#+end_src
-
-#+name: org-ref
-#+begin_src elisp :results silent
-  (use-package org-ref
-    :straight t
-    :after org
-    :demand t
-    :config
-    (require 'doi-utils)
-    (setq reftex-default-bibliography '("~/git/bibliography/references.bib"))
-    (setq org-ref-default-bibliography '("~/git/bibliography/references.bib")
-          org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-          bibtex-completion-pdf-field "file"
-          org-ref-bibliography-notes "~/git/bibliography/notes.org"
-          ;; org-ref-pdf-directory "~/git/bibliography/bibtex-pdfs/"
-          )
-    (defun org-ref-grep-pdf (&optional _candidate)
-      "Search pdf files of marked CANDIDATEs."
-      (interactive)
-      (let ((keys (helm-marked-candidates))
-            (get-pdf-function org-ref-get-pdf-filename-function))
-        (helm-do-pdfgrep-1
-         (-remove (lambda (pdf)
-                    (string= pdf ""))
-                  (mapcar (lambda (key)
-                            (funcall get-pdf-function key))
-                          keys)))))
-
-    (defun org-ref-open-pdf-at-point-in-emacs ()
-      "Open the pdf for bibtex key under point if it exists."
-      (interactive)
-      (let* ((results (org-ref-get-bibtex-key-and-file))
-             (key (car results))
-             (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-        (if (file-exists-p pdf-file)
-            (find-file-other-window pdf-file)
-          (message "no pdf found for %s" key))))
-    )
-#+end_src
 * Python
 #+name: python
 #+begin_src elisp :results silent
@@ -583,7 +718,7 @@
     (elpy-enable)
     :config
     (setq python-indent-offset 4)
-    (setenv "WORKON_HOME" "~/src")
+    (setenv "WORKON_HOME" "/home/john/src")
     (setq python-shell-interpreter "jupyter"
           python-shell-interpreter-args "console --simple-prompt"
           python-shell-prompt-detect-failure-warning nil)
@@ -670,7 +805,7 @@
   ;;   ) 
 #+end_src
 
-*xtable Statistics
+* Statistics
 #+name: ess
 #+begin_src elisp :results silent
   (use-package ess
@@ -692,4 +827,6 @@
 ;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Reload?")(load-file user-init-file))) nil t) 
 ;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Tangle?")(org-babel-tangle))) nil t) 
 ;; End:
+
+
 
