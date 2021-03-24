@@ -3,30 +3,16 @@
 #+PROPERTY: header-args :results silent :tangle "/home/john/.emacs.d/init.el"
 
 * Package Management
-#+begin_src elisp :tangle "/home/john/.emacs.d/early-init.el"
-  (setq package-enable-at-startup nil)
-#+end_src
 
 #+begin_src elisp
   (server-start)
-  (defvar bootstrap-version)
-  (let ((bootstrap-file
-	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-	(bootstrap-version 5))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-	  (url-retrieve-synchronously
-	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-	   'silent 'inhibit-cookies)
-	(goto-char (point-max))
-	(eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage))
-  (straight-use-package 'use-package)
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (package-initialize)
 #+end_src
 
 * Themes and Early inits
-#+begin_src elisp :results silent
-  ;; (load-theme 'tango-dark)
+#+begin_src elisp
   (setq line-spacing 0.1)
   (menu-bar-mode 1)
   (tool-bar-mode -1)
@@ -40,9 +26,8 @@
            '("*Apropos*" display-buffer-same-window))
 #+end_src
 
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package doom-themes
-    :straight t
     :config
     ;; Global settings (defaults)
     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -52,9 +37,8 @@
 #+end_src
 
 #+name: auth-source-pass
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package auth-source-pass
-    :straight t
     :config
     (auth-source-pass-enable)
     (setq auth-source-debug t
@@ -65,17 +49,15 @@
 #+end_src
 
 #+name: undo-tree
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package undo-tree
-    :straight t
     )
 #+end_src
 
 * Evil
 #+name: evil
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package evil
-    :straight t
     :init
     (setq evil-emacs-state-cursor '("red" box)
           evil-normal-state-cursor '("green" box)
@@ -98,9 +80,8 @@
 #+end_src
 
 #+name: evil-collection
-#+begin_src elisp :results silent
+#+begin_src elisp 
     (use-package evil-collection
-      :straight t
       :after evil
       :custom (evil-collection-setup-minibuffer t)
       :init
@@ -110,9 +91,8 @@
 
 * Org
 ** org
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package org
-    :straight t
     :bind (
            ("C-c l" . org-store-link)
            ("C-c a" . org-agenda)
@@ -197,9 +177,8 @@
 #+end_src
 
 ** evil-org
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package evil-org
-    :straight t
     :after org
     :hook (org-mode . (lambda () evil-org-mode))
     :config
@@ -209,7 +188,7 @@
 #+end_src
 
 ** org-babel
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (org-babel-do-load-languages
    'org-babel-load-languages
    '(
@@ -224,7 +203,7 @@
 #+end_src
 
 ** variables
-#+begin_src elisp :results silent :session
+#+begin_src elisp  :session
   (setq
      org_notes "/home/john/git/gtd/"
      zot_bib "/home/john/git/bibliography/references.bib"
@@ -237,7 +216,6 @@
 ** deft
 #+begin_src elisp
   (use-package deft
-    :straight t
     :bind ("<f8>" . deft)
     :commands deft
     :init
@@ -284,9 +262,8 @@
 #+end_src
 
 ** zotxt
-#+begin_src elisp :results silent :tangle no 
+#+begin_src elisp  :tangle no 
   (use-package zotxt
-    :straight t
     :after org
     ;; Activate org-zotxt-mode in org-mode buffers
     :hook (org-mode . (lambda () org-zotxt-mode nil))
@@ -297,9 +274,8 @@
 #+end_src
 
 ** org-ref
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package org-ref
-    :straight t
     :demand t
     :config
     (setq
@@ -316,7 +292,6 @@
 ** org-roam
 #+begin_src elisp
   (use-package org-roam
-    :straight t
     :hook (after-init . org-roam-mode)
     ;; :commands (org-roam-buffer-toggle-display
     ;;            org-roam-find-file
@@ -348,7 +323,6 @@
 ** org-roam-bibtex
 #+begin_src elisp :tangle no
    (use-package org-roam-bibtex
-    :straight t
     :after (org-roam)
     :hook (org-roam-mode . org-roam-bibtex-mode)
     :config
@@ -373,7 +347,6 @@
 ** org-noter
 #+begin_src elisp
   (use-package org-noter
-    :straight t
     :after (:any org pdf-view)
     :config
     (setq
@@ -409,14 +382,10 @@
   )
 #+end_src
 * Beancount
-#+begin_src elisp :results silent
-  (use-package general
-    :straight t)
+#+begin_src elisp 
   (use-package beancount-mode
-    :straight (beancount-mode :type git :host github :repo "beancount/beancount-mode")
     :init
     (add-hook 'beancount-mode-hook #'outline-minor-mode)
-  
     ;; :load-path "/home/john/emacs.d/site-lisp/beancount-mode"
     :mode ("\\.beancount\\'" . beancount-mode)
     :general
@@ -431,18 +400,16 @@
 #+end_src
 
 * Magit
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package magit
-    :straight t
     :defer
     )
 #+end_src
 
 * Mu4e
 #+name: mu4e
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package mu4e
-    :straight t
     :commands mu4e
     :init
     (require 'smtpmail)
@@ -581,9 +548,8 @@
 #+end_src
 
 #+name: org-msg
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package org-msg
-    :straight t
     :after mu4e 
     :config
     (setq
@@ -601,9 +567,8 @@
 
 * Completions and Projects
 #+name: counsel
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package counsel
-    :straight t
     :config
     (ivy-mode 1)
     ;; (require 'ivy-hydra)
@@ -629,9 +594,8 @@
 #+end_src
 
 #+name: counsel-projectile
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package counsel-projectile
-    :straight t
     :config
     (counsel-projectile-mode)
     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
@@ -639,9 +603,8 @@
 #+end_src
 
 #+name: company
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package company
-    :straight t
     :diminish company-mode
     :config
     (global-company-mode)
@@ -649,25 +612,22 @@
 #+end_src
 
 #+name: ivy-hydra
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package ivy-hydra
-    :straight t
     )
 #+end_src
 
 #+name: which-key
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package which-key
-    :straight t
     :config
     (which-key-mode)
     )
 #+end_src
 
 #+name: avy
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package avy
-    :straight t
     :bind (
     ("C-:" . avy-goto-char)
     ("C-." . avy-goto-char-2))
@@ -676,9 +636,8 @@
 
 * Coding
 #+name: highlight-parentheses
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package highlight-parentheses
-    :straight t
     :config
     (progn
       (highlight-parentheses-mode)
@@ -688,7 +647,7 @@
 
 * Latex
 #+name: auctex
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package tex
     :straight auctex
     :defer t
@@ -700,9 +659,8 @@
 #+end_src
 
 #+name: moderncv
-#+begin_src elisp :results silent
+#+begin_src elisp 
   ;; (use-package general
-  ;;   :straight t)
   ;; (use-package ox-moderncv
   ;;   :straight (ox-moderncv :type git :host gitlab :repo "Titan-C/org-cv")
   ;;   :init (require 'ox-moderncv)
@@ -711,9 +669,8 @@
 
 * Python
 #+name: python
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package elpy
-    :straight t
     :init
     (elpy-enable)
     :config
@@ -728,23 +685,21 @@
 #+end_src
 
 #+name: ein
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package ein
-    :straight t
    ) 
 #+end_src
 
 * Yaml
 #+name: yaml
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package yaml-mode
-    :straight t
     )
 #+end_src
 
 * Dired
 #+name: diredc
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (setq dired-listing-switches "-alh -v --group-directories-first"
         dired-auto-revert-buffer t  ; don't prompt to revert; just do it
         dired-dwim-target t  ; suggest a target for moving/copying intelligently
@@ -759,26 +714,23 @@
 #+end_src
 
 #+name: dired-rsync
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package dired-rsync
-    :straight t
     :config
     (bind-key "C-c C-r" 'dired-rsync dired-mode-map)
     ) 
 #+end_src
 
 #+name: diredfl
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package diredfl
-    :straight t
     :hook (dired-mode . diredfl-mode)
     ) 
 #+end_src
 
 #+name: diff-hl
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package diff-hl
-    :straight t
     :hook (dired-mode . diff-hl-dired-mode-unless-remote)
     :hook (magit-post-refresh . diff-hl-magit-post-refresh)
     :config
@@ -789,17 +741,15 @@
 
 * Terminals
 #+name: vterm
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package vterm
-    :straight t
     ) 
 #+end_src
 
 * Attachments
 #+name: pdf-tools
-#+begin_src elisp :results silent
+#+begin_src elisp 
   ;; (use-package pdf-tools
-  ;;   :straight t
   ;;   :config
   ;;   (pdf-loader-install)
   ;;   ) 
@@ -807,18 +757,16 @@
 
 * Statistics
 #+name: ess
-#+begin_src elisp :results silent
+#+begin_src elisp 
   (use-package ess
-    :straight t
     :config
     (load "ess-autoloads")
     )
 #+end_src
 
 #+name: ess-smart-underscore
-#+begin_src elisp :results_ silent
+#+begin_src elisp 
   (use-package ess-smart-underscore
-    :straight t
     )
 #+end_src
 
