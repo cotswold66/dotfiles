@@ -1,16 +1,21 @@
-#+title: Emacs config file in org format
-#+author: John Lord
+#+TITLE: Emacs config file in org format
+#+AUTHOR: John Lord
 #+PROPERTY: header-args :results silent :tangle "/home/john/.emacs.d/init.el"
 
 * Package Management
-
 #+begin_src elisp
   (server-start)
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   (package-initialize)
+  (eval-when-compile (require 'use-package))
 #+end_src
 
+#+begin_src elisp
+  (use-package general
+    :ensure t
+    )
+#+end_src
 * Themes and Early inits
 #+begin_src elisp
   (setq line-spacing 0.1)
@@ -26,8 +31,9 @@
            '("*Apropos*" display-buffer-same-window))
 #+end_src
 
-#+begin_src elisp 
+#+begin_src elisp
   (use-package doom-themes
+    :ensure t
     :config
     ;; Global settings (defaults)
     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -37,7 +43,7 @@
 #+end_src
 
 #+name: auth-source-pass
-#+begin_src elisp 
+#+begin_src elisp
   (use-package auth-source-pass
     :config
     (auth-source-pass-enable)
@@ -49,15 +55,16 @@
 #+end_src
 
 #+name: undo-tree
-#+begin_src elisp 
+#+begin_src elisp :tangle no 
   (use-package undo-tree
     )
 #+end_src
 
 * Evil
 #+name: evil
-#+begin_src elisp 
+#+begin_src elisp
   (use-package evil
+    :ensure t
     :init
     (setq evil-emacs-state-cursor '("red" box)
           evil-normal-state-cursor '("green" box)
@@ -80,18 +87,95 @@
 #+end_src
 
 #+name: evil-collection
-#+begin_src elisp 
-    (use-package evil-collection
-      :after evil
-      :custom (evil-collection-setup-minibuffer t)
-      :init
-      (evil-collection-init)
-      )
+#+begin_src elisp
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :custom (evil-collection-setup-minibuffer t)
+    :init
+    (evil-collection-init)
+    )
+#+end_src
+
+* Completions and Projects
+#+name: counsel
+#+begin_src elisp
+  (use-package counsel
+    :ensure t
+    :config
+    (ivy-mode 1)
+    ;; (require 'ivy-hydra)
+    (setq ivy-use-virtual-buffers t
+          enable-recursive-minibuffers t
+          ivy-count-format "(%d/%d) "
+          )
+    (counsel-mode)
+    (global-set-key (kbd "C-s") 'swiper-isearch)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "M-y") 'counsel-yank-pop)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "<f2> j") 'counsel-set-variable)
+    (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+    (global-set-key (kbd "C-c v") 'ivy-push-view)
+    (global-set-key (kbd "C-c V") 'ivy-pop-view)
+    )
+#+end_src
+
+#+name: counsel-projectile
+#+begin_src elisp
+  (use-package counsel-projectile
+    :ensure t
+    :config
+    (counsel-projectile-mode)
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    )
+#+end_src
+
+#+name: company
+#+begin_src elisp
+  (use-package company
+    :ensure t
+    :diminish company-mode
+    :hook (after-init . global-company-mode)
+    :config
+    (add-to-list 'company-backends 'company-capf)
+    )
+#+end_src
+
+#+name: ivy-hydra
+#+begin_src elisp
+  (use-package ivy-hydra
+    :ensure t
+    )
+#+end_src
+
+#+name: which-key
+#+begin_src elisp
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-mode)
+    )
+#+end_src
+
+#+name: avy
+#+begin_src elisp
+  (use-package avy
+    :ensure t
+    :bind (
+    ("C-:" . avy-goto-char)
+    ("C-." . avy-goto-char-2))
+    )
 #+end_src
 
 * Org
 ** org
-#+begin_src elisp 
+#+begin_src elisp
   (use-package org
     :bind (
            ("C-c l" . org-store-link)
@@ -101,9 +185,16 @@
     :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :config
     (setq
+     org-directory "~/org/"
      org-agenda-compact-blocks t
      org-agenda-custom-commands
      '(
+       ("d" "Daily schedule"
+        ((agenda ""
+            ((org-agenda-span 'day)
+             (org-agenda-use-time-grid nil)
+             (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))))))
+
        ("h" "Agenda and home tasks"
         ((agenda "")
          (tags "INBOX" ((org-agenda-overriding-header "File")))
@@ -116,35 +207,30 @@
         )
        )
      org-agenda-dim-blocked-tasks nil
-     org-agenda-files '("/home/john/git/gtd")
+     org-agenda-files '(
+                        "~/org/gtd"
+                        "~/org/notes"
+                        "~/org/notes/daily"
+                        )
      org-agenda-tags-todo-honor-ignore-options t
      org-agenda-todo-ignore-scheduled 'all
      org-agenda-todo-ignore-deadlines 'all
      org-capture-templates
      '(
-       ("t" "Todo" entry (file "/home/john/git/gtd/inbox.org") "* TODO %i%?")
-       ("l" "Linked Todo" entry (file "/home/john/git/gtd/inbox.org")
+       ("t" "Todo" entry (file "~/org/gtd/inbox.org") "* TODO %i%?")
+       ("l" "Linked Todo" entry (file "~/org/gtd/inbox.org")
         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
-       ("n" "Note" entry (file "/home/john/git/gtd/inbox.org") "* %? :NOTE:\n%U\n")
-       ("m" "Meeting" entry (file "/home/john/git/gtd/inbox.org")
-        "* Meeting with %? :MEETING:\n%^T--%^T\n\n** Location: \n\n** Invitees:
-   - [ ] 
-   - [ ] 
-   - [ ] \n\n** Agenda:
-   - \n\n** Notes:
-   - "
-        )
+       ("n" "Note" entry (file "~/org/gtd/inbox.org") "* %? :NOTE:\n%U\n")
        )
-     org-default-notes-file "/home/john/git/gtd/inbox.org"
-     org-directory "/home/john/git/gtd"
+     org-default-notes-file "~/org/gtd/inbox.org"
      org-hide-emphasis-markers t
      org-log-done 'note
      org-log-into-drawer t
      org-outline-path-complete-in-steps nil
      org-refile-targets
      '(
-       ("/home/john/git/gtd/gtd.org" . (:maxlevel . 3))
-       ("/home/john/git/gtd/maxwell.org" . (:maxlevel . 3))
+       ("~/org/gtd/gtd.org" . (:maxlevel . 3))
+       ("~/org/gtd/maxwell.org" . (:maxlevel . 3))
        )
      org-refile-use-outline-path t
      org-startup-indented t
@@ -177,8 +263,9 @@
 #+end_src
 
 ** evil-org
-#+begin_src elisp 
+#+begin_src elisp
   (use-package evil-org
+    :ensure t
     :after org
     :hook (org-mode . (lambda () evil-org-mode))
     :config
@@ -188,7 +275,7 @@
 #+end_src
 
 ** org-babel
-#+begin_src elisp 
+#+begin_src elisp :tangle no 
   (org-babel-do-load-languages
    'org-babel-load-languages
    '(
@@ -202,24 +289,16 @@
   (setq org-confirm-babel-evaluate nil)
 #+end_src
 
-** variables
-#+begin_src elisp  :session
-  (setq
-     org_notes "/home/john/git/gtd/"
-     zot_bib "/home/john/git/bibliography/references.bib"
-     org-directory org_notes
-     deft-directory org_notes
-     org-roam-directory org_notes
-     )
-#+end_src
-
 ** deft
 #+begin_src elisp
   (use-package deft
+    :ensure t
     :bind ("<f8>" . deft)
     :commands deft
     :init
-    (setq deft-default-extension "org"
+    (setq deft-default-extension "~"
+          deft-directory "~/org/notes"
+          deft-recursive t
           ;; de-couples filename and note title:
           deft-use-filename-as-title nil
           deft-use-filter-string-for-filename t
@@ -235,158 +314,189 @@
     )
 #+end_src
 
-** helm-bibtex
-#+begin_src elisp
-  (setq
-   bibtex-completion-notes-path "/home/john/git/gtd/"
-   bibtex-completion-bibliography "/home/john/git/bibliography/references.bib"
-   bibtex-completion-pdf-field "file"
-   bibtex-completion-notes-template-multiple-files
-   (concat
-    "#+TITLE: ${title}\n"
-    "#+ROAM_KEY: cite:${=key=}\n"
-    "* TODO Read ${author-abbrev} (${year}) :NOTE:\n"
-    ":PROPERTIES:\n"
-    ":Custom_ID: ${=key=}\n"
-    ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
-    ":TITLE: ${title}\n"
-    ":AUTHOR: ${author}\n"
-    ":JOURNAL: ${journaltitle}\n"
-    ":DATE: ${date}\n"
-    ":YEAR: ${year}\n"
-    ":DOI: ${doi}\n"
-    ":URL: ${url}\n"
-    ":END:\n\n"
-    )
-   )
-#+end_src
-
-** zotxt
-#+begin_src elisp  :tangle no 
-  (use-package zotxt
-    :after org
-    ;; Activate org-zotxt-mode in org-mode buffers
-    :hook (org-mode . (lambda () org-zotxt-mode nil))
-    :config
-    (define-key org-mode-map (kbd "C-c \" \"") (lambda () (interactive)
-                                                 (org-zotxt-insert-reference-link '(4))))
-    )
-#+end_src
-
 ** org-ref
-#+begin_src elisp 
+#+begin_src elisp
   (use-package org-ref
+    :after org
+    :ensure t
     :demand t
     :config
     (setq
-           org-ref-completion-library 'org-ref-ivy-cite
-           org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-           org-ref-default-bibliography (list "/home/john/git/bibliography/references.bib")
-           org-ref-bibliography-notes "/home/john/git/gtd/bibnotes.org"
-           org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n"
-           org-ref-notes-directory "/home/john/git/gtd/"
-           org-ref-notes-function 'orb-edit-notes
+           org-ref-notes-directory "~org/notes/"
+           org-ref-default-bibliography (list "~/git/bibliography/references.bib")
+           org-ref-pdf-directory "~/git/bibliography/pdfs/"
       ))
+#+end_src
+
+** helm-bibtex
+#+begin_src elisp
+  (use-package helm-bibtex
+    :after org
+    :config
+    (setq
+     bibtex-completion-pdf-field "file"
+     ;; bibtex-completion-notes-path "~/org/notes/"
+     bibtex-completion-bibliography "~/git/bibliography/references.bib"
+     ;; bibtex-completion-library-path '("~/Zotero/")
+     )
+   )
+#+end_src
+
+** org-roam-bibtex
+#+begin_src elisp
+  (use-package org-roam-bibtex
+    :ensure t
+    :load-path "~/git/bibliography/references.bib" ;Modify with your own path
+    :hook (org-roam-mode . org-roam-bibtex-mode)
+    :bind (:map org-mode-map
+           (("C-c n a" . orb-note-actions))))
+  (setq orb-preformat-keywords   '("citekey" "title" "url" "file" "author-or-editor" "keywords"
+                                   "doi" "date" "journaltitle"))
+  (setq orb-templates
+        '(("n" "ref+noter" plain (function org-roam-capture--get-point)
+           ""
+           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+ROAM_TAGS:
+
+  - tags ::
+  - keywords :: ${keywords}\n
+  \* ${title}
+  :PROPERTIES:
+  :Custom_ID: ${citekey}
+  :DOI: ${doi}
+  :URL: ${url}
+  :DATE: ${date}
+  :JOURNAL: ${journaltitle}
+  :AUTHOR: ${author-or-editor}
+  :NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")
+  :NOTER_PAGE:
+  :END:")))
 #+end_src
 
 ** org-roam
 #+begin_src elisp
   (use-package org-roam
+    :ensure t
     :hook (after-init . org-roam-mode)
-    ;; :commands (org-roam-buffer-toggle-display
-    ;;            org-roam-find-file
-    ;;            org-roam-graph
-    ;;            org-roam-insert
-    ;;            org-roam-switch-to-buffer
-    ;;            org-roam-dailies-date
-    ;;            org-roam-dailies-today
-    ;;            org-roam-dailies-tomorrow
-    ;;            org-roam-dailies-yesterday)
     :custom
-    (org-roam-directory "/home/john/git/gtd/")
+    (org-roam-directory "~/org/notes/")
     :bind (:map org-roam-mode-map
                (("C-c n l" . org-roam)
                 ("C-c n f" . org-roam-find-file)
+                ("C-c n Y" . org-roam-dailies-capture-yesterday)
+                ("C-c n y" . org-roam-dailies-find-yesterday)
+                ("C-c n ," . org-roam-dailies-capture-today)
+                ("C-c n ." . org-roam-dailies-find-today)
+                ("C-c n D" . org-roam-dailies-capture-date)
+                ("C-c n d" . org-roam-dailies-find-date)
+                ("C-c n T" . org-roam-dailies-capture-tomorrow)
+                ("C-c n t" . org-roam-dailies-find-tomorrow)
                 ("C-c n g" . org-roam-graph))
                :map org-mode-map
                (("C-c n i" . org-roam-insert))
                (("C-c n I" . org-roam-insert-immediate)))
+    :config
+    (setq org-roam-capture-templates
+          '(
+            ("d" "default" plain (function org-roam--capture-get-point)
+             "%?"
+             :file-name "%<%Y%m%d%H%M%S>-${slug}"
+             :head "#+TITLE: ${title}\n"
+             :unnarrowed t)
+            ("p" "person" plain (function org-roam--capture-get-point)
+             "* [[roam:Interests]] %?"
+             :file-name "%<%Y%m%d%H%M%S>-${slug}"
+             :head "#+TITLE: ${title}\n\n"
+             :unnarrowed t)
+            )
+          )
+    (require 'org-roam-protocol)
+    (setq org-roam-capture-ref-templates
+          '(("r" "ref" plain (function org-roam-capture--get-point)
+             "- tags :: %?"
+             :file-name "${slug}"
+             :head "#+TITLE: ${title}\n#+DATE: %<%Y-%m-%d>\n#+ROAM_KEY: ${ref}\n#+CATEGORY: website\n\n"
+             :unnarrowed t)))
   )
 
   ;; Since the org module lazy loads org-protocol (waits until an org URL is
   ;; detected), we can safely chain `org-roam-protocol' to it.
   (use-package org-roam-protocol
-    :after org-protocol)
-
-#+end_src
-
-** org-roam-bibtex
-#+begin_src elisp :tangle no
-   (use-package org-roam-bibtex
-    :after (org-roam)
-    :hook (org-roam-mode . org-roam-bibtex-mode)
-    :config
-    (setq org-roam-bibtex-preformat-keywords
-     '("citekey" "title" "url" "file" "author" "keywords"))
-    (setq orb-templates
-          '(("r" "ref" plain (function org-roam-capture--get-point)
-             ""
-             :file-name "${slug}"
-             :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}
-
-  - tags ::
-  - keywords :: ${keywords}
-
-  \n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
-
-             :unnarrowed t))
-          )
+    :after org-protocol
+    :custom
+    (require 'org-protocl)
     )
+
 #+end_src
 
+** org-roam-server 
+#+begin_src elisp
+  (use-package org-roam-server
+    :ensure t
+    :config
+    (setq org-roam-server-host "127.0.0.1"
+          org-roam-server-port 8080
+          org-roam-server-authenticate nil
+          org-roam-server-export-inline-images t
+          org-roam-server-serve-files nil
+          org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+          org-roam-server-network-poll t
+          org-roam-server-network-arrows nil
+          org-roam-server-network-label-truncate t
+          org-roam-server-network-label-truncate-length 60
+          org-roam-server-network-label-wrap-length 20))
+#+end_src
+** org-roam-dailies
+#+begin_src elisp
+    (setq org-roam-dailies-directory "daily/")
+
+    (setq org-roam-dailies-capture-templates
+          '(
+            ("d" "default" entry
+             #'org-roam-capture--get-point
+             "* %?"
+             :file-name "daily/%<%Y-%m-%d>"
+             :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            ("r" "read" entry
+             #'org-roam-capture--get-point
+             "* %<%H:%M> Read: %? :READ:
+  - tags: [[roam:Read]] 
+  - refs:
+  \** Notes
+  - 
+  "
+             :file-name "daily/%<%Y-%m-%d>"
+             :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            ("m" "meeting" entry
+             #'org-roam-capture--get-point
+             "* %<%H:%M> Meeting: %? :MEETING:
+  - tags: [[roam:Meeting]] 
+  \** Attendees
+  - [ ]
+  \** Agenda
+  - 
+  \** Notes
+  - 
+  "
+             :file-name "daily/%<%Y-%m-%d>"
+             :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            )
+          )
+#+end_src
 ** org-noter
 #+begin_src elisp
   (use-package org-noter
+    :ensure t
     :after (:any org pdf-view)
-    :config
-    (setq
-     ;; The WM can handle splits
-     org-noter-notes-window-location 'other-frame
-     ;; Please stop opening frames
-     org-noter-always-create-frame nil
-     ;; I want to see the whole file
-     org-noter-hide-other nil
-     ;; Everything is relative to the main notes file
-     org-noter-notes-search-path (list org_notes)
-     )
     )
 #+end_src
 
-** templates
-#+begin_src  elisp :tangle no
-  ;; Actually start using templates
-  (after! org-capture
-    ;; Firefox and Chrome
-    (add-to-list 'org-capture-templates
-                 '("P" "Protocol" entry ; key, name, type
-                   (file+headline +org-capture-notes-file "Inbox") ; target
-                   "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"
-                   :prepend t ; properties
-                   :kill-buffer t))
-    (add-to-list 'org-capture-templates
-                 '("L" "Protocol Link" entry
-                   (file+headline +org-capture-notes-file "Inbox")
-                   "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n"
-                   :prepend t
-                   :kill-buffer t))
-  )
-#+end_src
 * Beancount
-#+begin_src elisp 
-  (use-package beancount-mode
+#+begin_src elisp
+  (use-package beancount
     :init
     (add-hook 'beancount-mode-hook #'outline-minor-mode)
-    ;; :load-path "/home/john/emacs.d/site-lisp/beancount-mode"
+    :load-path "~/.emacs.d/site-lisp/beancount-mode"
     :mode ("\\.beancount\\'" . beancount-mode)
     :general
     (:states 'normal
@@ -400,15 +510,16 @@
 #+end_src
 
 * Magit
-#+begin_src elisp 
+#+begin_src elisp
   (use-package magit
+    :ensure t
     :defer
     )
 #+end_src
 
 * Mu4e
 #+name: mu4e
-#+begin_src elisp 
+#+begin_src elisp
   (use-package mu4e
     :commands mu4e
     :init
@@ -440,7 +551,7 @@
      mu4e-completing-read-function 'ivy-completing-read
      mu4e-compose-format-flowed t
      mu4e-compose-in-new-frame t
-     mu4e-attachment-dir "/home/john/Downloads"
+     mu4e-attachment-dir "~/Downloads"
      mu4e-enable-mode-line t
      mu4e-flowed-encode-column 998
      mu4e-get-mail-command "mbsync -a"
@@ -496,7 +607,7 @@
                      (:maildir "/archive"                        :key ?A)
                      )
                   )
-                 (smtpmail-queue-dir . "/home/john/Maildir/lordsonline/queue/cur")
+                 (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
                  (smtpmail-smtp-user . "john@lordsonline.org")
                  (smtpmail-smtp-server . "smtp.gmail.com")
                  (smtpmail-smtp-service . 587)
@@ -536,7 +647,7 @@
                       (:maildir "/protonmail/Archive"   :key ?a)
                       )
                    )
-                 (smtpmail-queue-dir . "/home/john/Maildir/protonmail/queue/cur")
+                 (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
                  (smtpmail-smtp-user . "lordjd1@pm.me")
                  (smtpmail-smtp-server . "127.0.0.1")
                  (smtpmail-smtp-service . 1025)
@@ -548,8 +659,9 @@
 #+end_src
 
 #+name: org-msg
-#+begin_src elisp 
+#+begin_src elisp
   (use-package org-msg
+    :ensure t
     :after mu4e 
     :config
     (setq
@@ -565,141 +677,9 @@
     )
 #+end_src
 
-* Completions and Projects
-#+name: counsel
-#+begin_src elisp 
-  (use-package counsel
-    :config
-    (ivy-mode 1)
-    ;; (require 'ivy-hydra)
-    (setq ivy-use-virtual-buffers t
-          enable-recursive-minibuffers t
-          ivy-count-format "(%d/%d) "
-          )
-    (counsel-mode)
-    (global-set-key (kbd "C-s") 'swiper-isearch)
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    (global-set-key (kbd "M-y") 'counsel-yank-pop)
-    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-    (global-set-key (kbd "<f1> l") 'counsel-find-library)
-    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-    (global-set-key (kbd "<f2> j") 'counsel-set-variable)
-    (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-    (global-set-key (kbd "C-c v") 'ivy-push-view)
-    (global-set-key (kbd "C-c V") 'ivy-pop-view)
-    )
-#+end_src
-
-#+name: counsel-projectile
-#+begin_src elisp 
-  (use-package counsel-projectile
-    :config
-    (counsel-projectile-mode)
-    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-    )
-#+end_src
-
-#+name: company
-#+begin_src elisp 
-  (use-package company
-    :diminish company-mode
-    :config
-    (global-company-mode)
-    )
-#+end_src
-
-#+name: ivy-hydra
-#+begin_src elisp 
-  (use-package ivy-hydra
-    )
-#+end_src
-
-#+name: which-key
-#+begin_src elisp 
-  (use-package which-key
-    :config
-    (which-key-mode)
-    )
-#+end_src
-
-#+name: avy
-#+begin_src elisp 
-  (use-package avy
-    :bind (
-    ("C-:" . avy-goto-char)
-    ("C-." . avy-goto-char-2))
-    )
-#+end_src
-
-* Coding
-#+name: highlight-parentheses
-#+begin_src elisp 
-  (use-package highlight-parentheses
-    :config
-    (progn
-      (highlight-parentheses-mode)
-      (global-highlight-parentheses-mode))
-    )
-#+end_src
-
-* Latex
-#+name: auctex
-#+begin_src elisp 
-  (use-package tex
-    :straight auctex
-    :defer t
-    :config
-    (setq TeX-auto-save t
-          TeX-parse-self t)
-    (setq-default TeX-engine 'xetex)
-    )
-#+end_src
-
-#+name: moderncv
-#+begin_src elisp 
-  ;; (use-package general
-  ;; (use-package ox-moderncv
-  ;;   :straight (ox-moderncv :type git :host gitlab :repo "Titan-C/org-cv")
-  ;;   :init (require 'ox-moderncv)
-  ;;   )
-#+end_src
-
-* Python
-#+name: python
-#+begin_src elisp 
-  (use-package elpy
-    :init
-    (elpy-enable)
-    :config
-    (setq python-indent-offset 4)
-    (setenv "WORKON_HOME" "/home/john/src")
-    (setq python-shell-interpreter "jupyter"
-          python-shell-interpreter-args "console --simple-prompt"
-          python-shell-prompt-detect-failure-warning nil)
-    (add-to-list 'python-shell-completion-native-disabled-interpreters
-                 "jupyter")
-    )
-#+end_src
-
-#+name: ein
-#+begin_src elisp 
-  (use-package ein
-   ) 
-#+end_src
-
-* Yaml
-#+name: yaml
-#+begin_src elisp 
-  (use-package yaml-mode
-    )
-#+end_src
-
 * Dired
-#+name: diredc
-#+begin_src elisp 
+#+name: dired
+#+begin_src elisp
   (setq dired-listing-switches "-alh -v --group-directories-first"
         dired-auto-revert-buffer t  ; don't prompt to revert; just do it
         dired-dwim-target t  ; suggest a target for moving/copying intelligently
@@ -714,23 +694,26 @@
 #+end_src
 
 #+name: dired-rsync
-#+begin_src elisp 
+#+begin_src elisp
   (use-package dired-rsync
+    :ensure t
     :config
     (bind-key "C-c C-r" 'dired-rsync dired-mode-map)
     ) 
 #+end_src
 
 #+name: diredfl
-#+begin_src elisp 
+#+begin_src elisp
   (use-package diredfl
+    :ensure t
     :hook (dired-mode . diredfl-mode)
     ) 
 #+end_src
 
 #+name: diff-hl
-#+begin_src elisp 
+#+begin_src elisp
   (use-package diff-hl
+    :ensure t
     :hook (dired-mode . diff-hl-dired-mode-unless-remote)
     :hook (magit-post-refresh . diff-hl-magit-post-refresh)
     :config
@@ -739,34 +722,112 @@
     )
 #+end_src
 
+* Parentheses
+#+name: highlight-parentheses
+#+begin_src elisp
+  (use-package highlight-parentheses
+    :ensure t
+    :config
+    (progn
+      (highlight-parentheses-mode)
+      (global-highlight-parentheses-mode))
+    )
+#+end_src
+
+#+begin_src elisp
+  (use-package smartparens
+    :ensure t
+    :config
+    (smartparens-global-mode)
+    )
+#+end_src
+* Latex
+#+name: auctex
+#+begin_src elisp
+  (use-package auctex
+    :ensure t
+    :defer t
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t)
+    (setq-default TeX-engine 'xetex)
+    )
+#+end_src
+
+#+name: moderncv
+#+begin_src elisp :tangle no 
+  ;; (use-package general
+  ;; (use-package ox-moderncv
+  ;;   :straight (ox-moderncv :type git :host gitlab :repo "Titan-C/org-cv")
+  ;;   :init (require 'ox-moderncv)
+  ;;   )
+#+end_src
+
+* Python
+#+name: python
+#+begin_src elisp
+  (use-package elpy
+    :ensure t
+    :init
+    (elpy-enable)
+    :config
+    (setq python-indent-offset 4)
+    (setenv "WORKON_HOME" "~/src")
+    (setq python-shell-interpreter "jupyter"
+          python-shell-interpreter-args "console --simple-prompt"
+          python-shell-prompt-detect-failure-warning nil)
+    (add-to-list 'python-shell-completion-native-disabled-interpreters
+                 "jupyter")
+    )
+#+end_src
+
+#+name: ein
+#+begin_src elisp
+  (use-package ein
+    :ensure t
+   ) 
+#+end_src
+
+* Yaml
+#+name: yaml
+#+begin_src elisp
+  (use-package yaml-mode
+    :ensure t
+    )
+#+end_src
+
 * Terminals
 #+name: vterm
-#+begin_src elisp 
+#+begin_src elisp
   (use-package vterm
+    :ensure t
     ) 
 #+end_src
 
 * Attachments
 #+name: pdf-tools
-#+begin_src elisp 
-  ;; (use-package pdf-tools
-  ;;   :config
-  ;;   (pdf-loader-install)
-  ;;   ) 
+#+begin_src elisp
+  (use-package pdf-tools
+    :ensure t
+    :config
+    (pdf-loader-install)
+    ) 
 #+end_src
 
 * Statistics
 #+name: ess
-#+begin_src elisp 
+#+begin_src elisp
   (use-package ess
+    :ensure t
     :config
     (load "ess-autoloads")
     )
 #+end_src
 
 #+name: ess-smart-underscore
-#+begin_src elisp 
+#+begin_src elisp
   (use-package ess-smart-underscore
+    :ensure t
     )
 #+end_src
 
