@@ -918,9 +918,9 @@ Dynamic and fast agenda]].
 
 #+name: ess-smart-underscore
 #+begin_src elisp
-  (use-package ess-smart-underscore
-    :ensure t
-    )
+  ;; (use-package ess-smart-underscore
+  ;;   :ensure t
+  ;;   )
 #+end_src
 
 * Local Variables
