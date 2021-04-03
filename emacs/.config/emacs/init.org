@@ -517,6 +517,21 @@ Dynamic and fast agenda]].
              "* %?"
              :file-name "daily/%<%Y-%m-%d>"
              :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            ("j" "journal" entry
+             #'org-roam-capture--get-point
+             "* %<%H:%M> [[roam:Journal]] :JOURNAL:\n%?"
+             :file-name "daily/%<%Y-%m-%d>"
+             :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            ("s" "sleep" entry
+             #'org-roam-capture--get-point
+             "* %<%H:%M> [[roam:Sleep]] :SLEEP:
+  :PROPERTIES:
+  :DURATION: %?
+  :QUALITY: 
+  :FEELING: 
+  :END:"
+             :file-name "daily/%<%Y-%m-%d>"
+             :head "#+TITLE: %<%Y-%m-%d>\n\n")
             ("r" "read" entry
              #'org-roam-capture--get-point
              "* %<%H:%M> Read: %? :READ:
