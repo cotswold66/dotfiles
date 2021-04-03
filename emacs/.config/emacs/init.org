@@ -275,7 +275,7 @@
 #+end_src
 
 ** org-babel
-#+begin_src elisp :tangle no 
+#+begin_src elisp
   (org-babel-do-load-languages
    'org-babel-load-languages
    '(
