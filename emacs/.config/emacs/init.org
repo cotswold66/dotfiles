@@ -224,7 +224,7 @@
        )
      org-default-notes-file "~/org/gtd/inbox.org"
      org-hide-emphasis-markers t
-     org-log-done 'note
+     org-log-done 'time
      org-log-into-drawer t
      org-outline-path-complete-in-steps nil
      org-refile-targets
