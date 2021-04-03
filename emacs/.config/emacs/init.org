@@ -297,7 +297,7 @@
     :commands deft
     :init
     (setq deft-default-extension "~"
-          deft-directory "~/org/notes"
+          deft-directory "~/org/"
           deft-recursive t
           ;; de-couples filename and note title:
           deft-use-filename-as-title nil
@@ -322,7 +322,7 @@
     :demand t
     :config
     (setq
-           org-ref-notes-directory "~org/notes/"
+           org-ref-notes-directory "~org/"
            org-ref-default-bibliography (list "~/git/bibliography/references.bib")
            org-ref-pdf-directory "~/git/bibliography/pdfs/"
       ))
@@ -335,9 +335,7 @@
     :config
     (setq
      bibtex-completion-pdf-field "file"
-     ;; bibtex-completion-notes-path "~/org/notes/"
      bibtex-completion-bibliography "~/git/bibliography/references.bib"
-     ;; bibtex-completion-library-path '("~/Zotero/")
      )
    )
 #+end_src
@@ -379,7 +377,7 @@
     :ensure t
     :hook (after-init . org-roam-mode)
     :custom
-    (org-roam-directory "~/org/notes/")
+    (org-roam-directory "~/org/")
     :bind (:map org-roam-mode-map
                (("C-c n l" . org-roam)
                 ("C-c n f" . org-roam-find-file)
