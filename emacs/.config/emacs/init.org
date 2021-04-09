@@ -68,7 +68,7 @@
 
 * Evil
 #+name: evil
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package evil
     :ensure t
     :init
@@ -93,11 +93,11 @@
 #+end_src
 
 #+name: evil-collection
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package evil-collection
     :ensure t
     :after evil
-    :custom (evil-collection-setup-minibuffer t)
+    ;; :custom (evil-collection-setup-minibuffer t)
     :init
     (evil-collection-init)
     )
@@ -269,7 +269,7 @@
 #+end_src
 
 ** evil-org
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package evil-org
     :ensure t
     :after org
