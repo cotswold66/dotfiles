@@ -203,21 +203,19 @@
 
        ("h" "Agenda and home tasks"
         ((agenda "")
-         (tags "INBOX" ((org-agenda-overriding-header "File")))
-         (tags-todo "NEXT" ((org-agenda-overriding-header "Next")))
-         (tags-todo "-INBOX-NEXT-CANCELLED-DONE-WAITING-SOMETIME"
-                    ((org-agenda-overriding-header "Todo")))
-         (tags-todo "WAITING" ((org-agenda-overriding-header "Waiting")))
-         (tags-todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
+         (todo "NEXT" ((org-agenda-overriding-header "Next")))
+         (todo "TODO" ((org-agenda-overriding-header "Todo")))
+         (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
+         (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
          )
         )
        )
      org-agenda-dim-blocked-tasks nil
-     ;; org-agenda-files '(
-     ;;                    "~/org/gtd"
-     ;;                    "~/org/notes"
-     ;;                    "~/org/notes/daily"
-     ;;                    )
+     org-agenda-files '(
+                        "~/org/"
+                        "~/org/gtd/"
+                        "~/org/daily/"
+                        )
      org-agenda-tags-todo-honor-ignore-options t
      org-agenda-todo-ignore-scheduled 'all
      org-agenda-todo-ignore-deadlines 'all
@@ -252,16 +250,16 @@
        ("DONE" :foreground "forest green" :weight bold)
        ("CANCELLED" :foreground "forest green" :weight bold)
        )
-     org-todo-state-tags-triggers
-     '(
-       ("CANCELLED" ("WAITING") ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED" . t))
-       ("WAITING" ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED") ("WAITING" . t))
-       ("SOMETIME" ("NEXT") ("DONE") ("CANCELLED") ("WAITING") ("SOMETIME" . t))
-       ("" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
-       ("TODO" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
-       ("NEXT" ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED") ("NEXT" . t))
-       ("DONE" ("SOMETIME") ("NEXT") ("WAITING") ("CANCELLED") ("DONE" . t))
-       )
+     ;; org-todo-state-tags-triggers
+     ;; '(
+     ;;   ("CANCELLED" ("WAITING") ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED" . t))
+     ;;   ("WAITING" ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED") ("WAITING" . t))
+     ;;   ("SOMETIME" ("NEXT") ("DONE") ("CANCELLED") ("WAITING") ("SOMETIME" . t))
+     ;;   ("" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
+     ;;   ("TODO" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
+     ;;   ("NEXT" ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED") ("NEXT" . t))
+     ;;   ("DONE" ("SOMETIME") ("NEXT") ("WAITING") ("CANCELLED") ("DONE" . t))
+     ;;   )
      org-treat-S-cursor-todo-selection-as-state-change nil
      org-use-fast-todo-selection t
      )
