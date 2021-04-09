@@ -42,6 +42,12 @@
     )
 #+end_src
 
+#+begin_src elisp
+  (use-package doom-modeline
+    :ensure t
+    :hook (after-init . doom-modeline-mode))
+#+end_src
+
 #+name: auth-source-pass
 #+begin_src elisp
   (use-package auth-source-pass
