@@ -583,8 +583,6 @@ Dynamic and fast agenda]].
      "C-j" 'outline-next-visible-heading
      "C-k" 'outline-previous-visible-heading
                 )
-    :config
-    (add-hook 'beancount-mode-hook 'outline-minor-mode)
     )
 #+end_src
 
