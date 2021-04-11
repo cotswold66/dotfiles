@@ -195,12 +195,6 @@
      org-agenda-compact-blocks t
      org-agenda-custom-commands
      '(
-       ("d" "Daily schedule"
-        ((agenda ""
-            ((org-agenda-span 'day)
-             (org-agenda-use-time-grid nil)
-             (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))))))
-
        ("h" "Agenda and home tasks"
         ((agenda "")
          (todo "NEXT" ((org-agenda-overriding-header "Next")))
