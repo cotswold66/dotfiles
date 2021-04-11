@@ -217,6 +217,7 @@
      '(
        ("t" "Todo" entry (file "~/org/gtd/inbox.org") "* TODO %i%?")
         )
+     org-duration-format (quote h:mm)
      org-hide-emphasis-markers t
      org-log-done 'time
      org-log-into-drawer t
