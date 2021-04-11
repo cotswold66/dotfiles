@@ -216,11 +216,7 @@
      org-capture-templates
      '(
        ("t" "Todo" entry (file "~/org/gtd/inbox.org") "* TODO %i%?")
-       ("l" "Linked Todo" entry (file "~/org/gtd/inbox.org")
-        "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
-       ("n" "Note" entry (file "~/org/gtd/inbox.org") "* %? :NOTE:\n%U\n")
-       )
-     org-default-notes-file "~/org/gtd/inbox.org"
+        )
      org-hide-emphasis-markers t
      org-log-done 'time
      org-log-into-drawer t
