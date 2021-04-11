@@ -279,21 +279,19 @@
     :bind ("<f8>" . deft)
     :commands deft
     :init
-    (setq deft-default-extension "~"
-          deft-directory "~/org/"
-          deft-recursive t
-          ;; de-couples filename and note title:
-          deft-use-filename-as-title nil
-          deft-use-filter-string-for-filename t
-          ;; disable auto-save
-          deft-auto-save-interval -1.0
-          ;; converts the filter string into a readable file-name using kebab-case:
-          deft-file-naming-rules
-          '((noslash . "-")
-            (nospace . "-")
-            (case-fn . downcase)))
-    :config
-    (add-to-list 'deft-extensions "tex")
+    (setq
+     deft-directory "~/org/"
+     deft-recursive t
+     ;; de-couples filename and note title:
+     deft-use-filename-as-title nil
+     deft-use-filter-string-for-filename t
+     ;; disable auto-save
+     deft-auto-save-interval -1.0
+     ;; converts the filter string into a readable file-name using kebab-case:
+     deft-file-naming-rules
+     '((noslash . "-")
+       (nospace . "-")
+       (case-fn . downcase)))
     )
 #+end_src
 
