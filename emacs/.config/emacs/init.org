@@ -241,18 +241,6 @@
        ("DONE" :foreground "forest green" :weight bold)
        ("CANCELLED" :foreground "forest green" :weight bold)
        )
-     ;; org-todo-state-tags-triggers
-     ;; '(
-     ;;   ("CANCELLED" ("WAITING") ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED" . t))
-     ;;   ("WAITING" ("NEXT") ("SOMETIME") ("DONE") ("CANCELLED") ("WAITING" . t))
-     ;;   ("SOMETIME" ("NEXT") ("DONE") ("CANCELLED") ("WAITING") ("SOMETIME" . t))
-     ;;   ("" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
-     ;;   ("TODO" ("NEXT") ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED"))
-     ;;   ("NEXT" ("SOMETIME") ("DONE") ("WAITING") ("CANCELLED") ("NEXT" . t))
-     ;;   ("DONE" ("SOMETIME") ("NEXT") ("WAITING") ("CANCELLED") ("DONE" . t))
-     ;;   )
-     org-treat-S-cursor-todo-selection-as-state-change nil
-     org-use-fast-todo-selection t
      )
     )
 #+end_src
