@@ -262,6 +262,20 @@
     )
 #+end_src
 
+** org-babel
+#+begin_src elisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (R . t)
+     (python .t)
+     (shell .t)
+     (org . t)
+     )
+   )
+  (setq org-confirm-babel-evaluate nil)
+#+end_src
 * Beancount
 #+begin_src elisp
   (use-package beancount
