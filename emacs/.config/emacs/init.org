@@ -319,10 +319,6 @@
     ) 
 #+end_src
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 56d2f82e1e1892155eebc74194b1d73cadb714f8
 * Parentheses
 #+name: highlight-parentheses
 #+begin_src elisp
