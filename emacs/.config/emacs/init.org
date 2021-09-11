@@ -222,6 +222,7 @@
      org-agenda-files '(
                         "~/org/"
                         "~/org/gtd/"
+                        "~/org/daily/"
                         )
      org-agenda-tags-todo-honor-ignore-options t
      org-agenda-todo-ignore-scheduled 'all
