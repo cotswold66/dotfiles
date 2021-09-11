@@ -130,6 +130,9 @@
           enable-recursive-minibuffers t
           ivy-count-format "(%d/%d) "
           )
+    ;; order not necessary for searches
+    (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+
     (counsel-mode)
     (global-set-key (kbd "C-s") 'swiper-isearch)
     (global-set-key (kbd "M-x") 'counsel-M-x)
