@@ -27,6 +27,7 @@
   (put 'narrow-to-region 'disabled nil)
   (setq max-mini-window-height 0.5)
   (setq help-window-select t)
+  (setq-default fill-column 80)
   (add-to-list 'display-buffer-alist
            '("*Apropos*" display-buffer-same-window))
 #+end_src
@@ -72,6 +73,12 @@
     )
 #+end_src
 
+#+begin_src elisp
+  (use-package visual-fill-column
+    :ensure t
+    :hook (visual-line-mode . visual-fill-column-mode)
+    )
+#+end_src
 * Evil
 #+name: evil
 #+begin_src elisp
@@ -195,6 +202,7 @@
            ("C-c c" . org-capture)
            )
     :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
+    :hook (org-mode . visual-line-mode)
     :config
     (setq
      org-directory "~/org/"
