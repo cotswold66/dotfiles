@@ -230,6 +230,7 @@
      org-capture-templates
      '(
        ("t" "Todo" entry (file "~/org/gtd/inbox.org") "* TODO %i%?")
+       ("j" "Journal" entry (file "~/org/journal.org") "* %U\n%?" :unnarrowed t)
         )
      org-duration-format (quote h:mm)
      org-hide-emphasis-markers t
@@ -239,7 +240,7 @@
      org-refile-targets
      '(
        ("~/org/gtd/gtd.org" . (:maxlevel . 3))
-       ("~/org/gtd/maxwell.org" . (:maxlevel . 3))
+       ("~/org/journal.org" . (:maxlevel . 3))
        )
      org-refile-use-outline-path t
      org-startup-indented t
