@@ -31,6 +31,7 @@
   (add-to-list 'display-buffer-alist
            '("*Apropos*" display-buffer-same-window))
   (setq make-backup-files nil) ; prevent creation of backup files
+  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
 #+end_src
 
 #+begin_src elisp
@@ -435,9 +436,9 @@
       ))
 #+end_src
 
-** helm-bibtex
+** ivy-bibtex
 #+begin_src elisp
-  (use-package helm-bibtex
+  (use-package ivy-bibtex
     :ensure t
     :after org
     :config
