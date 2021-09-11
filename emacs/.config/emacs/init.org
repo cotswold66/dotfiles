@@ -334,27 +334,130 @@
   (use-package org-roam
     :ensure t
     :custom
-    (org-roam-directory (file-truename "~/org/roam/"))
-    :bind (("C-c n l" . org-roam-buffer-toggle)
+    (org-roam-directory (file-truename "~/org/"))
+    :bind (
+           ("C-c n l" . org-roam-buffer-toggle)
            ("C-c n f" . org-roam-node-find)
            ("C-c n g" . org-roam-graph)
            ("C-c n i" . org-roam-node-insert)
            ("C-c n c" . org-roam-capture)
+           ("C-c n o" . org-id-get-create)
+           ("C-c n t" . org-roam-tag-add)
+           ("C-c n a" . org-roam-alias-add)
+           ("C-c n r" . org-roam-ref-add)
            ;; Dailies
-           ("C-c n j" . org-roam-dailies-capture-today))
+           ("C-c n j" . org-roam-dailies-capture-today)
+           )
+    :hook
+    (org-roam-mode . visual-line-mode)
+    ;; (org-capture-mode . org-align-all-tags)
     :init
     (setq org-roam-v2-ack t)
-    (setq org-roam-dailies-directory "dailies/")
+    ;; (setq org-roam-dailies-directory "daily/")
     :config
+    (setq orb-preformat-keywords '("citekey" "title" "url" "file" "author-or-editor" "keywords" "doi" "date" "year" "journal" "journaltitle"))
+    (setq org-roam-capture-templates
+     '(
+       ("d" "default" plain "%?" 
+        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+        :unnarrowed t)
+       ("a" "article" plain "* Citation:\n* Notes:\n- "
+        :if-new (file+head "articles/${citekey}.org" "#+title: ${title}\n#+filetags: source_note:article\n")
+        :unnarrowed t)
+       ("m" "meeting" plain "* Attendees:\n* Agenda:\n* Notes:\n"
+        :if-new (file+head "meetings/%^{Enter meeting dat yyyymmddhhmm}-${slug}.org" "#+title: ${title}\n#+filetags: meeting\n")
+        :unnarrowed t)
+       ("p" "person" plain "* Interests:\n- \n* Notes:\n- %?" 
+        :if-new (file+head "people/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: person\n")
+        :unnarrowed t)
+      )
+    )
+    (setq org-roam-capture-ref-templates
+          '(("r" "ref" plain "%?"
+             :target (file+head "webpages/%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}\n#+filetags: source_note:webpage")
+             :unnarrowed t)))
     (org-roam-db-autosync-mode)
     ;; If using org-roam-protocol
     (require 'org-roam-protocol))
-  (add-to-list 'display-buffer-alist
+    (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
                  (display-buffer-in-direction)
                  (direction . right)
                  (window-width . 0.33)
                  (window-height . fit-window-to-buffer)))
+#+end_src
+** org-roam-dailies
+#+begin_src elisp
+    (setq org-roam-dailies-directory "daily/")
+    (setq org-roam-dailies-capture-templates
+          '(
+            ("d" "default" entry "* %<%H:%M> " :target
+             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n\n")
+             )
+            ("r" "read" entry
+             #'org-roam-capture--get-point
+             "* %<%H:%M> Read: %? :READ:
+  - tags: [[roam:Read]] 
+  - refs:
+  \** Notes
+  - 
+  "
+             :file-name "daily/%<%Y-%m-%d>"
+             :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            ("m" "meeting" entry
+             #'org-roam-capture--get-point
+             "* %<%H:%M> Meeting: %? :MEETING:
+  - tags: [[roam:Meeting]] 
+  \** Attendees
+  - [ ]
+  \** Agenda
+  - 
+  \** Notes
+  - 
+  "
+             :file-name "daily/%<%Y-%m-%d>"
+             :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            )
+          )
+#+end_src
+** org-ref
+#+begin_src elisp
+  (use-package org-ref
+    :after org
+    :ensure t
+    :demand t
+    :config
+    (setq
+           org-ref-notes-directory "~/org/"
+           org-ref-default-bibliography (list "~/git/bibliography/references.bib")
+           ;; org-ref-pdf-directory "~/git/bibliography/pdfs/"
+      ))
+#+end_src
+
+** helm-bibtex
+#+begin_src elisp
+  (use-package helm-bibtex
+    :ensure t
+    :after org
+    :config
+    (setq
+     bibtex-completion-pdf-field "file"
+     bibtex-completion-bibliography "~/git/bibliography/references.bib"
+     )
+   )
+#+end_src
+
+** org-roam-bibtex
+#+begin_src elisp
+    (use-package org-roam-bibtex
+      :ensure t
+      :after org-roam
+      :hook (org-roam-mode . org-roam-bibtex-mode)
+      :bind (:map org-mode-map
+             (("C-c n a" . orb-note-actions)))
+      :config
+      (require 'org-ref)
+  )
 #+end_src
 * Beancount
 #+begin_src elisp
