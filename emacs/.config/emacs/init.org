@@ -260,6 +260,48 @@
     )
 #+end_src
 
+** deft
+#+begin_src elisp
+  (use-package deft
+    :ensure t
+    :bind ("<f8>" . deft)
+    :commands deft
+    :init
+    (setq
+     deft-directory "~/org/"
+     deft-recursive t
+     ;; de-couples filename and note title:
+     deft-use-filename-as-title nil
+     deft-use-filter-string-for-filename t
+     ;; disable auto-save
+     deft-auto-save-interval -1.0
+     ;; converts the filter string into a readable file-name using kebab-case:
+     deft-file-naming-rules
+     '((noslash . "-")
+       (nospace . "-")
+       (case-fn . downcase)))
+    )
+      (defun cm/deft-parse-title (file contents)
+      "Parse the given FILE and CONTENTS and determine the title.
+    If `deft-use-filename-as-title' is nil, the title is taken to
+    be the first non-empty line of the FILE.  Else the base name of the FILE is
+    used as title."
+        (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+          (if begin
+              (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+            (deft-base-filename file))))
+
+      (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
+
+      (setq deft-strip-summary-regexp
+            (concat "\\("
+                    "[\n\t]" ;; blank
+                    "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+                    "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+                    "\\)"))
+
+#+end_src
+
 ** evil-org
 #+begin_src elisp
   (use-package evil-org
