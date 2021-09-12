@@ -150,6 +150,14 @@
     )
 #+end_src
 
+#+begin_src elisp
+  (use-package ivy-prescient
+    :ensure t
+    :config
+    (ivy-prescient-mode)
+    )
+#+end_src
+
 #+name: counsel-projectile
 #+begin_src elisp
   (use-package counsel-projectile
