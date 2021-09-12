@@ -514,6 +514,20 @@
         )
 #+end_src
 
+#+begin_src elisp
+  (use-package peep-dired
+    :ensure t
+    :config
+    (setq peep-dired-cleanup-on-disable t)
+    (evil-define-key 'normal peep-dired-mode-map (kbd "<SPC>") 'peep-dired-scroll-page-down
+                                               (kbd "C-<SPC>") 'peep-dired-scroll-page-up
+                                               (kbd "<backspace>") 'peep-dired-scroll-page-up
+                                               (kbd "j") 'peep-dired-next-file
+                                               (kbd "k") 'peep-dired-prev-file)
+    (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
+  )
+#+end_src
+
 #+name: dired-rsync
 #+begin_src elisp
   (use-package dired-rsync
