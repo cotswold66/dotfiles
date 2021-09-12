@@ -366,7 +366,7 @@
            )
     :hook
     (org-roam-mode . visual-line-mode)
-    ;; (org-capture-mode . org-align-all-tags)
+    (org-capture-mode . org-align-all-tags)
     :init
     (setq org-roam-v2-ack t)
     :config
