@@ -227,7 +227,8 @@
      org-agenda-files '(
                         "~/org/"
                         "~/org/gtd/"
-                        "~/org/daily/"
+                        "~/org/roam/"
+                        "~/org/roam/daily/"
                         )
      org-agenda-tags-todo-honor-ignore-options t
      org-agenda-todo-ignore-scheduled 'all
@@ -246,6 +247,7 @@
      '(
        ("~/org/gtd/gtd.org" . (:maxlevel . 3))
        ("~/org/journal.org" . (:maxlevel . 3))
+       ("~/org/roam/daily/" . (:maxlevel . 3))
        )
      org-refile-use-outline-path t
      org-startup-indented t
@@ -339,7 +341,7 @@
   (use-package org-roam
     :ensure t
     :custom
-    (org-roam-directory (file-truename "~/org/"))
+    (org-roam-directory (file-truename "~/org/roam"))
     :bind (
            ("C-c n l" . org-roam-buffer-toggle)
            ("C-c n f" . org-roam-node-find)
@@ -358,28 +360,27 @@
     ;; (org-capture-mode . org-align-all-tags)
     :init
     (setq org-roam-v2-ack t)
-    ;; (setq org-roam-dailies-directory "daily/")
     :config
     (setq orb-preformat-keywords '("citekey" "title" "url" "file" "author-or-editor" "keywords" "doi" "date" "year" "journal" "journaltitle"))
     (setq org-roam-capture-templates
      '(
        ("d" "default" plain "%?" 
-        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
         :unnarrowed t)
        ("a" "article" plain "* Citation:\n* Notes:\n- "
-        :if-new (file+head "articles/${citekey}.org" "#+title: ${title}\n#+filetags: source_note:article\n")
+        :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org" "#+title: ${title}\n#+filetags: source_note:article\n")
         :unnarrowed t)
        ("m" "meeting" plain "* Attendees:\n* Agenda:\n* Notes:\n"
-        :if-new (file+head "meetings/%^{Enter meeting dat yyyymmddhhmm}-${slug}.org" "#+title: ${title}\n#+filetags: meeting\n")
+        :target (file+head "%^{Enter meeting dat yyyymmddhhmm}-${slug}.org" "#+title: ${title}\n#+filetags: meeting\n")
         :unnarrowed t)
        ("p" "person" plain "* Interests:\n- \n* Notes:\n- %?" 
-        :if-new (file+head "people/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: person\n")
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: person\n")
         :unnarrowed t)
       )
     )
     (setq org-roam-capture-ref-templates
           '(("r" "ref" plain "%?"
-             :target (file+head "webpages/%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}\n#+filetags: source_note:webpage")
+             :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: source_note:webpage")
              :unnarrowed t)))
     (org-roam-db-autosync-mode)
     ;; If using org-roam-protocol
@@ -396,7 +397,7 @@
     (setq org-roam-dailies-directory "daily/")
     (setq org-roam-dailies-capture-templates
           '(
-            ("d" "default" entry "* %<%H:%M> " :target
+            ("d" "default" entry "* %<%H:%M> %?" :target
              (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n\n")
              )
             ("r" "read" entry
