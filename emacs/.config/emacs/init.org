@@ -267,6 +267,7 @@
      org-startup-indented t
      org-tag-alist '(("@work" . ?w) ("@home" . ?h))
      org-tags-exclude-from-inheritance '("meeting")
+     org-time-stamp-rounding-minutes (quote (0 6))
      org-todo-keywords
      '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
      org-todo-keyword-faces
