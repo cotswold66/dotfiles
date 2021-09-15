@@ -392,9 +392,6 @@
        ("a" "article" plain "* Citation:\n* Notes:\n- "
         :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org" "#+title: ${title}\n#+filetags: source_note:article\n")
         :unnarrowed t)
-       ("m" "meeting" plain "* Attendees:\n* Agenda:\n* Notes:\n"
-        :target (file+head "%^{Enter meeting dat yyyymmddhhmm}-${slug}.org" "#+title: ${title}\n#+filetags: meeting\n")
-        :unnarrowed t)
        ("p" "person" plain "* Interests:\n- \n* Notes:\n- %?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: person\n")
         :unnarrowed t)
@@ -420,33 +417,22 @@
     (setq org-roam-dailies-capture-templates
           '(
             ("d" "default" entry "* %<%H:%M> %?" :target
-             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n\n")
+             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
              )
-            ("r" "read" entry
-             #'org-roam-capture--get-point
-             "* %<%H:%M> Read: %? :READ:
-  - tags: [[roam:Read]] 
-  - refs:
-  \** Notes
-  - 
-  "
-             :file-name "daily/%<%Y-%m-%d>"
-             :head "#+TITLE: %<%Y-%m-%d>\n\n")
-            ("m" "meeting" entry
-             #'org-roam-capture--get-point
-             "* %<%H:%M> Meeting: %? :MEETING:
-  - tags: [[roam:Meeting]] 
-  \** Attendees
-  - [ ]
-  \** Agenda
-  - 
-  \** Notes
-  - 
-  "
-             :file-name "daily/%<%Y-%m-%d>"
-             :head "#+TITLE: %<%Y-%m-%d>\n\n")
+            ("f" "fleeting note" entry "* %<%H:%M> %?  :fleeting_note:\n" :target
+             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+             )
+            ("j" "journal" entry "* %<%H:%M>  :journal:\n%?" :target
+             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+             )
+            ("t" "task" entry "* %<%H:%M> %?  :task:" :target
+             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+             )
+            ("m" "meeting" entry "* %<%H:%M> Meeting with %?  :meeting:\n*Attendees:*\n- \n*Agenda:*\n- \n*Notes:*\n- " :target
+             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
             )
           )
+      )
 #+end_src
 ** org-ref
 #+begin_src elisp
