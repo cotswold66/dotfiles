@@ -205,6 +205,12 @@
     )
 #+end_src
 
+#+name: wgrep
+#+begin_src elisp
+  (use-package wgrep
+    :ensure t
+    )
+#+end_src
 * Org
 ** org
 #+begin_src elisp
