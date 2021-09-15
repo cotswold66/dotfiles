@@ -325,6 +325,12 @@
 
 #+end_src
 
+** helm-org-rifle
+#+begin_src elisp
+  (use-package helm-org-rifle
+    :ensure t
+    )
+#+end_src
 ** evil-org
 #+begin_src elisp
   (use-package evil-org
