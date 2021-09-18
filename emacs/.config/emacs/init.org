@@ -105,6 +105,7 @@
   (use-package evil
     :demand
     :init
+    (setq evil-want-C-i-jump nil)
     (setq evil-emacs-state-cursor '("red" box)
 	  evil-normal-state-cursor '("green" box)
 	  evil-visual-state-cursor '("orange" box)
