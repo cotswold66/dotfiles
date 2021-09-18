@@ -3,19 +3,37 @@
 #+PROPERTY: header-args :results silent :tangle "/var/home/john/.emacs.d/init.el"
 
 * Package Management
-#+begin_src elisp
-  (server-start)
-  (require 'package)
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (package-initialize)
-  (eval-when-compile (require 'use-package))
-#+end_src
+
+** Boot strap straight package manager
 
 #+begin_src elisp
-  (use-package general
-    :ensure t
-    )
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 #+end_src
+
+** Disable package.el
+
+#+begin_src elisp
+  (setq package-enable-at-startup nil)
+#+end_src
+
+** Install use-package and ensure straight uses by default
+
+#+begin_src elisp
+  (straight-use-package 'use-package)
+  (setq straight-use-package-by-default t)
+#+end_src
+
 * Themes and Early inits
 #+begin_src elisp
   (setq line-spacing 0.1)
@@ -29,26 +47,39 @@
   (setq help-window-select t)
   ;; (setq-default fill-column 80)
   (add-to-list 'display-buffer-alist
-           '("*Apropos*" display-buffer-same-window))
+	   '("*Apropos*" display-buffer-same-window))
   (setq make-backup-files nil) ; prevent creation of backup files
-  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
+  ;; (global-set-key (kbd "C-c n b") 'ivy-bibtex)
 #+end_src
 
+** Install all-the-icons
+   
+#+name: all-the-icons
 #+begin_src elisp
-  (use-package doom-themes
-    :ensure t
-    :config
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-    (load-theme 'doom-one t)
+  (use-package all-the-icons
     )
 #+end_src
 
+** Install doom-themes
+   
+#+begin_src elisp
+  (use-package doom-themes
+    :config
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+	  doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-one t)
+    ;; Corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config)
+    )
+#+end_src
+
+** Install doom-modeline
+   
 #+begin_src elisp
   (use-package doom-modeline
-    :ensure t
-    :hook (after-init . doom-modeline-mode))
+    :hook (after-init . doom-modeline-mode)
+    )
 #+end_src
 
 #+name: auth-source-pass
@@ -63,21 +94,8 @@
     )
 #+end_src
 
-#+name: undo-tree
-#+begin_src elisp :tangle no 
-  (use-package undo-tree
-    )
-#+end_src
-
-#+name: all-the-icons
-#+begin_src elisp
-  (use-package all-the-icons
-    )
-#+end_src
-
 #+begin_src elisp
   (use-package visual-fill-column
-    :ensure t
     :hook (visual-line-mode . visual-fill-column-mode)
     )
 #+end_src
@@ -85,147 +103,70 @@
 #+name: evil
 #+begin_src elisp
   (use-package evil
-    :ensure t
+    :demand
     :init
     (setq evil-emacs-state-cursor '("red" box)
-          evil-normal-state-cursor '("green" box)
-          evil-visual-state-cursor '("orange" box)
-          evil-insert-state-cursor '("red" bar)
-          evil-replace-state-cursor '("red" bar)
-          evil-operator-state-cursor '("red" hollow)
-          evil-want-keybinding nil
-          )
+	  evil-normal-state-cursor '("green" box)
+	  evil-visual-state-cursor '("orange" box)
+	  evil-insert-state-cursor '("red" bar)
+	  evil-replace-state-cursor '("red" bar)
+	  evil-operator-state-cursor '("red" hollow)
+	  evil-want-keybinding nil
+	  )
+    ;; Make movement keys work like they should
+    :bind (:map evil-normal-state-map
+		([remap evil-next-line] . evil-next-visual-line)
+		([remap evil-previous-line] . evil-previous-visual-line)
+	   :map evil-motion-state-map
+		([remap evil-next-line] . evil-next-visual-line)
+		([remap evil-previous-line] . evil-previous-visual-line)
+	 )
     :config
     (evil-mode 1)
     )
-    ;; Make movement keys work like they should
-    (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-    (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-    (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-    (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-                                          ; Make horizontal movement cross lines
+    ; Make horizontal movement cross lines
     (setq-default evil-cross-lines t)
 #+end_src
 
 #+name: evil-collection
 #+begin_src elisp
   (use-package evil-collection
-    :ensure t
     :after evil
-    ;; :custom (evil-collection-setup-minibuffer t)
-    :init
+    :config
     (evil-collection-init)
     )
 #+end_src
 
 * Completions and Projects
-:PROPERTIES:
-:header-args: :tangle no
-:END:
 
-#+property: :tangle no
-#+name: counsel
-#+begin_src elisp
-  (use-package counsel
-    :ensure t
-    :config
-    (ivy-mode 1)
-    ;; (require 'ivy-hydra)
-    (setq ivy-use-virtual-buffers t
-          enable-recursive-minibuffers t
-          ivy-count-format "(%d/%d) "
-          )
-    ;; order not necessary for searches
-    (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-
-    (counsel-mode)
-    (global-set-key (kbd "C-s") 'swiper-isearch)
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    (global-set-key (kbd "M-y") 'counsel-yank-pop)
-    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-    (global-set-key (kbd "<f1> l") 'counsel-find-library)
-    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-    (global-set-key (kbd "<f2> j") 'counsel-set-variable)
-    (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-    (global-set-key (kbd "C-c v") 'ivy-push-view)
-    (global-set-key (kbd "C-c V") 'ivy-pop-view)
-    )
-#+end_src
-
-#+begin_src elisp
-  (use-package ivy-prescient
-    :ensure t
-    :config
-    (ivy-prescient-mode)
-    )
-#+end_src
-
-#+name: counsel-projectile
-#+begin_src elisp
-  (use-package counsel-projectile
-    :ensure t
-    :config
-    (counsel-projectile-mode)
-    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-    )
-#+end_src
 
 #+name: company
 #+begin_src elisp
   (use-package company
-    :ensure t
     :diminish company-mode
     :hook (after-init . global-company-mode)
+    ;; :config
+    ;; (add-to-list 'company-backends 'company-capf)
+    )
+#+end_src
+
+
+#+begin_src elisp
+  (use-package projectile
+    :diminish projectile-mode
+    :init
+    (projectile-mode +1) 
+    :bind (:map projectile-mode-map
+		;; ("s-p" . projectile-command-map)
+		("C-c p" . projectile-command-map)
+		)
     :config
-    (add-to-list 'company-backends 'company-capf)
+    (setq projectile-project-search-path '("~/org/", ("~/git/" . 1)))
     )
-#+end_src
-
-#+name: ivy-hydra
-#+begin_src elisp
-  (use-package ivy-hydra
-    :ensure t
-    )
-#+end_src
-
-#+name: which-key
-#+begin_src elisp
-  (use-package which-key
-    :ensure t
-    :config
-    (which-key-mode)
-    )
-#+end_src
-
-#+name: avy
-#+begin_src elisp :tangle no
-  (use-package avy
-    :ensure t
-    :bind (
-    ("C-:" . avy-goto-char)
-    ("C-." . avy-goto-char-2))
-    )
-#+end_src
-
-#+name: wgrep
-#+begin_src elisp
-  (use-package wgrep
-    :ensure t
-    )
-#+end_src
-* Completions and Projects
-
-#+begin_src elisp
-  (use-package project
-    :ensure t)
 #+end_src
 
 #+begin_src elisp
   (use-package selectrum
-    :ensure t
     :init
     (selectrum-mode +1)
     )
@@ -233,7 +174,6 @@
 
 #+begin_src elisp
   (use-package orderless
-    :ensure t
     :custom (completion-styles '(orderless))
     :config
     (setq orderless-component-separator "[ &]")
@@ -246,57 +186,35 @@
     
 #+end_src
 
-#+name: company
-#+begin_src elisp
-  (use-package company
-    :ensure t
-    :diminish company-mode
-    :hook (after-init . global-company-mode)
-    :config
-    (add-to-list 'company-backends 'company-capf)
-    )
-#+end_src
-
-
 #+name: which-key
 #+begin_src elisp
   (use-package which-key
-    :ensure t
-    :config
+    :init
     (which-key-mode)
     )
 #+end_src
 
 #+begin_src elisp
   (use-package marginalia
-    :ensure t
     :config
     (marginalia-mode))
 
   (use-package embark
-    :ensure t
-
     :bind
     (("C-." . embark-act)         ;; pick some comfortable binding
      ("C-;" . embark-dwim)        ;; good alternative: M-.
      ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
-
     :init
-
     ;; Optionally replace the key help with a completing-read interface
     (setq prefix-help-command #'embark-prefix-help-command)
-
     :config
-
     ;; Hide the mode line of the Embark live/completions buffers
     (add-to-list 'display-buffer-alist
                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                    nil
                    (window-parameters (mode-line-format . none)))))
-
   ;; Consult users will also want the embark-consult package.
   (use-package embark-consult
-    :ensure t
     :after (embark consult)
     :demand t ; only necessary if you have the hook below
     ;; if you want to have consult previews as you move around an
@@ -429,7 +347,6 @@
 #+name: wgrep
 #+begin_src elisp
   (use-package wgrep
-    :ensure t
     )
 #+end_src
 * Org
@@ -509,7 +426,6 @@
 ** deft
 #+begin_src elisp
   (use-package deft
-    :ensure t
     :bind ("<f8>" . deft)
     :commands deft
     :hook
@@ -553,7 +469,7 @@
 #+end_src
 
 ** helm-org-rifle
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package helm-org-rifle
     :ensure t
     )
@@ -561,7 +477,6 @@
 ** evil-org
 #+begin_src elisp
   (use-package evil-org
-    :ensure t
     :after org
     :hook (org-mode . (lambda () evil-org-mode))
     :config
@@ -588,29 +503,28 @@
 ** org-roam
 #+begin_src elisp
   (use-package org-roam
-    :ensure t
+    :after org
     :custom
     (org-roam-directory (file-truename "~/org/roam"))
-    :bind (
-           ("C-c n l" . org-roam-buffer-toggle)
-           ("C-c n f" . org-roam-node-find)
-           ("C-c n g" . org-roam-graph)
-           ("C-c n i" . org-roam-node-insert)
-           ("C-c n c" . org-roam-capture)
-           ("C-c n o" . org-id-get-create)
-           ("C-c n t" . org-roam-tag-add)
-           ("C-c n r" . org-roam-ref-add)
-           ;; Dailies
-           ("C-c n j" . org-roam-dailies-capture-today)
-           ("C-c n d" . org-roam-dailies-capture-date)
-           )
+    :bind
+    ("C-c n l" . org-roam-buffer-toggle)
+    ("C-c n f" . org-roam-node-find)
+    ("C-c n g" . org-roam-graph)
+    ("C-c n i" . org-roam-node-insert)
+    ("C-c n c" . org-roam-capture)
+    ("C-c n o" . org-id-get-create)
+    ("C-c n t" . org-roam-tag-add)
+    ("C-c n r" . org-roam-ref-add)
+    ;; Dailies
+    ("C-c n j" . org-roam-dailies-capture-today)
+    ("C-c n d" . org-roam-dailies-capture-date)
     :hook
     (org-roam-mode . visual-line-mode)
     (org-capture-mode . org-align-all-tags)
     :init
     (setq org-roam-v2-ack t)
+    (org-roam-db-autosync-mode)
     :config
-    (setq orb-preformat-keywords '("citekey" "title" "url" "file" "author-or-editor" "keywords" "doi" "date" "year" "journal" "journaltitle"))
     (setq org-roam-capture-templates
      '(
        ("d" "default" plain "%?" 
@@ -628,7 +542,6 @@
           '(("r" "ref" plain "%?"
              :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :source:\n")
              :unnarrowed t)))
-    (org-roam-db-autosync-mode)
     ;; If using org-roam-protocol
     (require 'org-roam-protocol))
     (add-to-list 'display-buffer-alist
@@ -664,23 +577,19 @@
 ** org-ref
 #+begin_src elisp
   (use-package org-ref
-    :after org
-    :ensure t
-    :demand t
-    :config
+    :init
     (setq
-           org-ref-notes-directory "~/org/"
+           org-ref-notes-function 'orb-org-ref-edit
+           ;; org-ref-notes-directory "~/org/"
            org-ref-default-bibliography (list "~/git/bibliography/references.bib")
            ;; org-ref-pdf-directory "~/git/bibliography/pdfs/"
       ))
 #+end_src
 
-** ivy-bibtex
+** helm-bibtex
 #+begin_src elisp
-  (use-package ivy-bibtex
-    :ensure t
-    :after org
-    :config
+  (use-package helm-bibtex
+    :init
     (setq
      bibtex-completion-pdf-field "file"
      bibtex-completion-bibliography "~/git/bibliography/references.bib"
@@ -691,35 +600,36 @@
 ** org-roam-bibtex
 #+begin_src elisp
     (use-package org-roam-bibtex
-      :ensure t
-      :after org-roam
-      :hook (org-roam-mode . org-roam-bibtex-mode)
+      :init
+      (org-roam-bibtex-mode)
+      (setq orb-preformat-keywords '("citekey" "title" "url" "file" "author-or-editor" "keywords" "doi" "date" "year" "journal" "journaltitle"))
+      ;; :hook (org-roam-mode . org-roam-bibtex-mode)
       :bind (:map org-mode-map
              (("C-c n a" . orb-note-actions)))
-      :config
-      (require 'org-ref)
   )
 #+end_src
 * Beancount
 #+begin_src elisp
   (use-package beancount
-    :init
-    (add-hook 'beancount-mode-hook #'outline-minor-mode)
-    :load-path "~/.emacs.d/site-lisp/beancount-mode"
+    :straight (beancount
+               :type git
+               :host github
+               :repo "beancount/beancount-mode")
     :mode ("\\.beancount\\'" . beancount-mode)
-    :general
-    (:states 'normal
-     :keymaps 'beancount-mode-map
-     "C-j" 'outline-next-visible-heading
-     "C-k" 'outline-previous-visible-heading
-                )
+    :hook (beancount-mode . outline-minor-mode)
+    ;; :init
+    ;; (add-hook 'beancount-mode-hook #'outline-minor-mode)
+    ;; :load-path "~/.emacs.d/site-lisp/beancount-mode"
+    :bind (:map beancount-mode-map
+                ("C-j" . outline-next-visible-heading)
+                ("C-k" . outline-previous-visible-heading)
+         )
     )
 #+end_src
 
 * Magit
 #+begin_src elisp
   (use-package magit
-    :ensure t
     :defer
     )
 #+end_src
@@ -742,7 +652,6 @@
 
 #+begin_src elisp
   (use-package peep-dired
-    :ensure t
     :config
     (setq peep-dired-cleanup-on-disable t)
     (evil-define-key 'normal peep-dired-mode-map (kbd "<SPC>") 'peep-dired-scroll-page-down
@@ -757,7 +666,6 @@
 #+name: dired-rsync
 #+begin_src elisp
   (use-package dired-rsync
-    :ensure t
     :config
     (bind-key "C-c C-r" 'dired-rsync dired-mode-map)
     ) 
@@ -766,7 +674,6 @@
 #+name: diredfl
 #+begin_src elisp
   (use-package diredfl
-    :ensure t
     :hook (dired-mode . diredfl-mode)
     ) 
 #+end_src
@@ -775,7 +682,6 @@
 #+name: highlight-parentheses
 #+begin_src elisp
   (use-package highlight-parentheses
-    :ensure t
     :config
     (progn
       (highlight-parentheses-mode)
@@ -785,14 +691,13 @@
 
 #+begin_src elisp
   (use-package smartparens
-    :ensure t
     :config
     (smartparens-global-mode)
     )
 #+end_src
 * Latex
 #+name: auctex
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package auctex
     :ensure t
     :defer t
@@ -816,7 +721,6 @@
 #+name: python
 #+begin_src elisp
   (use-package elpy
-    :ensure t
     :init
     (elpy-enable)
     :config
@@ -831,7 +735,7 @@
 #+end_src
 
 #+name: ein
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package ein
     :ensure t
    ) 
@@ -840,17 +744,13 @@
 * Yaml
 #+name: yaml
 #+begin_src elisp
-  (use-package yaml-mode
-    :ensure t
-    )
+  (use-package yaml-mode)
 #+end_src
 
 * Terminals
 #+name: vterm
 #+begin_src elisp
-  (use-package vterm
-    :ensure t
-    ) 
+  (use-package vterm) 
 #+end_src
 
 * Local Variables
