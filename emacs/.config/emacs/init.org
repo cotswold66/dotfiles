@@ -534,8 +534,11 @@
        ("a" "article" plain "* Citation:\n* Notes:\n- "
         :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org" "#+title: ${title}\n#+filetags: :source:\n")
         :unnarrowed t)
-       ("p" "person" plain "* Interests:\n- \n* Notes:\n- %?" 
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :person:\n")
+       ("c" "company" plain "%?" 
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :company:\n- date :: %U\n")
+        :unnarrowed t)
+       ("p" "person" plain "%?" 
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :person:\n- date :: %U\n- company :: \n- dob :: \n- interest :: \n")
         :unnarrowed t)
       )
     )
@@ -560,16 +563,16 @@
             ("d" "default" entry "* %<%H:%M> %?" :target
              (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
              )
-            ("f" "fleeting note" entry "* %<%H:%M> %?  :fleeting_note:\n" :target
+            ("f" "fleeting note" entry "* %?  :fleeting:\n- date :: %U\n" :target
              (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
              )
-            ("j" "journal" entry "* %<%H:%M>  :journal:\n%?" :target
+            ("j" "journal" entry "* Journal  :journal:\n- date :: %U\n%?" :target
              (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
              )
-            ("t" "task" entry "* %<%H:%M> %?  :task:" :target
+            ("t" "task" entry "* %?  :task:\n- date :: %U\n" :target
              (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
              )
-            ("m" "meeting" entry "* %<%H:%M> Meeting with %?  :meeting:\n*Attendees:*\n- \n*Agenda:*\n- \n*Notes:*\n- " :target
+            ("m" "meeting" entry "* %?  :meeting:\n- date :: %U\n- attendee :: John Lord\n- company :: \n- attendee :: \n- agenda :: \n\n" :target
              (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
             )
           )
