@@ -580,7 +580,7 @@
     (setq org-roam-dailies-directory "daily/")
     (setq org-roam-dailies-capture-templates
           '(
-            ("d" "default" entry "* %<%H:%M> %?" :target
+            ("d" "default" entry "* %?\n- date :: %U\n" :target
              (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
              )
             ("f" "fleeting note" entry "* %?  :fleeting:\n- date :: %U\n" :target
