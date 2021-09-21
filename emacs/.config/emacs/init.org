@@ -140,14 +140,11 @@
 
 * Completions and Projects
 
-
 #+name: company
 #+begin_src elisp
   (use-package company
     :diminish company-mode
     :hook (after-init . global-company-mode)
-    ;; :config
-    ;; (add-to-list 'company-backends 'company-capf)
     )
 #+end_src
 
