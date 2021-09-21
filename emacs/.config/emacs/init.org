@@ -196,7 +196,9 @@
   (use-package marginalia
     :config
     (marginalia-mode))
+#+end_src
 
+#+begin_src elisp
   (use-package embark
     :bind
     (("C-." . embark-act)         ;; pick some comfortable binding
@@ -211,6 +213,9 @@
                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                    nil
                    (window-parameters (mode-line-format . none)))))
+#+end_src
+
+#+begin_src elisp
   ;; Consult users will also want the embark-consult package.
   (use-package embark-consult
     :after (embark consult)
