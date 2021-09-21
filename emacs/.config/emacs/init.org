@@ -355,75 +355,79 @@
 * Org
 ** org
 #+begin_src elisp
-    (use-package org
-      :bind (
-             ("C-c l" . org-store-link)
-             ("C-c a" . org-agenda)
-             ("C-c c" . org-capture)
-             )
-      :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
-      :hook
-      (org-mode . (lambda () (set-fill-column 80)))
-      (org-mode . visual-line-mode)
-      :config
-      (setq
-       org-directory "~/org/"
-       org-agenda-compact-blocks t
-       org-agenda-custom-commands
-       '(
-         ("h" "Agenda and home tasks"
-          ((agenda "")
-           (todo "NEXT" ((org-agenda-overriding-header "Next")))
-           (todo "TODO" ((org-agenda-overriding-header "Todo")))
-           (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
-           (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
+  (use-package org
+    :bind (
+           ("C-c l" . org-store-link)
+           ("C-c a" . org-agenda)
+           ("C-c c" . org-capture)
            )
-          )
+    :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
+    :hook
+    (org-mode . (lambda () (set-fill-column 80)))
+    (org-mode . visual-line-mode)
+    :config
+    (setq
+     org-directory "~/org/"
+     org-agenda-compact-blocks t
+     org-agenda-custom-commands
+     '(
+       ("h" "Agenda and home tasks"
+        ((agenda "")
+         (todo "NEXT" ((org-agenda-overriding-header "Next")))
+         (todo "TODO" ((org-agenda-overriding-header "Todo")))
+         (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
+         (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
          )
-       org-agenda-dim-blocked-tasks nil
-       org-agenda-files '(
-                          "~/org/"
-                          "~/org/gtd/"
-                          "~/org/roam/"
-                          "~/org/roam/daily/"
-                          )
-       org-agenda-tags-todo-honor-ignore-options t
-       org-agenda-todo-ignore-scheduled 'all
-       org-agenda-todo-ignore-deadlines 'all
-       org-capture-templates
-       '(
-         ("t" "Todo" entry (file "~/org/gtd/inbox.org") "* TODO %i%?")
-         ("j" "Journal" entry (file "~/org/journal.org") "* %U\n%?" :unnarrowed t)
-          )
-       org-duration-format (quote h:mm)
-       org-hide-emphasis-markers t
-       org-log-done 'time
-       org-log-into-drawer t
-       org-outline-path-complete-in-steps nil
-       org-refile-targets
-       '(
-         ("~/org/gtd/gtd.org" . (:maxlevel . 3))
-         ("~/org/journal.org" . (:maxlevel . 3))
-         ("~/org/roam/daily/" . (:maxlevel . 3))
-         )
-       org-refile-use-outline-path t
-       org-startup-indented t
-       org-tag-alist '(("@work" . ?w) ("@home" . ?h))
-       ;; org-tags-exclude-from-inheritance '("meeting")
-       org-time-stamp-rounding-minutes (quote (0 6))
-       org-todo-keywords
-       '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
-       org-todo-keyword-faces
-       '(
-         ("TODO" :foreground "red" :weight bold)
-         ("NEXT" :foreground "light blue" :weight bold)
-         ("WAITING" :foreground "orange" :weight bold)
-         ("SOMETIME" :foreground "magenta" :weight bold)
-         ("DONE" :foreground "forest green" :weight bold)
-         ("CANCELLED" :foreground "forest green" :weight bold)
-         )
+        )
        )
-      )
+     org-agenda-dim-blocked-tasks nil
+     ;; org-agenda-files '(
+     ;;                    "~/org/"
+     ;;                    "~/org/gtd/"
+     ;;                    "~/org/roam/"
+     ;;                    "~/org/roam/daily/"
+     ;;                    )
+     org-agenda-tags-todo-honor-ignore-options t
+     org-agenda-todo-ignore-scheduled 'all
+     org-agenda-todo-ignore-deadlines 'all
+     ;; org-capture-templates
+     ;; '(
+     ;;   ("t" "Todo" entry (file "~/org/gtd/inbox.org") "* TODO %i%?")
+     ;;    )
+     org-duration-format (quote h:mm)
+     org-hide-emphasis-markers t
+     org-log-done 'time
+     org-log-into-drawer t
+     org-outline-path-complete-in-steps nil
+     org-refile-targets
+     '(
+       ;; ("~/org/gtd/gtd.org" . (:maxlevel . 3))
+       ;; ("~/org/journal.org" . (:maxlevel . 3))
+       ("~/org/roam/daily/" . (:maxlevel . 3))
+       )
+     org-refile-use-outline-path t
+     org-startup-indented t
+     org-tag-alist '(("@work" . ?w) ("@home" . ?h))
+     ;; org-time-stamp-rounding-minutes (quote (0 6))
+     org-todo-keywords
+     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
+     org-todo-keyword-faces
+     '(
+       ("TODO" :foreground "red" :weight bold)
+       ("NEXT" :foreground "light blue" :weight bold)
+       ("WAITING" :foreground "orange" :weight bold)
+       ("SOMETIME" :foreground "magenta" :weight bold)
+       ("DONE" :foreground "forest green" :weight bold)
+       ("CANCELLED" :foreground "forest green" :weight bold)
+       )
+     ;; tasks tagged with 'project' are included in agenda
+     org-todo-state-tags-triggers
+     '(
+       (todo ("project" . t))
+       (done ("project"))
+       )
+     )
+    )
 #+end_src
 
 ** deft
@@ -533,8 +537,8 @@
        ("d" "default" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
         :unnarrowed t)
-       ("a" "article" plain "* Citation:\n* Notes:\n- "
-        :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org" "#+title: ${title}\n#+filetags: :source:\n")
+       ("a" "article" plain "%?"
+        :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org" "#+title: ${title}\n#+filetags: :source:\n- date :: %U\n- author :: ${author-or-editor}\n- journal :: ${journal}\n- year :: ${year}\n- doi :: ${doi}\n\n")
         :unnarrowed t)
        ("c" "company" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :company:\n- date :: %U\n")
@@ -546,7 +550,7 @@
     )
     (setq org-roam-capture-ref-templates
           '(("r" "ref" plain "%?"
-             :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :source:\n")
+             :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :source:\n- date :: %U\n- author :: ${author-or-editor}\n- journal :: ${journal}\n- year :: ${year}\n\n")
              :unnarrowed t)))
     ;; If using org-roam-protocol
     (require 'org-roam-protocol))
@@ -593,6 +597,35 @@
             )
           )
       )
+#+end_src
+** org functions
+#+begin_src elisp
+  (defun vulpea-buffer-p ()
+    "Return non-nil if the currently visited buffer is a note."
+    (and buffer-file-name
+         (string-prefix-p
+          (expand-file-name (file-name-as-directory org-roam-directory))
+          (file-name-directory buffer-file-name))))
+  
+  (defun vulpea-project-files ()
+      "Return a list of note files containing 'project' tag." ;
+      (seq-uniq
+       (seq-map
+        #'car
+        (org-roam-db-query
+         [:select [nodes:file]
+          :from tags
+          :left-join nodes
+          :on (= tags:node-id nodes:id)
+          :where (like tag (quote "%\"project\"%"))
+          ]))))
+  
+  (defun vulpea-agenda-files-update (&rest _)
+    "Update the value of `org-agenda-files'."
+    (setq org-agenda-files (vulpea-project-files)))
+  
+  (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
+  (advice-add 'org-dblock-update :before #'vulpea-agenda-files-update)
 #+end_src
 ** org-ref
 #+begin_src elisp
