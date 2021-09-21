@@ -562,19 +562,6 @@
                  (window-height . fit-window-to-buffer)))
 #+end_src
 
-** vulpea
-#+begin_src elisp :tangle no
-  (use-package vulpea
-    :straight (vulpea
-               :type git
-               :host github
-               :repo "d12frosted/vulpea")
-    ;; hook into org-roam-db-autosync-mode you wish to enable
-    ;; persistence of meta values (see respective section in README to
-    ;; find out what meta means)
-    :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
-#+end_src
-
 ** org-roam-dailies
 #+begin_src elisp
     (setq org-roam-dailies-directory "daily/")
