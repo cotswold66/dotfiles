@@ -46,9 +46,8 @@
   (setq max-mini-window-height 0.5)
   (global-display-line-numbers-mode t)
   (setq help-window-select t)
-  ;; (setq-default fill-column 80)
   (add-to-list 'display-buffer-alist
-	   '("*Apropos*" display-buffer-same-window))
+           '("*Apropos*" display-buffer-same-window))
   (setq make-backup-files nil) ; prevent creation of backup files
   ;; (global-set-key (kbd "C-c n b") 'ivy-bibtex)
 #+end_src
@@ -364,7 +363,7 @@
            )
     :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :hook
-    (org-mode . (lambda () (set-fill-column 80)))
+    ;; (org-mode . (lambda () (set-fill-column 80)))
     (org-mode . visual-line-mode)
     :config
     (setq
