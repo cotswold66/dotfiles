@@ -102,26 +102,26 @@
 * Evil
 #+name: evil
 #+begin_src elisp
-  (use-package evil
+  (use-package evil 
     :demand
     :init
     (setq evil-want-C-i-jump nil)
     (setq evil-emacs-state-cursor '("red" box)
-	  evil-normal-state-cursor '("green" box)
-	  evil-visual-state-cursor '("orange" box)
-	  evil-insert-state-cursor '("red" bar)
-	  evil-replace-state-cursor '("red" bar)
-	  evil-operator-state-cursor '("red" hollow)
-	  evil-want-keybinding nil
-	  )
+          evil-normal-state-cursor '("green" box)
+          evil-visual-state-cursor '("orange" box)
+          evil-insert-state-cursor '("red" bar)
+          evil-replace-state-cursor '("red" bar)
+          evil-operator-state-cursor '("red" hollow)
+          evil-want-keybinding nil
+          )
     ;; Make movement keys work like they should
     :bind (:map evil-normal-state-map
-		([remap evil-next-line] . evil-next-visual-line)
-		([remap evil-previous-line] . evil-previous-visual-line)
-	   :map evil-motion-state-map
-		([remap evil-next-line] . evil-next-visual-line)
-		([remap evil-previous-line] . evil-previous-visual-line)
-	 )
+                ([remap evil-next-line] . evil-next-visual-line)
+                ([remap evil-previous-line] . evil-previous-visual-line)
+           :map evil-motion-state-map
+                ([remap evil-next-line] . evil-next-visual-line)
+                ([remap evil-previous-line] . evil-previous-visual-line)
+         )
     :config
     (evil-mode 1)
     )
@@ -408,7 +408,7 @@
      org-refile-use-outline-path t
      org-startup-indented t
      org-tag-alist '(("@work" . ?w) ("@home" . ?h))
-     ;; org-time-stamp-rounding-minutes (quote (0 6))
+     org-time-stamp-rounding-minutes (quote (0 6))
      org-todo-keywords
      '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
      org-todo-keyword-faces
