@@ -1,6 +1,7 @@
 #+TITLE: Emacs config file in org format
 #+AUTHOR: John Lord
 #+PROPERTY: header-args :results silent :tangle "/var/home/john/.emacs.d/init.el"
+#+STARTUP: overview
 
 * Package Management
 
@@ -35,16 +36,16 @@
 #+end_src
 
 * Themes and Early inits
+** Global
 #+begin_src elisp
-  (setq line-spacing 0.1)
-  (menu-bar-mode 1)
+  (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
+  (setq delete-by-moving-to-trash t)
   (setq inhibit-startup-screen t)
   (setq initial-scratch-message "")
   (put 'narrow-to-region 'disabled nil)
   (setq max-mini-window-height 0.5)
-  (global-display-line-numbers-mode t)
   (setq help-window-select t)
   (add-to-list 'display-buffer-alist
            '("*Apropos*" display-buffer-same-window))
@@ -64,10 +65,10 @@
    
 #+begin_src elisp
   (use-package doom-themes
+    :custom
+    (doom-themes-enable-bold t)
+    (doom-themes-enable-italic t)
     :config
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-	  doom-themes-enable-italic t) ; if nil, italics is universally disabled
     (load-theme 'doom-one t)
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config)
@@ -78,25 +79,30 @@
    
 #+begin_src elisp
   (use-package doom-modeline
-    :hook (after-init . doom-modeline-mode)
+    :hook
+    (after-init . doom-modeline-mode)
     )
 #+end_src
 
+** Auth-Source-Pass
 #+name: auth-source-pass
 #+begin_src elisp
   (use-package auth-source-pass
+    :defer t
+    :custom
+    (auth-source-debug t)
+    (auth-source-do-cache nil)
+    (auth-sources '(password-store))
     :config
     (auth-source-pass-enable)
-    (setq auth-source-debug t
-          auth-source-do-cache nil
-          auth-sources '(password-store)
-          )
     )
 #+end_src
 
+** Visual Fill Column
 #+begin_src elisp
   (use-package visual-fill-column
-    :hook (visual-line-mode . visual-fill-column-mode)
+    :hook
+    (visual-line-mode . visual-fill-column-mode)
     )
 #+end_src
 * Evil
@@ -105,16 +111,17 @@
   (use-package evil 
     :demand
     :init
-    (setq evil-want-C-i-jump nil)
     (setq evil-emacs-state-cursor '("red" box)
           evil-normal-state-cursor '("green" box)
           evil-visual-state-cursor '("orange" box)
           evil-insert-state-cursor '("red" bar)
           evil-replace-state-cursor '("red" bar)
           evil-operator-state-cursor '("red" hollow)
-          evil-want-keybinding nil
           )
-    ;; Make movement keys work like they should
+    :custom
+    (evil-want-C-i-jump nil)
+    (evil-cross-lines t)
+    (evil-want-keybinding nil)
     :bind (:map evil-normal-state-map
                 ([remap evil-next-line] . evil-next-visual-line)
                 ([remap evil-previous-line] . evil-previous-visual-line)
@@ -125,8 +132,6 @@
     :config
     (evil-mode 1)
     )
-    ; Make horizontal movement cross lines
-    (setq-default evil-cross-lines t)
 #+end_src
 
 #+name: evil-collection
@@ -139,52 +144,66 @@
 #+end_src
 
 * Completions and Projects
-
-#+name: company
+** Company
 #+begin_src elisp
   (use-package company
-    :diminish company-mode
-    :hook (after-init . global-company-mode)
+    :diminish t
+    :hook
+    (after-init . global-company-mode)
     )
 #+end_src
 
-
+** Projectile
 #+begin_src elisp
   (use-package projectile
-    :diminish projectile-mode
+    :diminish t
     :init
-    (projectile-mode +1) 
-    :bind (:map projectile-mode-map
-		;; ("s-p" . projectile-command-map)
-		("C-c p" . projectile-command-map)
-		)
-    :config
-    (setq projectile-project-search-path '("~/org/", ("~/git/" . 1)))
-    )
+    (projectile-mode) 
+    :bind
+    (:map projectile-mode-map
+          ("C-c p" . projectile-command-map)
+          )
+    :custom
+    (projectile-project-search-path
+     '(
+       "~/org/"
+       ("~/git/" . 1)
+       ("~/Analysis/" . 1)
+       ))
+   )
 #+end_src
 
-#+begin_src elisp
+** Selectrum
+#+begin_src elisp :tangle no
   (use-package selectrum
     :init
     (selectrum-mode +1)
     )
 #+end_src
 
+** Vertico
 #+begin_src elisp
-  (use-package orderless
-    :custom (completion-styles '(orderless))
-    :config
-    (setq orderless-component-separator "[ &]")
-   ) 
-  (defun just-one-face (fn &rest args)
-    (let ((orderless-match-faces [completions-common-part]))
-      (apply fn args)))
-
-  (advice-add 'company-capf--candidates :around #'just-one-face)
-    
+  (use-package vertico
+    :init
+    (vertico-mode)
+    )
 #+end_src
 
-#+name: which-key
+** Orderless
+#+begin_src elisp
+  (use-package orderless
+    :custom
+    (completion-styles '(orderless))
+    (orderless-component-separator "[ &]")
+    :config
+    (defun just-one-face (fn &rest args)
+      (let ((orderless-match-faces [completions-common-part]))
+        (apply fn args)))
+    (advice-add 'company-capf--candidates :around #'just-one-face)
+    )
+#+end_src
+
+** Which Key
 #+begin_src elisp
   (use-package which-key
     :init
@@ -192,18 +211,24 @@
     )
 #+end_src
 
+** Marginalia
 #+begin_src elisp
   (use-package marginalia
-    :config
-    (marginalia-mode))
+    :bind
+    (:map minibuffer-local-map
+          ("M-A" . marginalia-cycle))
+    :init
+    (marginalia-mode)
+    )
 #+end_src
 
+** Embark
 #+begin_src elisp
   (use-package embark
     :bind
-    (("C-." . embark-act)         ;; pick some comfortable binding
-     ("C-;" . embark-dwim)        ;; good alternative: M-.
-     ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+    ("C-." . embark-act)         ;; pick some comfortable binding
+    ("C-;" . embark-dwim)        ;; good alternative: M-.
+    ("C-h B" . embark-bindings) ;; alternative for `describe-bindings'
     :init
     ;; Optionally replace the key help with a completing-read interface
     (setq prefix-help-command #'embark-prefix-help-command)
@@ -215,75 +240,56 @@
                    (window-parameters (mode-line-format . none)))))
 #+end_src
 
-#+begin_src elisp
-  ;; Consult users will also want the embark-consult package.
-  (use-package embark-consult
-    :after (embark consult)
-    :demand t ; only necessary if you have the hook below
-    ;; if you want to have consult previews as you move around an
-    ;; auto-updating embark collect buffer
-    :hook
-    (embark-collect-mode . consult-preview-at-point-mode))
-#+end_src
-
+** Consult
 #+begin_src elisp
   ;; Example configuration for Consult
   (use-package consult
-    ;; Replace bindings. Lazily loaded due by `use-package'.
-    :bind (;; C-c bindings (mode-specific-map)
-           ("C-c h" . consult-history)
-           ("C-c m" . consult-mode-command)
-           ("C-c b" . consult-bookmark)
-           ("C-c k" . consult-kmacro)
-           ;; C-x bindings (ctl-x-map)
-           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-           ;; Custom M-# bindings for fast register access
-           ("M-#" . consult-register-load)
-           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-           ("C-M-#" . consult-register)
-           ;; Other custom bindings
-           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-           ("<help> a" . consult-apropos)            ;; orig. apropos-command
-           ;; M-g bindings (goto-map)
-           ("M-g e" . consult-compile-error)
-           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-           ("M-g g" . consult-goto-line)             ;; orig. goto-line
-           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-           ("M-g m" . consult-mark)
-           ("M-g k" . consult-global-mark)
-           ("M-g i" . consult-imenu)
-           ("M-g I" . consult-imenu-multi)
-           ;; M-s bindings (search-map)
-           ("M-s f" . consult-find)
-           ("M-s F" . consult-locate)
-           ("M-s g" . consult-grep)
-           ("M-s G" . consult-git-grep)
-           ("M-s r" . consult-ripgrep)
-           ("M-s l" . consult-line)
-           ("M-s L" . consult-line-multi)
-           ("M-s m" . consult-multi-occur)
-           ("M-s k" . consult-keep-lines)
-           ("M-s u" . consult-focus-lines)
-           ;; Isearch integration
-           ("M-s e" . consult-isearch)
-           :map isearch-mode-map
-           ("M-e" . consult-isearch)                 ;; orig. isearch-edit-string
-           ("M-s e" . consult-isearch)               ;; orig. isearch-edit-string
-           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-           ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
-  
-    ;; Enable automatic preview at point in the *Completions* buffer.
-    ;; This is relevant when you use the default completion UI,
-    ;; and not necessary for Vertico, Selectrum, etc.
-    :hook (completion-list-mode . consult-preview-at-point-mode)
-  
-    ;; The :init configuration is always executed (Not lazy)
+    :bind
+    ("C-c h" . consult-history)
+    ("C-c m" . consult-mode-command)
+    ("C-c b" . consult-bookmark)
+    ("C-c k" . consult-kmacro)
+    ;; C-x bindings (ctl-x-map)
+    ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+    ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+    ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+    ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+    ;; Custom M-# bindings for fast register access
+    ("M-#" . consult-register-load)
+    ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+    ("C-M-#" . consult-register)
+    ;; Other custom bindings
+    ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+    ("<help> a" . consult-apropos)            ;; orig. apropos-command
+    ;; M-g bindings (goto-map)
+    ("M-g e" . consult-compile-error)
+    ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+    ("M-g g" . consult-goto-line)             ;; orig. goto-line
+    ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+    ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+    ("M-g m" . consult-mark)
+    ("M-g k" . consult-global-mark)
+    ("M-g i" . consult-imenu)
+    ("M-g I" . consult-imenu-multi)
+    ;; M-s bindings (search-map)
+    ("M-s f" . consult-find)
+    ("M-s F" . consult-locate)
+    ("M-s g" . consult-grep)
+    ("M-s G" . consult-git-grep)
+    ("M-s r" . consult-ripgrep)
+    ("M-s l" . consult-line)
+    ("M-s L" . consult-line-multi)
+    ("M-s m" . consult-multi-occur)
+    ("M-s k" . consult-keep-lines)
+    ("M-s u" . consult-focus-lines)
+    ;; Isearch integration
+    ("M-s e" . consult-isearch)
+    (:map isearch-mode-map
+     ("M-e" . consult-isearch)                 ;; orig. isearch-edit-string
+     ("M-s e" . consult-isearch)               ;; orig. isearch-edit-string
+     ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+     ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
     :init
-  
     ;; Optionally configure the register formatting. This improves the register
     ;; preview for `consult-register', `consult-register-load',
     ;; `consult-register-store' and the Emacs built-ins.
@@ -300,54 +306,27 @@
     ;; Use Consult to select xref locations with preview
     (setq xref-show-xrefs-function #'consult-xref
           xref-show-definitions-function #'consult-xref)
-  
-    ;; Configure other variables and modes in the :config section,
-    ;; after lazily loading the package.
     :config
-  
-    ;; Optionally configure preview. The default value
-    ;; is 'any, such that any key triggers the preview.
-    ;; (setq consult-preview-key 'any)
-    ;; (setq consult-preview-key (kbd "M-."))
-    ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-    ;; For some commands and buffer sources it is useful to configure the
-    ;; :preview-key on a per-command basis using the `consult-customize' macro.
-    (consult-customize
-     consult-theme
-     :preview-key '(:debounce 0.2 any)
-     ;; consult-ripgrep consult-git-grep consult-grep
-     ;; consult-bookmark consult-recent-file consult-xref
-     ;; consult--source-file consult--source-project-file consult--source-bookmark
-     ;; :preview-key (kbd "M-.")
-      )
-  
-    ;; Optionally configure the narrowing key.
-    ;; Both < and C-+ work reasonably well.
     (setq consult-narrow-key "<") ;; (kbd "C-+")
-  
-    ;; Optionally make narrowing help available in the minibuffer.
-    ;; You may want to use `embark-prefix-help-command' or which-key instead.
-    ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
-  
-    ;; Optionally configure a function which returns the project root directory.
-    ;; There are multiple reasonable alternatives to chose from.
-    ;;;; 1. project.el (project-roots)
-    ;; (setq consult-project-root-function
-    ;;       (lambda ()
-    ;;         (when-let (project (project-current))
-    ;;           (car (project-roots project)))))
-    ;;;; 2. projectile.el (projectile-project-root)
     (autoload 'projectile-project-root "projectile")
     (setq consult-project-root-function #'projectile-project-root)
-    ;;;; 3. vc.el (vc-root-dir)
-    ;; (setq consult-project-root-function #'vc-root-dir)
-    ;;;; 4. locate-dominating-file
-    ;; (setq consult-project-root-function (lambda () (locate-dominating-file "." ".git")))
   )
 #+end_src
 
 
-#+name: wgrep
+** Embark Consult
+#+begin_src elisp
+  ;; Consult users will also want the embark-consult package.
+  (use-package embark-consult
+    :after (embark consult)
+    :demand t ; only necessary if you have the hook below
+    ;; if you want to have consult previews as you move around an
+    ;; auto-updating embark collect buffer
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+** Wgrep
 #+begin_src elisp
   (use-package wgrep
     )
@@ -356,62 +335,76 @@
 ** org
 #+begin_src elisp
   (use-package org
-    :bind (
-           ("C-c l" . org-store-link)
-           ("C-c a" . org-agenda)
-           ("C-c c" . org-capture)
-           )
-    :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
+    :init
+    (defun vulpea-buffer-p ()
+      "Return non-nil if the currently visited buffer is a note."
+      (and buffer-file-name
+         (string-prefix-p
+          (expand-file-name (file-name-as-directory org-roam-directory))
+          (file-name-directory buffer-file-name))))
+    (defun vulpea-project-files ()
+      "Return a list of note files containing 'project' tag." ;
+      (seq-uniq
+       (seq-map
+        #'car
+        (org-roam-db-query
+         [:select [nodes:file]
+          :from tags
+          :left-join nodes
+          :on (= tags:node-id nodes:id)
+          :where (like tag (quote "%\"project\"%"))
+          ]))))
+    (defun vulpea-agenda-files-update (&rest _)
+      "Update the value of `org-agenda-files'."
+      (setq org-agenda-files (vulpea-project-files)))
+    (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
+    (advice-add 'org-dblock-update :before #'vulpea-agenda-files-update)
+    :bind 
+    ("C-c l" . org-store-link)
+    ("C-c a" . org-agenda)
+    ("C-c c" . org-capture)
+    :mode
+    ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :hook
     ;; (org-mode . (lambda () (set-fill-column 80)))
     (org-mode . visual-line-mode)
-    :config
-    (setq
-     org-directory "~/org/"
-     org-agenda-compact-blocks t
-     org-agenda-custom-commands
-     '(
-       ("h" "Agenda and home tasks"
+    :custom
+    (org-directory "~/org/")
+    (org-agenda-compact-blocks t)
+    (org-agenda-custom-commands
+     '(("h" "Agenda and home tasks"
         ((agenda "")
          (todo "NEXT" ((org-agenda-overriding-header "Next")))
          (todo "TODO" ((org-agenda-overriding-header "Todo")))
          (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
          (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
-         )
-        )
+         ))
        )
-     org-agenda-dim-blocked-tasks nil
-     ;; org-agenda-files '(
-     ;;                    "~/org/"
-     ;;                    "~/org/gtd/"
-     ;;                    "~/org/roam/"
-     ;;                    "~/org/roam/daily/"
-     ;;                    )
-     org-agenda-tags-todo-honor-ignore-options t
-     org-agenda-todo-ignore-scheduled 'all
-     org-agenda-todo-ignore-deadlines 'all
-     ;; org-capture-templates
-     ;; '(
-     ;;   ("t" "Todo" entry (file "~/org/gtd/inbox.org") "* TODO %i%?")
-     ;;    )
-     org-duration-format (quote h:mm)
-     org-hide-emphasis-markers t
-     org-log-done 'time
-     org-log-into-drawer t
-     org-outline-path-complete-in-steps nil
-     org-refile-targets
+      )
+    (org-agenda-dim-blocked-tasks nil)
+    (org-agenda-tags-todo-honor-ignore-options t)
+    (org-agenda-todo-ignore-scheduled 'all)
+    (org-agenda-todo-ignore-deadlines 'all)
+    (org-duration-format (quote h:mm))
+    (org-hide-emphasis-markers t)
+    (org-log-done 'time)
+    (org-log-into-drawer t)
+    (org-outline-path-complete-in-steps nil)
+    (org-refile-targets
      '(
-       ;; ("~/org/gtd/gtd.org" . (:maxlevel . 3))
-       ;; ("~/org/journal.org" . (:maxlevel . 3))
        ("~/org/roam/daily/" . (:maxlevel . 3))
-       )
-     org-refile-use-outline-path t
-     org-startup-indented t
-     org-tag-alist '(("@work" . ?w) ("@home" . ?h))
-     org-time-stamp-rounding-minutes (quote (0 6))
-     org-todo-keywords
-     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)"))
-     org-todo-keyword-faces
+       ))
+    (org-refile-use-outline-path t)
+    (org-startup-indented t)
+    (org-tag-alist
+     '(
+       ("@work" . ?w)
+       ("@home" . ?h)
+       ))
+    (org-time-stamp-rounding-minutes (quote (0 1)))
+    (org-todo-keywords
+     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)")))
+    (org-todo-keyword-faces
      '(
        ("TODO" :foreground "red" :weight bold)
        ("NEXT" :foreground "light blue" :weight bold)
@@ -419,14 +412,13 @@
        ("SOMETIME" :foreground "magenta" :weight bold)
        ("DONE" :foreground "forest green" :weight bold)
        ("CANCELLED" :foreground "forest green" :weight bold)
-       )
+       ))
      ;; tasks tagged with 'project' are included in agenda
-     org-todo-state-tags-triggers
+    (org-todo-state-tags-triggers
      '(
        (todo ("project" . t))
        (done ("project"))
-       )
-     )
+       ))
     )
 #+end_src
 
@@ -437,55 +429,45 @@
     :commands deft
     :hook
     (deft-mode . (lambda () (set-fill-column 200)))
-    :init
-    (setq
-     deft-directory "~/org/"
-     deft-recursive t
-     ;; de-couples filename and note title:
-     deft-use-filename-as-title nil
-     deft-use-filter-string-for-filename t
-     ;; disable auto-save
-     deft-auto-save-interval -1.0
-     ;; converts the filter string into a readable file-name using kebab-case:
-     deft-file-naming-rules
-     '((noslash . "-")
+    :custom
+    (deft-directory "~/org/")
+    (deft-recursive t)
+    (deft-use-filename-as-title nil)
+    (deft-use-filter-string-for-filename t)
+    (deft-auto-save-interval -1.0)
+    (deft-file-naming-rules
+     '(
+       (noslash . "-")
        (nospace . "-")
-       (case-fn . downcase)))
+       (case-fn . downcase)
+       ))
+    (deft-strip-summary-regexp
+      (concat "\\("
+              "[\n\t]" ;; blank
+              "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+              "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+              "\\)"))
     :config
-    ;; (setq deft-window-width 120)
+    (defun cm/deft-parse-title (file contents)
+      (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+        (if begin
+            (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+          (deft-base-filename file)))
+      )
+    (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
     )
-      (defun cm/deft-parse-title (file contents)
-      "Parse the given FILE and CONTENTS and determine the title.
-    If `deft-use-filename-as-title' is nil, the title is taken to
-    be the first non-empty line of the FILE.  Else the base name of the FILE is
-    used as title."
-        (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
-          (if begin
-              (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
-            (deft-base-filename file))))
-
-      (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
-
-      (setq deft-strip-summary-regexp
-            (concat "\\("
-                    "[\n\t]" ;; blank
-                    "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
-                    "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
-                    "\\)"))
-
 #+end_src
 
 ** helm-org-rifle
 #+begin_src elisp :tangle no
-  (use-package helm-org-rifle
-    :ensure t
-    )
+  (use-package helm-org-rifle)
 #+end_src
 ** evil-org
 #+begin_src elisp
   (use-package evil-org
     :after org
-    :hook (org-mode . (lambda () evil-org-mode))
+    :hook
+    (org-mode . (lambda () evil-org-mode))
     :config
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
@@ -513,26 +495,8 @@
     :after org
     :custom
     (org-roam-directory (file-truename "~/org/roam"))
-    :bind
-    ("C-c n l" . org-roam-buffer-toggle)
-    ("C-c n f" . org-roam-node-find)
-    ("C-c n g" . org-roam-graph)
-    ("C-c n i" . org-roam-node-insert)
-    ("C-c n c" . org-roam-capture)
-    ("C-c n o" . org-id-get-create)
-    ("C-c n t" . org-roam-tag-add)
-    ("C-c n r" . org-roam-ref-add)
-    ;; Dailies
-    ("C-c n j" . org-roam-dailies-capture-today)
-    ("C-c n d" . org-roam-dailies-capture-date)
-    :hook
-    (org-roam-mode . visual-line-mode)
-    (org-capture-mode . org-align-all-tags)
-    :init
-    (setq org-roam-v2-ack t)
-    (org-roam-db-autosync-mode)
-    :config
-    (setq org-roam-capture-templates
+    (org-roam-dailies-directory "daily/")
+    (org-roam-capture-templates
      '(
        ("d" "default" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
@@ -546,95 +510,76 @@
        ("p" "person" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :person:\n- date :: %U\n- company :: \n- dob :: \n- interest :: \n")
         :unnarrowed t)
-      )
-    )
-    (setq org-roam-capture-ref-templates
-          '(("r" "ref" plain "%?"
-             :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :source:\n- date :: %U\n- author :: ${author-or-editor}\n- journal :: ${journal}\n- year :: ${year}\n\n")
-             :unnarrowed t)))
-    ;; If using org-roam-protocol
-    (require 'org-roam-protocol))
+      ))
+    (org-roam-capture-ref-templates
+     '(
+       ("r" "ref" plain "%?"
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :source:\n- date :: %U\n- author :: ${author-or-editor}\n- journal :: ${journal}\n- year :: ${year}\n\n")
+        :unnarrowed t)
+       ))
+    (org-roam-dailies-capture-templates
+     '(
+       ("d" "default" entry "* %?\n- date :: %U\n" :target
+        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+        )
+       ("f" "fleeting note" entry "* %?  :fleeting:\n- date :: %U\n" :target
+        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+        )
+       ("j" "journal" entry "* Journal  :journal:\n- date :: %U\n%?" :target
+        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+        )
+       ("t" "task" entry "* %?  :task:\n- date :: %U\n" :target
+        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+        )
+       ("m" "meeting" entry "* %?  :meeting:\n- date :: %U\n- attendee :: John Lord\n- company :: \n- attendee :: \n- agenda :: \n\n" :target
+        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+        )
+       ))
+    :bind
+    ("C-c n l" . org-roam-buffer-toggle)
+    ("C-c n f" . org-roam-node-find)
+    ("C-c n g" . org-roam-graph)
+    ("C-c n i" . org-roam-node-insert)
+    ("C-c n c" . org-roam-capture)
+    ("C-c n o" . org-id-get-create)
+    ("C-c n t" . org-roam-tag-add)
+    ("C-c n r" . org-roam-ref-add)
+    ("C-c n j" . org-roam-dailies-capture-today)
+    ("C-c n d" . org-roam-dailies-capture-date)
+    :hook
+    (org-roam-mode . visual-line-mode)
+    (org-capture-mode . org-align-all-tags)
+    :init
+    (setq org-roam-v2-ack t)
+    (org-roam-db-autosync-mode)
+    :config
+    (require 'org-roam-protocol)
     (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
                  (display-buffer-in-direction)
                  (direction . right)
                  (window-width . 0.33)
                  (window-height . fit-window-to-buffer)))
+    )
 #+end_src
 
-** org-roam-dailies
-#+begin_src elisp
-    (setq org-roam-dailies-directory "daily/")
-    (setq org-roam-dailies-capture-templates
-          '(
-            ("d" "default" entry "* %?\n- date :: %U\n" :target
-             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-             )
-            ("f" "fleeting note" entry "* %?  :fleeting:\n- date :: %U\n" :target
-             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-             )
-            ("j" "journal" entry "* Journal  :journal:\n- date :: %U\n%?" :target
-             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-             )
-            ("t" "task" entry "* %?  :task:\n- date :: %U\n" :target
-             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-             )
-            ("m" "meeting" entry "* %?  :meeting:\n- date :: %U\n- attendee :: John Lord\n- company :: \n- attendee :: \n- agenda :: \n\n" :target
-             (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-            )
-          )
-      )
-#+end_src
-** org functions
-#+begin_src elisp
-  (defun vulpea-buffer-p ()
-    "Return non-nil if the currently visited buffer is a note."
-    (and buffer-file-name
-         (string-prefix-p
-          (expand-file-name (file-name-as-directory org-roam-directory))
-          (file-name-directory buffer-file-name))))
-  
-  (defun vulpea-project-files ()
-      "Return a list of note files containing 'project' tag." ;
-      (seq-uniq
-       (seq-map
-        #'car
-        (org-roam-db-query
-         [:select [nodes:file]
-          :from tags
-          :left-join nodes
-          :on (= tags:node-id nodes:id)
-          :where (like tag (quote "%\"project\"%"))
-          ]))))
-  
-  (defun vulpea-agenda-files-update (&rest _)
-    "Update the value of `org-agenda-files'."
-    (setq org-agenda-files (vulpea-project-files)))
-  
-  (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
-  (advice-add 'org-dblock-update :before #'vulpea-agenda-files-update)
-#+end_src
 ** org-ref
 #+begin_src elisp
   (use-package org-ref
-    :init
-    (setq
-           org-ref-notes-function 'orb-org-ref-edit
-           ;; org-ref-notes-directory "~/org/"
-           org-ref-default-bibliography (list "~/git/bibliography/references.bib")
-           ;; org-ref-pdf-directory "~/git/bibliography/pdfs/"
-      ))
+    :custom
+    (org-ref-notes-function 'orb-org-ref-edit)
+    (org-ref-default-bibliography
+     (list "~/git/bibliography/references.bib"))
+    )
 #+end_src
 
 ** helm-bibtex
 #+begin_src elisp
   (use-package helm-bibtex
-    :init
-    (setq
-     bibtex-completion-pdf-field "file"
-     bibtex-completion-bibliography "~/git/bibliography/references.bib"
-     )
-   )
+    :custom
+    (bibtex-completion-pdf-field "file")
+    (bibtex-completion-bibliography "~/git/bibliography/references.bib")
+    )
 #+end_src
 
 ** org-roam-bibtex
@@ -642,11 +587,15 @@
     (use-package org-roam-bibtex
       :init
       (org-roam-bibtex-mode)
-      (setq orb-preformat-keywords '("citekey" "title" "url" "file" "author-or-editor" "keywords" "doi" "date" "year" "journal" "journaltitle"))
-      ;; :hook (org-roam-mode . org-roam-bibtex-mode)
-      :bind (:map org-mode-map
-             (("C-c n a" . orb-note-actions)))
-  )
+      :custom
+      (orb-preformat-keywords '("citekey" "title" "url" "file" "author-or-editor" "keywords" "doi" "date" "year" "journal" "journaltitle"))
+      :hook
+      (org-roam-mode . org-roam-bibtex-mode)
+      :bind
+      (:map org-mode-map
+            ("C-c n a" . orb-note-actions)
+            )
+      )
 #+end_src
 * Beancount
 #+begin_src elisp
@@ -657,13 +606,11 @@
                :repo "beancount/beancount-mode")
     :mode ("\\.beancount\\'" . beancount-mode)
     :hook (beancount-mode . outline-minor-mode)
-    ;; :init
-    ;; (add-hook 'beancount-mode-hook #'outline-minor-mode)
-    ;; :load-path "~/.emacs.d/site-lisp/beancount-mode"
-    :bind (:map beancount-mode-map
-                ("C-j" . outline-next-visible-heading)
-                ("C-k" . outline-previous-visible-heading)
-         )
+    :bind
+    (:map beancount-mode-map
+          ("C-j" . outline-next-visible-heading)
+          ("C-k" . outline-previous-visible-heading)
+          )
     )
 #+end_src
 
@@ -675,60 +622,65 @@
 #+end_src
 
 * Dired
-#+name: dired
+** Dired variables
 #+begin_src elisp
-  (setq dired-listing-switches "-alh -v --group-directories-first"
-        dired-auto-revert-buffer t  ; don't prompt to revert; just do it
-        dired-dwim-target t  ; suggest a target for moving/copying intelligently
-        dired-hide-details-hide-symlink-targets nil
-        ;; Always copy/delete recursively
-        dired-recursive-copies  'always
-        dired-recursive-deletes 'top
-        ;; Ask whether destination dirs should get created when copying/removing files.
-        dired-create-destination-dirs 'ask
-        image-dired-thumb-size 150
-        )
+  (use-package emacs
+    :custom
+    (dired-listing-switches "-alh -v --group-directories-first")
+    (dired-auto-revert-buffer t)
+    (dired-dwim-target t)
+    (dired-hide-details-hide-symlink-targets nil)
+    (dired-recursive-copies  'always)
+    (dired-recursive-deletes 'top)
+    (dired-create-destination-dirs 'ask)
+    (image-dired-thumb-size 150)
+    )
 #+end_src
 
+** Peep dired
 #+begin_src elisp
   (use-package peep-dired
+    :custom
+    (peep-dired-cleanup-on-disable t)
+    :hook
+    (peep-dired . evil-normalize-keymaps)
     :config
-    (setq peep-dired-cleanup-on-disable t)
-    (evil-define-key 'normal peep-dired-mode-map (kbd "<SPC>") 'peep-dired-scroll-page-down
-                                               (kbd "C-<SPC>") 'peep-dired-scroll-page-up
-                                               (kbd "<backspace>") 'peep-dired-scroll-page-up
-                                               (kbd "j") 'peep-dired-next-file
-                                               (kbd "k") 'peep-dired-prev-file)
-    (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
+    (evil-define-key 'normal peep-dired-mode-map
+      (kbd "<SPC>") 'peep-dired-scroll-page-down
+      (kbd "C-<SPC>") 'peep-dired-scroll-page-up
+      (kbd "<backspace>") 'peep-dired-scroll-page-up
+      (kbd "j") 'peep-dired-next-file
+      (kbd "k") 'peep-dired-prev-file)
   )
 #+end_src
 
-#+name: dired-rsync
+** Dired rsync
 #+begin_src elisp
   (use-package dired-rsync
-    :config
-    (bind-key "C-c C-r" 'dired-rsync dired-mode-map)
+    :bind
+    (:map dired-mode-map
+          ("C-c C-r" . dired-rsync))
     ) 
 #+end_src
 
-#+name: diredfl
+** Diredfl
 #+begin_src elisp
   (use-package diredfl
-    :hook (dired-mode . diredfl-mode)
+    :hook
+    (dired-mode . diredfl-mode)
     ) 
 #+end_src
 
 * Parentheses
-#+name: highlight-parentheses
+** Highlight parentheses
 #+begin_src elisp
   (use-package highlight-parentheses
     :config
-    (progn
-      (highlight-parentheses-mode)
-      (global-highlight-parentheses-mode))
+    (global-highlight-parentheses-mode)
     )
 #+end_src
 
+** Smartparens
 #+begin_src elisp
   (use-package smartparens
     :config
@@ -759,7 +711,7 @@
 
 * Python
 #+name: python
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package elpy
     :init
     (elpy-enable)
@@ -782,15 +734,18 @@
 #+end_src
 
 * Yaml
-#+name: yaml
+** Yaml
 #+begin_src elisp
-  (use-package yaml-mode)
+  (use-package yaml-mode
+    :defer t)
 #+end_src
 
 * Terminals
-#+name: vterm
+** Vterm
 #+begin_src elisp
-  (use-package vterm) 
+  (use-package vterm
+    :defer t
+    ) 
 #+end_src
 
 
