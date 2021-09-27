@@ -331,6 +331,22 @@
   (use-package wgrep
     )
 #+end_src
+* Parentheses
+** Highlight parentheses
+#+begin_src elisp
+  (use-package highlight-parentheses
+    :config
+    (global-highlight-parentheses-mode)
+    )
+#+end_src
+
+** Smartparens
+#+begin_src elisp
+  (use-package smartparens
+    :config
+    (smartparens-global-mode)
+    )
+#+end_src
 * Org
 ** org
 #+begin_src elisp
@@ -671,22 +687,6 @@
     ) 
 #+end_src
 
-* Parentheses
-** Highlight parentheses
-#+begin_src elisp
-  (use-package highlight-parentheses
-    :config
-    (global-highlight-parentheses-mode)
-    )
-#+end_src
-
-** Smartparens
-#+begin_src elisp
-  (use-package smartparens
-    :config
-    (smartparens-global-mode)
-    )
-#+end_src
 * Latex
 #+name: auctex
 #+begin_src elisp :tangle no
