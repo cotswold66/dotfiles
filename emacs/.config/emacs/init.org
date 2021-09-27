@@ -348,33 +348,42 @@
     )
 #+end_src
 * Org
-** org
+** Org functions
+
+[[id:22bbe957-46bb-4fb7-9601-ce7a07037198][Task management with org-roam Vol. 5: Dynamic and fast agenda]]Functions adapted from [[https://d12frosted.io/posts/2021-01-16-task-management-with-roam-vol5][Task management with org-roam Vol. 5: Dynamic and fast agenda]]. Auto tagging is removed so that agenda files containing task clocks can be manually tagged so they show up in timeclocks.
+
 #+begin_src elisp
   (use-package org
     :init
     (defun vulpea-buffer-p ()
       "Return non-nil if the currently visited buffer is a note."
       (and buffer-file-name
-         (string-prefix-p
-          (expand-file-name (file-name-as-directory org-roam-directory))
-          (file-name-directory buffer-file-name))))
+	 (string-prefix-p
+	  (expand-file-name (file-name-as-directory org-roam-directory))
+	  (file-name-directory buffer-file-name))))
     (defun vulpea-project-files ()
       "Return a list of note files containing 'project' tag." ;
       (seq-uniq
        (seq-map
-        #'car
-        (org-roam-db-query
-         [:select [nodes:file]
-          :from tags
-          :left-join nodes
-          :on (= tags:node-id nodes:id)
-          :where (like tag (quote "%\"project\"%"))
-          ]))))
+	#'car
+	(org-roam-db-query
+	 [:select [nodes:file]
+	  :from tags
+	  :left-join nodes
+	  :on (= tags:node-id nodes:id)
+	  :where (like tag (quote "%\"project\"%"))
+	  ]))))
     (defun vulpea-agenda-files-update (&rest _)
       "Update the value of `org-agenda-files'."
       (setq org-agenda-files (vulpea-project-files)))
     (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
     (advice-add 'org-dblock-update :before #'vulpea-agenda-files-update)
+  )
+#+end_src
+
+** Org mode
+#+begin_src elisp
+  (use-package org
     :bind 
     ("C-c l" . org-store-link)
     ("C-c a" . org-agenda)
