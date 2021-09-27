@@ -639,6 +639,175 @@
     )
 #+end_src
 
+* Mu4e
+** Mu4e
+#+begin_src elisp
+  (use-package mu4e
+    :commands mu4e
+    :hook
+    (mu4e-compose-mode . turn-off-auto-fill)
+    (mu4e-compose-mode-hook . visual-line-mode)
+    (mu4e-view-mode-hook . visual-line-mode)
+    :custom
+    (mail-user-agent 'mu4e-user-agent)
+    (message-kill-buffer-on-exit t)
+    (message-send-mail-function 'smtpmail-send-it)
+    (mu4e-change-filenames-when-moving t)
+    ;;(mu4e-completing-read-function 'ivy-completing-read)
+    (mu4e-compose-dont-reply-to-self t)
+    (mu4e-compose-format-flowed t)
+    (mu4e-compose-in-new-frame t)
+    (mu4e-compose-signature "John Lord\nTel: +1-512-550-4917")
+    (mu4e-attachment-dir "~/Downloads")
+    (mu4e-enable-mode-line t)
+    (mu4e-flowed-encode-column 998)
+    (mu4e-get-mail-command "mbsync -a")
+    (mu4e-headers-date-format "%Y-%m-%d")
+    (mu4e-headers-auto-update t)
+    (mu4e-headers-fields
+     '(
+       (:human-date . 12)
+       (:flags . 6)
+       (:mailing-list . 10)
+       (:from-or-to . 22)
+       (:subject)
+       ))
+    (mu4e-org-link-query-in-headers-mode nil)
+    (mu4e-sent-messages-behavior 'delete)
+    (mu4e-update-interval 180)
+    (mu4e-view-html-plaintext-ratio-heuristic most-positive-fixnum)
+    (mu4e-view-show-images t)
+    (send-mail-function 'smtpmail-send-it)
+    (shr-color-visible-distance-min 5)
+    (shr-color-visible-luminance-min 60)
+    (shr-use-colors nil)
+    (smtpmail-queue-mail nil)
+    :init
+    (require 'smtpmail)
+    )
+#+END_SRC
+
+#+begin_src elisp
+  (use-package mu4e
+    :config
+    (defun my-remove-attachment (msg num)
+      "Remove attachment."
+      (let*
+          (
+           (attach (mu4e~view-get-attach msg num))
+           (path (mu4e-msg-field msg :path))
+           (filename (and attach (plist-get attach :name)))
+           (cmd (format "altermime --input='%s' --remove='%s'"  path filename)))
+        (when (and filename
+                   (yes-or-no-p
+                    (format "Are you sure you want to remove '%s'?" filename)))
+          (shell-command cmd)
+          (message cmd))))
+    (add-to-list 'mu4e-view-actions '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+    (add-to-list 'mu4e-view-attachment-actions '("remove-attachment" . my-remove-attachment))
+    (advice-add #'shr-colorize-region :around (defun shr-no-colourise-region (&rest ignore)))
+    )
+#+end_src
+
+** Mu4e contexts
+#+begin_src elisp
+  (use-package mu4e
+    :custom
+    (mu4e-contexts
+     `(
+       ,(make-mu4e-context
+         :name "Lordsonline"
+         :enter-func (lambda () (mu4e-message "Entering Lordsonline context"))
+         :leave-func (lambda () (mu4e-message "Leaving Lordsonline context"))
+         ;; we match based on the maildir of the message
+         :match-func (lambda (msg)
+                       (when msg
+                         (string-prefix-p "/lordsonline" (mu4e-message-field msg :maildir))))
+         :vars
+         '(
+           (user-mail-address . "john@lordsonline.org")
+           (user-full-name . "John Lord")
+           (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature"
+                              )
+           (mu4e-drafts-folder . "/lordsonline/[Gmail].Drafts")
+           (mu4e-sent-folder   . "/lordsonline/[Gmail].Sent Mail")
+           (mu4e-trash-folder  . "/lordsonline/[Gmail].Trash")
+           (mu4e-refile-folder . "/lordsonline/[Gmail].All Mail")
+           (mu4e-maildir-shortcuts
+            . (
+               (:maildir "/lordsonline/INBOX"              :key ?i)
+               (:maildir "/lordsonline/[Gmail].Sent Mail"  :key ?s)
+               (:maildir "/lordsonline/[Gmail].Trash"      :key ?t)
+               (:maildir "/lordsonline/[Gmail].Drafts"     :key ?d)
+               (:maildir "/lordsonline/[Gmail].All Mail"   :key ?a)
+               (:maildir "/archive"                        :key ?A)
+               )
+            )
+           (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
+           (smtpmail-smtp-user . "john@lordsonline.org")
+           (smtpmail-smtp-server . "smtp.gmail.com")
+           (smtpmail-smtp-service . 587)
+           )
+         )
+       ,(make-mu4e-context
+         :name "ProtonMail"
+         :enter-func (lambda () (mu4e-message "Entering ProtonMail context"))
+         :leave-func (lambda () (mu4e-message "Leaving ProtonMail context"))
+         :match-func (lambda (msg)
+                       (when msg
+                         (string-prefix-p "/protonmail" (mu4e-message-field msg :maildir))))
+         :vars '(
+                 (user-mail-address . "lordjd1@pm.me")
+                 (user-full-name . "John Lord")
+                 (org-msg-signature . "\n\nBest regards,\n\nJohn
+  ,#+begin_signature
+  -- 
+  ,*John Lord* \\\\
+  Tel (US): /+1-512-550-4917/
+  ,#+end_signature"
+                                    )
+                 (mu4e-drafts-folder . "/protonmail/Drafts")
+                 (mu4e-sent-folder   . "/protonmail/Sent")
+                 (mu4e-trash-folder  . "/protonmail/Trash")
+                 (mu4e-refile-folder . "/protonmail/Archive")
+                 (mu4e-maildir-shortcuts
+                  . (
+                     (:maildir "/protonmail/INBOX"     :key ?i)
+                     (:maildir "/protonmail/Sent"      :key ?s)
+                     (:maildir "/protonmail/Trash"     :key ?t)
+                     (:maildir "/protonmail/Archive"   :key ?a)
+                     )
+                  )
+                 (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
+                 (smtpmail-smtp-user . "lordjd1@pm.me")
+                 (smtpmail-smtp-server . "127.0.0.1")
+                 (smtpmail-smtp-service . 1025)
+                 )
+         )
+       )
+     )
+    ) 
+#+end_src
+
+** Org msg
+#+name: org-msg
+#+begin_src elisp :tangle no
+  (use-package org-msg
+    :after mu4e 
+    :config
+    (setq
+     org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+     org-msg-startup "hidestars indent inlineimages"
+     org-msg-greeting-fmt "\nHi %s,\n\n"
+     org-msg-recipient-names '(("john@lordsonline.org" . "John Lord"))
+     org-msg-greeting-name-limit 3
+     org-msg-default-alternatives '(text html)
+     org-msg-convert-citation t
+     )
+    (org-msg-mode)
+    )
+#+end_src
+
 * Magit
 #+begin_src elisp
   (use-package magit
