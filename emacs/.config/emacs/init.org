@@ -418,6 +418,7 @@
     (org-refile-targets
      '(
        ("~/org/roam/daily/" . (:maxlevel . 3))
+       ("~/org/roam/journal.org" . (:maxlevel . 3))
        ))
     (org-refile-use-outline-path t)
     (org-startup-indented t)
