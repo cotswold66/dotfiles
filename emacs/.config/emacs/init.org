@@ -551,7 +551,7 @@
        ("f" "fleeting note" entry "* %?  :fleeting:\n- date :: %U\n" :target
         (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
         )
-       ("j" "journal" entry "* Journal  :journal:\n- date :: %U\n%?" :target
+       ("j" "journal" entry "* %U   :journal:\n%?" :target
         (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
         )
        ("t" "task" entry "* %?  :task:\n- date :: %U\n" :target
