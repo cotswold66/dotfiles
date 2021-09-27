@@ -391,7 +391,7 @@
     :mode
     ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :hook
-    ;; (org-mode . (lambda () (set-fill-column 80)))
+    (org-mode . (lambda () (set-fill-column 80)))
     (org-mode . visual-line-mode)
     :custom
     (org-directory "~/org/")
