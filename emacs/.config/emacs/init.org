@@ -93,7 +93,7 @@
     (auth-source-debug t)
     (auth-source-do-cache nil)
     (auth-sources '(password-store))
-    :config
+    :init
     (auth-source-pass-enable)
     )
 #+end_src
