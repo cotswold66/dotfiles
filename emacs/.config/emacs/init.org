@@ -515,7 +515,7 @@
   (setq org-confirm-babel-evaluate nil)
 #+end_src
 
-** org-roam
+** Org roam
 #+begin_src elisp
   (use-package org-roam
     :after org
