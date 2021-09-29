@@ -698,6 +698,10 @@
        ))
     (mu4e-org-link-query-in-headers-mode nil)
     (mu4e-sent-messages-behavior 'delete)
+    ;; (mu4e-sent-folder   "/sent")       ;; sent messages
+    ;; (mu4e-drafts-folder "/drafts")     ;; unfinished messages
+    ;; (mu4e-trash-folder  "/trash")      ;; trashed messages
+    ;; (mu4e-refile-folder "/archive")   ;; saved messages
     (mu4e-update-interval 180)
     (mu4e-view-html-plaintext-ratio-heuristic most-positive-fixnum)
     (mu4e-view-show-images t)
@@ -769,6 +773,74 @@
             )
            (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
            (smtpmail-smtp-user . "john@lordsonline.org")
+           (smtpmail-smtp-server . "smtp.gmail.com")
+           (smtpmail-smtp-service . 587)
+           )
+         )
+       ,(make-mu4e-context
+         :name "iCloud"
+         :enter-func (lambda () (mu4e-message "Entering iCloud context"))
+         :leave-func (lambda () (mu4e-message "Leaving iCloud context"))
+         ;; we match based on the maildir of the message
+         :match-func (lambda (msg)
+                       (when msg
+                         (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
+         :vars
+         '(
+           (user-mail-address . "lordjd@icloud.com")
+           (user-full-name . "John Lord")
+           (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature"
+                              )
+           (mu4e-drafts-folder . "/icloud/Drafts")
+           (mu4e-sent-folder   . "/icloud/Sent")
+           (mu4e-trash-folder  . "/icloud/Trash")
+           (mu4e-refile-folder . "/icloud/Archive")
+           (mu4e-maildir-shortcuts
+            . (
+               (:maildir "/icloud/INBOX"              :key ?i)
+               (:maildir "/icloud/Sent"  :key ?s)
+               (:maildir "/icloud/Trash"      :key ?t)
+               (:maildir "/icloud/Drafts"     :key ?d)
+               (:maildir "/icloud/Archive"   :key ?a)
+               ;; (:maildir "/archive"                        :key ?A)
+               )
+            )
+           (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
+           (smtpmail-smtp-user . "john")
+           (smtpmail-smtp-server . "smtp.gmail.com")
+           (smtpmail-smtp-service . 587)
+           )
+         )
+       ,(make-mu4e-context
+         :name "outlook"
+         :enter-func (lambda () (mu4e-message "Entering outlook context"))
+         :leave-func (lambda () (mu4e-message "Leaving outlook context"))
+         ;; we match based on the maildir of the message
+         :match-func (lambda (msg)
+                       (when msg
+                         (string-prefix-p "/outlook" (mu4e-message-field msg :maildir))))
+         :vars
+         '(
+           (user-mail-address . "lordjd@outlook.com")
+           (user-full-name . "John Lord")
+           (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature"
+                              )
+           (mu4e-drafts-folder . "/outlook/Drafts")
+           (mu4e-sent-folder   . "/outlook/Sent")
+           (mu4e-trash-folder  . "/outlook/Trash")
+           (mu4e-refile-folder . "/outlook/Archive")
+           (mu4e-maildir-shortcuts
+            . (
+               (:maildir "/outlook/INBOX"              :key ?i)
+               (:maildir "/outlook/Sent"  :key ?s)
+               (:maildir "/outlook/Trash"      :key ?t)
+               (:maildir "/outlook/Drafts"     :key ?d)
+               (:maildir "/outlook/Archive"   :key ?a)
+               ;; (:maildir "/archive"                        :key ?A)
+               )
+            )
+           (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
+           (smtpmail-smtp-user . "john")
            (smtpmail-smtp-server . "smtp.gmail.com")
            (smtpmail-smtp-service . 587)
            )
