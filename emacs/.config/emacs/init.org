@@ -523,24 +523,46 @@
     (org-roam-directory (file-truename "~/org/roam"))
     (org-roam-dailies-directory "daily/")
     (org-roam-capture-templates
-     '(
+     `(
        ("d" "default" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
         :unnarrowed t)
        ("a" "article" plain "%?"
-        :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org" "#+title: ${title}\n#+filetags: :source:\n- date :: %U\n- author :: ${author-or-editor}\n- journal :: ${journal}\n- year :: ${year}\n- doi :: ${doi}\n\n")
+        :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org"
+                           ,(concat "#+title: ${title}\n"
+                                    "#+filetags: :source:\n"
+                                    "- date :: %U\n"
+                                    "- author :: ${author-or-editor}\n"
+                                    "- journal :: ${journal}\n"
+                                    "- year :: ${year}\n"
+                                    "- doi :: ${doi}\n\n"))
         :unnarrowed t)
        ("c" "company" plain "%?" 
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :company:\n- date :: %U\n")
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                           ,(concat "#+title: ${title}\n"
+                                    "#+filetags: :company:\n"
+                                    "- date :: %U\n"))
         :unnarrowed t)
        ("p" "person" plain "%?" 
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :person:\n- date :: %U\n- company :: \n- dob :: \n- interest :: \n")
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                           ,(concat "#+title: ${title}\n"
+                                   "#+filetags: :person:\n"
+                                   "- date :: %U\n"
+                                   "- company :: \n"
+                                   "- dob :: \n"
+                                   "- interest :: \n"))
         :unnarrowed t)
-      ))
+       ))
     (org-roam-capture-ref-templates
-     '(
+     `(
        ("r" "ref" plain "%?"
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :source:\n- date :: %U\n- author :: ${author-or-editor}\n- journal :: ${journal}\n- year :: ${year}\n\n")
+        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                           ,(concat "#+title: ${title}\n"
+                                   "#+filetags: :source:\n"
+                                   "- date :: %U\n"
+                                   "- author :: ${author-or-editor}\n"
+                                   "- journal :: ${journal}\n"
+                                   "- year :: ${year}\n\n"))
         :unnarrowed t)
        ))
     (org-roam-dailies-capture-templates
