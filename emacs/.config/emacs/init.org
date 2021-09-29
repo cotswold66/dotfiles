@@ -666,6 +666,7 @@
 ** Mu4e
 #+begin_src elisp
   (use-package mu4e
+    :load-path "/usr/local/share/emacs/site-lisp/mu4e"
     :commands mu4e
     :hook
     (mu4e-compose-mode . turn-off-auto-fill)
