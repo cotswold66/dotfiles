@@ -699,10 +699,10 @@
        ))
     (mu4e-org-link-query-in-headers-mode nil)
     (mu4e-sent-messages-behavior 'delete)
-    ;; (mu4e-sent-folder   "/sent")       ;; sent messages
-    ;; (mu4e-drafts-folder "/drafts")     ;; unfinished messages
-    ;; (mu4e-trash-folder  "/trash")      ;; trashed messages
-    ;; (mu4e-refile-folder "/archive")   ;; saved messages
+    (mu4e-sent-folder   "/lordsonline/[Gmail].Sent Mail")       ;; sent messages
+    (mu4e-drafts-folder "/lordsonline/[Gmail].Drafts")     ;; unfinished messages
+    (mu4e-trash-folder  "/lordsonline/[Gmail].Trash")      ;; trashed messages
+    (mu4e-refile-folder "/lordsonline/[Gmail].All Mail")   ;; saved messages
     (mu4e-update-interval 180)
     (mu4e-view-html-plaintext-ratio-heuristic most-positive-fixnum)
     (mu4e-view-show-images t)
@@ -799,11 +799,11 @@
            (mu4e-maildir-shortcuts
             . (
                (:maildir "/icloud/INBOX"              :key ?i)
-               (:maildir "/icloud/Sent"  :key ?s)
-               (:maildir "/icloud/Trash"      :key ?t)
-               (:maildir "/icloud/Drafts"     :key ?d)
-               (:maildir "/icloud/Archive"   :key ?a)
-               ;; (:maildir "/archive"                        :key ?A)
+               (:maildir "/icloud/Sent"               :key ?s)
+               (:maildir "/icloud/Trash"              :key ?t)
+               (:maildir "/icloud/Drafts"             :key ?d)
+               (:maildir "/icloud/Archive"            :key ?a)
+               (:maildir "/archive"                   :key ?A)
                )
             )
            (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
@@ -813,7 +813,7 @@
            )
          )
        ,(make-mu4e-context
-         :name "outlook"
+         :name "Outlook"
          :enter-func (lambda () (mu4e-message "Entering outlook context"))
          :leave-func (lambda () (mu4e-message "Leaving outlook context"))
          ;; we match based on the maildir of the message
@@ -833,11 +833,11 @@
            (mu4e-maildir-shortcuts
             . (
                (:maildir "/outlook/INBOX"              :key ?i)
-               (:maildir "/outlook/Sent"  :key ?s)
-               (:maildir "/outlook/Trash"      :key ?t)
-               (:maildir "/outlook/Drafts"     :key ?d)
-               (:maildir "/outlook/Archive"   :key ?a)
-               ;; (:maildir "/archive"                        :key ?A)
+               (:maildir "/outlook/Sent"               :key ?s)
+               (:maildir "/outlook/Trash"              :key ?t)
+               (:maildir "/outlook/Drafts"             :key ?d)
+               (:maildir "/outlook/Archive"            :key ?a)
+               (:maildir "/archive"                    :key ?A)
                )
             )
            (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
@@ -847,14 +847,33 @@
            )
          )
        ,(make-mu4e-context
-         :name "ProtonMail"
+         :name "Archive"
+         :enter-func (lambda () (mu4e-message "Entering archive context"))
+         :leave-func (lambda () (mu4e-message "Leaving archive context"))
+         ;; we match based on the maildir of the message
+         :match-func (lambda (msg)
+                       (when msg
+                         (string-prefix-p "/archive" (mu4e-message-field msg :maildir))))
+         :vars
+         '(
+           (user-mail-address . "john@lordsonline.org")
+           (user-full-name . "John Lord")
+           (mu4e-maildir-shortcuts
+            . (
+               (:maildir "/archive"                  :key ?a)
+               )
+            )
+           )
+         )
+       ,(make-mu4e-context
+         :name "P ProtonMail"
          :enter-func (lambda () (mu4e-message "Entering ProtonMail context"))
          :leave-func (lambda () (mu4e-message "Leaving ProtonMail context"))
          :match-func (lambda (msg)
                        (when msg
                          (string-prefix-p "/protonmail" (mu4e-message-field msg :maildir))))
          :vars '(
-                 (user-mail-address . "lordjd1@pm.me")
+                 (user-mail-address . "john@lordpharmaconsulting.com")
                  (user-full-name . "John Lord")
                  (org-msg-signature . "\n\nBest regards,\n\nJohn
   ,#+begin_signature
@@ -873,6 +892,7 @@
                      (:maildir "/protonmail/Sent"      :key ?s)
                      (:maildir "/protonmail/Trash"     :key ?t)
                      (:maildir "/protonmail/Archive"   :key ?a)
+                     (:maildir "/archive"              :key ?A)
                      )
                   )
                  (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
