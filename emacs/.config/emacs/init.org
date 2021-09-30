@@ -51,6 +51,7 @@
            '("*Apropos*" display-buffer-same-window))
   (setq make-backup-files nil) ; prevent creation of backup files
   ;; (global-set-key (kbd "C-c n b") 'ivy-bibtex)
+  (call-process "protonmail-bridge" nil 0)
 #+end_src
 
 ** Install all-the-icons
