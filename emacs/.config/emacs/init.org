@@ -905,6 +905,18 @@
      )
     ) 
 #+end_src
+** Mu4e bookmarks
+
+#+begin_src elisp
+    (use-package mu4e
+      :config
+      (add-to-list 'mu4e-bookmarks
+                   '( :name  "Business messages"
+                             :query "from:john@lordpharma.com or to:john@lordpharma.com or cc:john@lordpharma.com or bcc:john@lordpharma.com or from:john@lordpharmaconsulting.com or to:john@lordpharmaconsulting.com or cc:john@lordpharmaconsulting.com or bcc:john@lordpharmaconsulting.com"
+                             :key   ?b)
+                   t)
+      )
+#+end_src
 
 ** Org msg
 #+name: org-msg
