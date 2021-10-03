@@ -213,10 +213,10 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Projectile
 #+begin_src elisp
   (use-package projectile
-    :config
-    (projectile-mode) 
     :bind-keymap
     ("C-c p" . projectile-command-map)
+    :config
+    (projectile-mode) 
     :custom
     (projectile-project-search-path
      '(
