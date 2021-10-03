@@ -582,11 +582,11 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
        ("p" "person" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                            ,(concat "#+title: ${title}\n"
-                                   "#+filetags: :person:\n"
-                                   "- date :: %U\n"
-                                   "- company :: \n"
-                                   "- dob :: \n"
-                                   "- interest :: \n"))
+                                    "#+filetags: :person:\n"
+                                    "- date :: %U\n"
+                                    "- company :: \n"
+                                    "- dob :: \n"
+                                    "- interest :: \n"))
         :unnarrowed t)
        ))
     (org-roam-capture-ref-templates
@@ -594,11 +594,11 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
        ("r" "ref" plain "%?"
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                            ,(concat "#+title: ${title}\n"
-                                   "#+filetags: :source:\n"
-                                   "- date :: %U\n"
-                                   "- author :: ${author-or-editor}\n"
-                                   "- journal :: ${journal}\n"
-                                   "- year :: ${year}\n\n"))
+                                    "#+filetags: :source:\n"
+                                    "- date :: %U\n"
+                                    "- author :: ${author-or-editor}\n"
+                                    "- journal :: ${journal}\n"
+                                    "- year :: ${year}\n\n"))
         :unnarrowed t)
        ))
     (org-roam-dailies-capture-templates
