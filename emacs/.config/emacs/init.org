@@ -337,7 +337,6 @@ Install =doom-themes= and default to the *doom-one* theme.
   )
 #+end_src
 
-
 ** Embark Consult
 #+begin_src elisp
   ;; Consult users will also want the embark-consult package.
