@@ -205,14 +205,6 @@ Install =doom-themes= and default to the *doom-one* theme.
    )
 #+end_src
 
-** Selectrum
-#+begin_src elisp :tangle no
-  (use-package selectrum
-    :init
-    (selectrum-mode +1)
-    )
-#+end_src
-
 ** Vertico
 #+begin_src elisp
   (use-package vertico
