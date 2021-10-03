@@ -191,13 +191,10 @@ Install =doom-themes= and default to the *doom-one* theme.
 ** Projectile
 #+begin_src elisp
   (use-package projectile
-    :diminish t
-    :init
+    :config
     (projectile-mode) 
-    :bind
-    (:map projectile-mode-map
-          ("C-c p" . projectile-command-map)
-          )
+    :bind-keymap
+    ("C-c p" . projectile-command-map)
     :custom
     (projectile-project-search-path
      '(
