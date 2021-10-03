@@ -693,7 +693,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     )
 #+end_src
 * Beancount
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package beancount
     :straight (beancount
                :type git
