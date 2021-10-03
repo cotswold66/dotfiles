@@ -41,6 +41,8 @@ Finally, load =use-package= and ensure packages are installed by default. Later,
 #+begin_src emacs-lisp
   (require 'use-package)
   (custom-set-variables '(use-package-always-ensure t))
+  ;; (custom-set-variables '(use-package-always-ensure t)
+  ;;                       '(use-package-verbose t))
 #+end_src
 
 * Global defaults and custom variables
