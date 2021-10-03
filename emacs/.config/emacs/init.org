@@ -230,6 +230,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Vertico
 #+begin_src elisp
   (use-package vertico
+    :defer 2
     :init
     (vertico-mode)
     )
@@ -238,6 +239,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Orderless
 #+begin_src elisp
   (use-package orderless
+    :defer t
     :custom
     (completion-styles '(orderless))
     (orderless-component-separator "[ &]")
@@ -252,6 +254,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Which Key
 #+begin_src elisp
   (use-package which-key
+    :defer 3
     :init
     (which-key-mode)
     )
@@ -341,14 +344,14 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     ;; `consult-register-store' and the Emacs built-ins.
     (setq register-preview-delay 0
           register-preview-function #'consult-register-format)
-  
+
     ;; Optionally tweak the register preview window.
     ;; This adds thin lines, sorting and hides the mode line of the window.
     (advice-add #'register-preview :override #'consult-register-window)
-  
+
     ;; Optionally replace `completing-read-multiple' with an enhanced version.
     (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
-  
+
     ;; Use Consult to select xref locations with preview
     (setq xref-show-xrefs-function #'consult-xref
           xref-show-definitions-function #'consult-xref)
@@ -387,6 +390,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Highlight parentheses
 #+begin_src elisp
   (use-package highlight-parentheses
+    :defer 5
     :config
     (global-highlight-parentheses-mode)
     )
@@ -395,6 +399,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Smartparens
 #+begin_src elisp
   (use-package smartparens
+    :defer 6
     :config
     (smartparens-global-mode)
     )
@@ -1014,6 +1019,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Dired variables
 #+begin_src elisp
   (use-package dired
+    :defer t
     ;; :hook
     ;; (dired-mode . evil-mode)
     :ensure nil
@@ -1032,6 +1038,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Peep dired
 #+begin_src elisp
   (use-package peep-dired
+    :defer t
     :custom
     (peep-dired-cleanup-on-disable t)
     ;; :hook
