@@ -638,12 +638,20 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     (org-roam-db-autosync-mode)
     :config
     (require 'org-roam-protocol)
+    ;; (add-to-list 'display-buffer-alist
+    ;;              '("\\*org-roam\\*"
+    ;;                (display-buffer-in-direction)
+    ;;                (direction . right)
+    ;;                (window-width . 0.33)
+    ;;                (window-height . fit-window-to-buffer)))
     (add-to-list 'display-buffer-alist
-               '("\\*org-roam\\*"
-                 (display-buffer-in-direction)
-                 (direction . right)
-                 (window-width . 0.33)
-                 (window-height . fit-window-to-buffer)))
+                 '("\\*org-roam\\*"
+                   (display-buffer-in-side-window)
+                   (side . right)
+                   (slot . 0)
+                   (window-width . 0.33)
+                   (window-parameters . ((no-other-window . t)
+                                         (no-delete-other-windows . t)))))
     )
 #+end_src
 
