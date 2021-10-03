@@ -143,7 +143,7 @@ Install =doom-themes= and default to the *doom-one* theme.
 #+end_src
 * Evil
 #+name: evil
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package evil 
     :demand
     :init
@@ -171,11 +171,24 @@ Install =doom-themes= and default to the *doom-one* theme.
 #+end_src
 
 #+name: evil-collection
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package evil-collection
     :after evil
     :config
     (evil-collection-init)
+    )
+#+end_src
+
+Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
+
+#+begin_src elisp :tangle no
+  (use-package evil-org
+    :after org
+    :hook
+    (org-mode . (lambda () evil-org-mode))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys)
     )
 #+end_src
 
@@ -962,14 +975,17 @@ Install =doom-themes= and default to the *doom-one* theme.
 * Magit
 #+begin_src elisp
   (use-package magit
-    :defer
+    :defer t
     )
 #+end_src
 
 * Dired
 ** Dired variables
 #+begin_src elisp
-  (use-package emacs
+  (use-package dired
+    ;; :hook
+    ;; (dired-mode . evil-mode)
+    :ensure nil
     :custom
     (dired-listing-switches "-alh -v --group-directories-first")
     (dired-auto-revert-buffer t)
@@ -987,15 +1003,15 @@ Install =doom-themes= and default to the *doom-one* theme.
   (use-package peep-dired
     :custom
     (peep-dired-cleanup-on-disable t)
-    :hook
-    (peep-dired . evil-normalize-keymaps)
-    :config
-    (evil-define-key 'normal peep-dired-mode-map
-      (kbd "<SPC>") 'peep-dired-scroll-page-down
-      (kbd "C-<SPC>") 'peep-dired-scroll-page-up
-      (kbd "<backspace>") 'peep-dired-scroll-page-up
-      (kbd "j") 'peep-dired-next-file
-      (kbd "k") 'peep-dired-prev-file)
+    ;; :hook
+    ;; (peep-dired . evil-normalize-keymaps)
+    ;; :config
+    ;; (evil-define-key 'normal peep-dired-mode-map
+    ;;   (kbd "<SPC>") 'peep-dired-scroll-page-down
+    ;;   (kbd "C-<SPC>") 'peep-dired-scroll-page-up
+    ;;   (kbd "<backspace>") 'peep-dired-scroll-page-up
+    ;;   (kbd "j") 'peep-dired-next-file
+    ;;   (kbd "k") 'peep-dired-prev-file)
   )
 #+end_src
 
