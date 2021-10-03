@@ -43,34 +43,61 @@ Finally, load =use-package= and ensure packages are installed by default. Later,
   (custom-set-variables '(use-package-always-ensure t))
 #+end_src
 
-* Themes and Early inits
-** Global
+* Global defaults and custom variables
+
+Clean up the interface by removing the menu bar, tool bar, and scroll bars. Also, inhibit the startup screen and provide an empty scratch buffer.
+
 #+begin_src elisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  (setq delete-by-moving-to-trash t)
-  (setq inhibit-startup-screen t)
-  (setq initial-scratch-message "")
+  (custom-set-variables '(inhibit-startup-screen t)
+                        '(initial-scratch-message ""))
+#+end_src
+
+Do not create backup files since files under version control. Also, move deleted files to system trash instead of deleting outright.
+
+#+begin_src elisp
+  (custom-set-variables '(delete-by-moving-to-trash t)
+                        '(make-backup-files nil))
+#+end_src
+
+Move focus to help windows, which makes it easy to close them with a 'q'.
+
+#+begin_src elisp
+  (custom-set-variables '(help-window-select t))
+#+end_src
+
+Enable various non-beginner functions.
+
+#+begin_src elisp
   (put 'narrow-to-region 'disabled nil)
-  (setq max-mini-window-height 0.5)
-  (setq help-window-select t)
-  (add-to-list 'display-buffer-alist
-           '("*Apropos*" display-buffer-same-window))
-  (setq make-backup-files nil) ; prevent creation of backup files
-  ;; (global-set-key (kbd "C-c n b") 'ivy-bibtex)
+#+end_src
+
+Install =visual-fill-column= which allows sets the column width to the default column width instead of fitting to the window size.
+
+#+begin_src elisp
+  (use-package visual-fill-column
+    :hook
+    (visual-line-mode . visual-fill-column-mode))
+#+end_src
+
+Start the =protonmail-bridge= process, if not already started to ensure available for =mu4e= protonmail context.
+
+#+begin_src elisp
   (call-process "protonmail-bridge" nil 0)
 #+end_src
 
-** Install all-the-icons
-   
-#+name: all-the-icons
+* Themes
+
+Install =all-the-icons= which provides nice icons for the doom theme. Fonts need to be manually installed using =(all-the-icons-install-fonts)=.
+
 #+begin_src elisp
   (use-package all-the-icons
-    )
+    :defer t)
 #+end_src
 
-** Install doom-themes
+Install =doom-themes= and default to the *doom-one* theme.
    
 #+begin_src elisp
   (use-package doom-themes
