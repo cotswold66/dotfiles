@@ -396,36 +396,34 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 [[id:22bbe957-46bb-4fb7-9601-ce7a07037198][Task management with org-roam Vol. 5: Dynamic and fast agenda]]Functions adapted from [[https://d12frosted.io/posts/2021-01-16-task-management-with-roam-vol5][Task management with org-roam Vol. 5: Dynamic and fast agenda]]. Auto tagging is removed so that agenda files containing task clocks can be manually tagged so they show up in timeclocks.
 
 #+begin_src elisp
-  (use-package org
-    :init
-    (defun vulpea-buffer-p ()
-      "Return non-nil if the currently visited buffer is a note."
-      (and buffer-file-name
-	 (string-prefix-p
-	  (expand-file-name (file-name-as-directory org-roam-directory))
-	  (file-name-directory buffer-file-name))))
-    (defun vulpea-project-files ()
-      "Return a list of note files containing 'project' tag." ;
-      (seq-uniq
-       (seq-map
-	#'car
-	(org-roam-db-query
-	 [:select [nodes:file]
-	  :from tags
-	  :left-join nodes
-	  :on (= tags:node-id nodes:id)
-	  :where (like tag (quote "%\"project\"%"))
-	  ]))))
-    (defun vulpea-agenda-files-update (&rest _)
-      "Update the value of `org-agenda-files'."
-      (setq org-agenda-files (vulpea-project-files)))
-    (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
-    (advice-add 'org-dblock-update :before #'vulpea-agenda-files-update)
-  )
+  (defun vulpea-buffer-p ()
+    "Return non-nil if the currently visited buffer is a note."
+    (and buffer-file-name
+         (string-prefix-p
+          (expand-file-name (file-name-as-directory org-roam-directory))
+          (file-name-directory buffer-file-name))))
+  (defun vulpea-project-files ()
+    "Return a list of note files containing 'project' tag." ;
+    (seq-uniq
+     (seq-map
+      #'car
+      (org-roam-db-query
+       [:select [nodes:file]
+                :from tags
+                :left-join nodes
+                :on (= tags:node-id nodes:id)
+                :where (like tag (quote "%\"project\"%"))
+                ]))))
+  (defun vulpea-agenda-files-update (&rest _)
+    "Update the value of `org-agenda-files'."
+    (interactive)
+    (setq org-agenda-files (vulpea-project-files)))
+  (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
+  (advice-add 'org-dblock-update :before #'vulpea-agenda-files-update)
 #+end_src
 
 ** Org mode
-#+begin_src elisp
+#+begin_src elisp :noweb yes
   (use-package org
     :bind 
     ("C-c l" . org-store-link)
@@ -436,61 +434,66 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     :hook
     (org-mode . (lambda () (set-fill-column 80)))
     (org-mode . visual-line-mode)
+    :config
+    <<org-config>>
     :custom
-    (org-directory "~/org/")
-    (org-agenda-compact-blocks t)
-    (org-agenda-custom-commands
-     '(("h" "Agenda and home tasks"
-        ((agenda "")
-         (todo "NEXT" ((org-agenda-overriding-header "Next")))
-         (todo "TODO" ((org-agenda-overriding-header "Todo")))
-         (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
-         (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
-         ))
-       )
-      )
-    (org-agenda-dim-blocked-tasks nil)
-    (org-agenda-tags-todo-honor-ignore-options t)
-    (org-agenda-todo-ignore-scheduled 'all)
-    (org-agenda-todo-ignore-deadlines 'all)
-    (org-duration-format (quote h:mm))
-    (org-hide-emphasis-markers t)
-    (org-log-done 'time)
-    (org-log-into-drawer t)
-    (org-outline-path-complete-in-steps nil)
-    (org-refile-targets
-     '(
-       ("~/org/roam/daily/" . (:maxlevel . 3))
-       ("~/org/roam/journal.org" . (:maxlevel . 3))
-       ))
-    (org-refile-use-outline-path t)
-    (org-startup-indented t)
-    (org-tag-alist
-     '(
-       ("@work" . ?w)
-       ("@home" . ?h)
-       ))
-    (org-time-stamp-rounding-minutes (quote (0 1)))
-    (org-todo-keywords
-     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)")))
-    (org-todo-keyword-faces
-     '(
-       ("TODO" :foreground "red" :weight bold)
-       ("NEXT" :foreground "light blue" :weight bold)
-       ("WAITING" :foreground "orange" :weight bold)
-       ("SOMETIME" :foreground "magenta" :weight bold)
-       ("DONE" :foreground "forest green" :weight bold)
-       ("CANCELLED" :foreground "forest green" :weight bold)
-       ))
-     ;; tasks tagged with 'project' are included in agenda
-    (org-todo-state-tags-triggers
-     '(
-       (todo ("project" . t))
-       (done ("project"))
-       ))
+    <<org-custom>>
     )
 #+end_src
-
+** Org custom
+#+begin_src elisp :tangle no :noweb-ref org-custom
+  (org-directory "~/org/")
+  (org-agenda-compact-blocks t)
+  (org-agenda-custom-commands
+   '(("h" "Agenda and home tasks"
+      ((agenda "")
+       (todo "NEXT" ((org-agenda-overriding-header "Next")))
+       (todo "TODO" ((org-agenda-overriding-header "Todo")))
+       (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
+       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
+       ))
+     )
+    )
+  (org-agenda-dim-blocked-tasks nil)
+  (org-agenda-tags-todo-honor-ignore-options t)
+  (org-agenda-todo-ignore-scheduled 'all)
+  (org-agenda-todo-ignore-deadlines 'all)
+  (org-duration-format (quote h:mm))
+  (org-hide-emphasis-markers t)
+  (org-log-done 'time)
+  (org-log-into-drawer t)
+  (org-outline-path-complete-in-steps nil)
+  (org-refile-targets
+   '(
+     ("~/org/roam/daily/" . (:maxlevel . 3))
+     ("~/org/roam/journal.org" . (:maxlevel . 3))
+     ))
+  (org-refile-use-outline-path t)
+  (org-startup-indented t)
+  (org-tag-alist
+   '(
+     ("@work" . ?w)
+     ("@home" . ?h)
+     ))
+  (org-time-stamp-rounding-minutes (quote (0 1)))
+  (org-todo-keywords
+   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)")))
+  (org-todo-keyword-faces
+   '(
+     ("TODO" :foreground "red" :weight bold)
+     ("NEXT" :foreground "light blue" :weight bold)
+     ("WAITING" :foreground "orange" :weight bold)
+     ("SOMETIME" :foreground "magenta" :weight bold)
+     ("DONE" :foreground "forest green" :weight bold)
+     ("CANCELLED" :foreground "forest green" :weight bold)
+     ))
+   ;; tasks tagged with 'project' are included in agenda
+  (org-todo-state-tags-triggers
+   '(
+     (todo ("project" . t))
+     (done ("project"))
+     ))
+#+end_src
 ** deft
 #+begin_src elisp
   (use-package deft
@@ -531,33 +534,23 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 #+begin_src elisp :tangle no
   (use-package helm-org-rifle)
 #+end_src
-** evil-org
-#+begin_src elisp
-  (use-package evil-org
-    :after org
-    :hook
-    (org-mode . (lambda () evil-org-mode))
-    :config
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys)
-    )
-#+end_src
-
 ** org-babel
-#+begin_src elisp
+#+begin_src elisp :tangle no :noweb-ref org-config
   (org-babel-do-load-languages
    'org-babel-load-languages
    '(
      (emacs-lisp . t)
-     (R . t)
-     (python .t)
-     (shell .t)
-     (org . t)
+     ;; (R . t)
+     ;; (python .t)
+     ;; (shell .t)
+     ;; (org . t)
      )
    )
-  (setq org-confirm-babel-evaluate nil)
 #+end_src
 
+#+begin_src elisp :tangle no :noweb-ref org-custom
+  (org-confirm-babel-evaluate nil)
+#+end_src
 ** Org roam
 #+begin_src elisp
   (use-package org-roam
