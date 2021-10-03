@@ -3,6 +3,20 @@
 #+PROPERTY: header-args :results silent :tangle "/var/home/john/.emacs.d/init.el"
 #+STARTUP: overview
 
+* Init load time
+
+Add a hook that reports how long and how many garbage collections the startup took. The hook is run at the very end, so the message doesn't get clobbered by other messages during startup.
+
+#+begin_src emacs-lisp
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (message "Emacs ready in %s with %d garbage collections."
+                       (format "%.2f seconds"
+                               (float-time
+                                (time-subtract after-init-time before-init-time)))
+                       gcs-done)))
+#+end_src
+
 * Package Management
 
 ** Boot strap straight package manager
