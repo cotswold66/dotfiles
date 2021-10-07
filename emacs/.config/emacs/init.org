@@ -99,14 +99,14 @@ Start the =protonmail-bridge= process, if not already started to ensure availabl
 
 * Themes
 
-Install =all-the-icons= which provides nice icons for the doom theme. Fonts need to be manually installed using =(all-the-icons-install-fonts)=.
+Configure =all-the-icons= which provides nice icons for the doom theme. Fonts need to be manually installed using =(all-the-icons-install-fonts)=.
 
 #+begin_src elisp
   (use-package all-the-icons
     :defer t)
 #+end_src
 
-Install =doom-themes= and default to the *doom-one* theme.
+Configure =doom-themes= and default to the *doom-one* theme.
    
 #+begin_src elisp
   (use-package doom-themes
@@ -116,21 +116,18 @@ Install =doom-themes= and default to the *doom-one* theme.
     :config
     (load-theme 'doom-one t)
     ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config)
-    )
+    (doom-themes-org-config))
 #+end_src
 
-** Install doom-modeline
+Configure =doom-modeline= for consistency with the doom theme.
    
 #+begin_src elisp
   (use-package doom-modeline
-    :hook
-    (after-init . doom-modeline-mode)
-    )
+    :hook (after-init . doom-modeline-mode))
 #+end_src
 
-** Auth-Source-Pass
-#+name: auth-source-pass
+Configure =auth-source-pass= to provide passwords to Emacs. This interfaces with the external =pass= program.
+
 #+begin_src elisp
   (use-package auth-source-pass
     :defer t
@@ -139,17 +136,16 @@ Install =doom-themes= and default to the *doom-one* theme.
     (auth-source-do-cache nil)
     (auth-sources '(password-store))
     :init
-    (auth-source-pass-enable)
-    )
+    (auth-source-pass-enable))
 #+end_src
 
-** Visual Fill Column
+Ensure that =visual-line-mode= uses =visual-fill-column= which defaults to using the value set in the variable =fill-column= to provide a fixed column width instead of defaulting to the window width.
+
 #+begin_src elisp
   (use-package visual-fill-column
-    :hook
-    (visual-line-mode . visual-fill-column-mode)
-    )
+    :hook (visual-line-mode . visual-fill-column-mode))
 #+end_src
+
 * Evil
 #+name: evil
 #+begin_src elisp :tangle no
@@ -175,30 +171,27 @@ Install =doom-themes= and default to the *doom-one* theme.
                 ([remap evil-previous-line] . evil-previous-visual-line)
          )
     :config
-    (evil-mode 1)
-    )
+    (evil-mode))
 #+end_src
 
 #+name: evil-collection
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package evil-collection
     :after evil
     :config
-    (evil-collection-init)
-    )
+    (evil-collection-init))
 #+end_src
 
 Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package evil-org
     :after org
     :hook
     (org-mode . (lambda () evil-org-mode))
     :config
     (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys)
-    )
+    (evil-org-agenda-set-keys))
 #+end_src
 
 * Completions and Projects
