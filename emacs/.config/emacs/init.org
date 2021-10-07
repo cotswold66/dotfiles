@@ -355,6 +355,15 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
   )
 #+end_src
 
+** Consult dir
+#+begin_src elisp :tangle no
+  (use-package consult-dir
+    :ensure t
+    :bind (("C-x C-d" . consult-dir)
+           :map minibuffer-local-completion-map
+           ("C-x C-d" . consult-dir)
+           ("C-x C-j" . consult-dir-jump-file)))
+#+end_src
 ** Embark Consult
 #+begin_src elisp
   ;; Consult users will also want the embark-consult package.
@@ -1000,8 +1009,8 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 #+begin_src elisp
   (use-package dired
     :defer t
-    ;; :hook
-    ;; (dired-mode . evil-mode)
+    :hook
+    (dired-mode . evil-mode)
     :ensure nil
     :custom
     (dired-listing-switches "-alh -v --group-directories-first")
@@ -1021,15 +1030,15 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     :defer t
     :custom
     (peep-dired-cleanup-on-disable t)
-    ;; :hook
-    ;; (peep-dired . evil-normalize-keymaps)
-    ;; :config
-    ;; (evil-define-key 'normal peep-dired-mode-map
-    ;;   (kbd "<SPC>") 'peep-dired-scroll-page-down
-    ;;   (kbd "C-<SPC>") 'peep-dired-scroll-page-up
-    ;;   (kbd "<backspace>") 'peep-dired-scroll-page-up
-    ;;   (kbd "j") 'peep-dired-next-file
-    ;;   (kbd "k") 'peep-dired-prev-file)
+    :hook
+    (peep-dired . evil-normalize-keymaps)
+    :config
+    (evil-define-key 'normal peep-dired-mode-map
+      (kbd "<SPC>") 'peep-dired-scroll-page-down
+      (kbd "C-<SPC>") 'peep-dired-scroll-page-up
+      (kbd "<backspace>") 'peep-dired-scroll-page-up
+      (kbd "j") 'peep-dired-next-file
+      (kbd "k") 'peep-dired-prev-file)
   )
 #+end_src
 
