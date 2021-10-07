@@ -410,7 +410,6 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Org mode
 #+begin_src elisp :noweb yes
   (use-package org
-    :demand t
     :bind 
     ("C-c l" . org-store-link)
     ("C-c a" . org-agenda)
