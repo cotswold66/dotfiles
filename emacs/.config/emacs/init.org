@@ -427,49 +427,92 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
        (todo "NEXT" ((org-agenda-overriding-header "Next")))
        (todo "TODO" ((org-agenda-overriding-header "Todo")))
        (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
-       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))
-       ))
-     )
-    )
+       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))))
+     ("j" tags-tree "+journal"
+      ((org-show-context-detail 'minimal)
+       (org-agenda-files '("~/org/journal.org"))
+       (org-agenda-text-search-extra-files nil)))
+     ("m" tags-tree "+meeting"
+      ((org-show-context-detail 'minimal)
+       (org-agenda-files '("~/org/journal.org"))
+       (org-agenda-text-search-extra-files nil)))))
   (org-agenda-dim-blocked-tasks nil)
+  (org-agenda-files
+   '("~/org/companies.org"
+     "~/org/journal.org"
+     "~/org/contacts.org"
+     "~/org/todo.org"))
   (org-agenda-tags-todo-honor-ignore-options t)
   (org-agenda-todo-ignore-scheduled 'all)
   (org-agenda-todo-ignore-deadlines 'all)
-  (org-duration-format (quote h:mm))
+  (org-capture-templates
+   `(("f"
+      "fleeting note"
+      entry 
+      (file+olp+datetree "~/org/journal.org")
+      ,(concat "* %? :fleeting:\n"
+               ":PROPERTIES:\n"
+               ":created: %U\n"
+               ":END:\n")
+      :unnarrowed t
+      :time-prompt t)
+     ("j"
+      "journal"
+      entry 
+      (file+olp+datetree "~/org/journal.org")
+      ,(concat "* Journal :journal:\n"
+               ":PROPERTIES:\n"
+               ":created: %U\n"
+               ":END:\n"
+               "%?")
+      :unnarrowed t)
+     ("m"
+      "meeting"
+      entry 
+      (file+olp+datetree "~/org/journal.org")
+      ,(concat "* %? :meeting:\n"
+               ":PROPERTIES:\n"
+               ":created: %U\n"
+               ":END:\n"
+               ":DETAILS:\n"
+               "- date :: %T\n"
+               "- attendee :: John Lord\n"
+               "- company :: \n"
+               "- attendee :: \n"
+               "- agenda :: \n"
+               ":END:\n"
+               "- ")
+      :unnarrowed t
+      :time-prompt t)
+     ("t"
+      "task"
+      entry
+      (file+olp+datetree "~/org/journal.org")
+      ,(concat "* %?  :task:\n"
+               ":PROPERTIES:\n"
+               ":created: %U\n"
+               ":source: %a\n"
+               ":END:\n")
+      :unnarrowed t)))
+  (org-duration-format 'h:mm)
   (org-hide-emphasis-markers t)
   (org-log-done 'time)
   (org-log-into-drawer t)
   (org-outline-path-complete-in-steps nil)
-  (org-refile-targets
-   '(
-     ("~/org/roam/daily/" . (:maxlevel . 3))
-     ("~/org/roam/journal.org" . (:maxlevel . 3))
-     ))
+  (org-refile-targets '(("~/org/journal.org" . (:maxlevel . 3))))
   (org-refile-use-outline-path t)
   (org-startup-indented t)
-  (org-tag-alist
-   '(
-     ("@work" . ?w)
-     ("@home" . ?h)
-     ))
-  (org-time-stamp-rounding-minutes (quote (0 1)))
+  (org-tag-alist '(("@work" . ?w)
+                   ("@home" . ?h)))
+  (org-time-stamp-rounding-minutes '(0 1))
   (org-todo-keywords
    '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)")))
-  (org-todo-keyword-faces
-   '(
-     ("TODO" :foreground "red" :weight bold)
-     ("NEXT" :foreground "light blue" :weight bold)
-     ("WAITING" :foreground "orange" :weight bold)
-     ("SOMETIME" :foreground "magenta" :weight bold)
-     ("DONE" :foreground "forest green" :weight bold)
-     ("CANCELLED" :foreground "forest green" :weight bold)
-     ))
-   ;; tasks tagged with 'project' are included in agenda
-  (org-todo-state-tags-triggers
-   '(
-     (todo ("project" . t))
-     (done ("project"))
-     ))
+  (org-todo-keyword-faces '(("TODO" :foreground "red" :weight bold)
+                            ("NEXT" :foreground "light blue" :weight bold)
+                            ("WAITING" :foreground "orange" :weight bold)
+                            ("SOMETIME" :foreground "magenta" :weight bold)
+                            ("DONE" :foreground "forest green" :weight bold)
+                            ("CANCELLED" :foreground "forest green" :weight bold)))
 #+end_src
 ** deft
 #+begin_src elisp
@@ -533,11 +576,9 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
   (use-package org-roam
     :after org
     :custom
-    (org-roam-directory (file-truename "~/org/roam"))
-    (org-roam-dailies-directory "daily/")
+    (org-roam-directory (file-truename "~/org"))
     (org-roam-capture-templates
-     `(
-       ("d" "default" plain "%?" 
+     `(("d" "default" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
         :unnarrowed t)
        ("a" "article" plain "%?"
@@ -564,11 +605,9 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
                                     "- company :: \n"
                                     "- dob :: \n"
                                     "- interest :: \n"))
-        :unnarrowed t)
-       ))
+        :unnarrowed t)))
     (org-roam-capture-ref-templates
-     `(
-       ("r" "ref" plain "%?"
+     `(("r" "ref" plain "%?"
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                            ,(concat "#+title: ${title}\n"
                                     "#+filetags: :source:\n"
@@ -576,26 +615,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
                                     "- author :: ${author-or-editor}\n"
                                     "- journal :: ${journal}\n"
                                     "- year :: ${year}\n\n"))
-        :unnarrowed t)
-       ))
-    (org-roam-dailies-capture-templates
-     '(
-       ("d" "default" entry "* %?\n- date :: %U\n" :target
-        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-        )
-       ("f" "fleeting note" entry "* %?  :fleeting:\n- date :: %U\n" :target
-        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-        )
-       ("j" "journal" entry "* %U   :journal:\n%?" :target
-        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-        )
-       ("t" "task" entry "* %?  :task:\n- date :: %U\n" :target
-        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-        )
-       ("m" "meeting" entry "* %?  :meeting:\n- date :: %U\n- attendee :: John Lord\n- company :: \n- attendee :: \n- agenda :: \n\n" :target
-        (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
-        )
-       ))
+        :unnarrowed t)))
     :bind
     ("C-c n l" . org-roam-buffer-toggle)
     ("C-c n f" . org-roam-node-find)
@@ -605,8 +625,6 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     ("C-c n o" . org-id-get-create)
     ("C-c n t" . org-roam-tag-add)
     ("C-c n r" . org-roam-ref-add)
-    ("C-c n j" . org-roam-dailies-capture-today)
-    ("C-c n d" . org-roam-dailies-capture-date)
     :hook
     (org-roam-mode . visual-line-mode)
     (org-capture-mode . org-align-all-tags)
