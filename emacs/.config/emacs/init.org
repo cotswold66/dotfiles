@@ -30,9 +30,9 @@ Initialize the package system, refresh the list of packages and install =use-pac
 
 #+begin_src emacs-lisp
   (package-initialize)
-  (when (not package-archive-contents)
+  (unless package-archive-contents
     (package-refresh-contents))
-  (when (not (package-installed-p 'use-package))
+  (unless (package-installed-p 'use-package)
     (package-install 'use-package))
 #+end_src
 
