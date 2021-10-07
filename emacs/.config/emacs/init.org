@@ -541,7 +541,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 ** Org roam
 #+begin_src elisp
   (use-package org-roam
-    :after org
+    ;; :after org
     :custom
     (org-roam-directory (file-truename "~/org"))
     (org-roam-capture-templates
@@ -597,8 +597,8 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     (org-capture-mode . org-align-all-tags)
     :init
     (setq org-roam-v2-ack t)
-    (org-roam-db-autosync-mode)
     :config
+    (org-roam-db-autosync-mode)
     (require 'org-roam-protocol)
     ;; (add-to-list 'display-buffer-alist
     ;;              '("\\*org-roam\\*"
