@@ -521,46 +521,6 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
                             ("DONE" :foreground "forest green" :weight bold)
                             ("CANCELLED" :foreground "forest green" :weight bold)))
 #+end_src
-** deft
-#+begin_src elisp
-  (use-package deft
-    :bind ("<f8>" . deft)
-    :commands deft
-    :hook
-    (deft-mode . (lambda () (set-fill-column 200)))
-    :custom
-    (deft-directory "~/org/")
-    (deft-recursive t)
-    (deft-use-filename-as-title nil)
-    (deft-use-filter-string-for-filename t)
-    (deft-auto-save-interval -1.0)
-    (deft-file-naming-rules
-     '(
-       (noslash . "-")
-       (nospace . "-")
-       (case-fn . downcase)
-       ))
-    (deft-strip-summary-regexp
-      (concat "\\("
-              "[\n\t]" ;; blank
-              "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
-              "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
-              "\\)"))
-    :config
-    (defun cm/deft-parse-title (file contents)
-      (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
-        (if begin
-            (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
-          (deft-base-filename file)))
-      )
-    (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
-    )
-#+end_src
-
-** helm-org-rifle
-#+begin_src elisp :tangle no
-  (use-package helm-org-rifle)
-#+end_src
 ** org-babel
 #+begin_src elisp :tangle no :noweb-ref org-config
   (org-babel-do-load-languages
