@@ -448,8 +448,7 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
   (org-agenda-files
    '("~/org/companies.org"
      "~/org/journal.org"
-     "~/org/contacts.org"
-     "~/org/todo.org"))
+     "~/org/contacts.org"))
   (org-agenda-tags-todo-honor-ignore-options t)
   (org-agenda-todo-ignore-scheduled 'all)
   (org-agenda-todo-ignore-deadlines 'all)
