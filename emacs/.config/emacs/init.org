@@ -770,14 +770,13 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
      (:flags . 6)
      (:mailing-list . 10)
      (:from-or-to . 22)
-     (:subject)
-     ))
+     (:subject)))
   (mu4e-org-link-query-in-headers-mode nil)
   (mu4e-sent-messages-behavior 'delete)
-  (mu4e-sent-folder   "/lordsonline/[Gmail].Sent Mail")       ;; sent messages
-  (mu4e-drafts-folder "/lordsonline/[Gmail].Drafts")     ;; unfinished messages
-  (mu4e-trash-folder  "/lordsonline/[Gmail].Trash")      ;; trashed messages
-  (mu4e-refile-folder "/lordsonline/[Gmail].All Mail")   ;; saved messages
+  (mu4e-sent-folder   "/lordsonline/sent")
+  (mu4e-drafts-folder "/lordsonline/drafts")
+  (mu4e-trash-folder  "/lordsonline/trash")
+  (mu4e-refile-folder "/lordsonline/all")
   (mu4e-update-interval 180)
   (mu4e-view-html-plaintext-ratio-heuristic most-positive-fixnum)
   (mu4e-view-show-images t)
@@ -804,18 +803,18 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
       (user-full-name . "John Lord")
       (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature"
                          )
-      (mu4e-drafts-folder . "/lordsonline/[Gmail].Drafts")
-      (mu4e-sent-folder   . "/lordsonline/[Gmail].Sent Mail")
-      (mu4e-trash-folder  . "/lordsonline/[Gmail].Trash")
-      (mu4e-refile-folder . "/lordsonline/[Gmail].All Mail")
+      (mu4e-drafts-folder . "/lordsonline/drafts")
+      (mu4e-sent-folder   . "/lordsonline/sent")
+      (mu4e-trash-folder  . "/lordsonline/trash")
+      (mu4e-refile-folder . "/lordsonline/all")
       (mu4e-maildir-shortcuts
        . (
-          (:maildir "/lordsonline/INBOX"              :key ?i)
-          (:maildir "/lordsonline/[Gmail].Sent Mail"  :key ?s)
-          (:maildir "/lordsonline/[Gmail].Trash"      :key ?t)
-          (:maildir "/lordsonline/[Gmail].Drafts"     :key ?d)
-          (:maildir "/lordsonline/[Gmail].All Mail"   :key ?a)
-          (:maildir "/archive"                        :key ?A)
+          (:maildir "/lordsonline/INBOX"        :key ?i)
+          (:maildir "/lordsonline/sent"         :key ?s)
+          (:maildir "/lordsonline/trash"        :key ?t)
+          (:maildir "/lordsonline/drafts"       :key ?d)
+          (:maildir "/lordsonline/all"          :key ?a)
+          (:maildir "/archive"                  :key ?A)
           )
        )
       (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
