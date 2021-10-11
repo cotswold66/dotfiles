@@ -695,8 +695,7 @@ Add some evil convenience features from the =evil-smartparens= package.
                    (slot . 0)
                    (window-width . 0.33)
                    (window-parameters . ((no-other-window . t)
-                                         (no-delete-other-windows . t)))))
-    )
+                                         (no-delete-other-windows . t))))))
 #+end_src
 
 The following function was borrowed online and adds a CREATED date property to new org roam nodes created at the file level.
@@ -727,8 +726,7 @@ The following function was modified from the above and adds a CREATED date prope
     :custom
     (org-ref-notes-function 'orb-org-ref-edit)
     (org-ref-default-bibliography
-     (list "~/git/bibliography/references.bib"))
-    )
+     (list "~/git/bibliography/references.bib")))
 #+end_src
 
 ** Consult bibtex
@@ -761,9 +759,7 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
     (org-roam-mode . org-roam-bibtex-mode)
     :bind
     (:map org-mode-map
-          ("C-c n a" . orb-note-actions)
-          )
-    )
+          ("C-c n a" . orb-note-actions)))
 #+end_src
 * Beancount
 #+begin_src emacs-lisp :tangle no
@@ -777,9 +773,7 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
     :bind
     (:map beancount-mode-map
           ("C-j" . outline-next-visible-heading)
-          ("C-k" . outline-previous-visible-heading)
-          )
-    )
+          ("C-k" . outline-previous-visible-heading)))
 #+end_src
 
 * Mu4e
@@ -799,11 +793,9 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
     <<mu4e-config>>
     (setq mu4e-contexts
      `(
-       <<mu4e-context>>
-       ))
+       <<mu4e-context>>))
     :init
-    (require 'smtpmail)
-    )
+    (require 'smtpmail))
 #+END_SRC
 
 ** Mu4e custom set variables
@@ -856,31 +848,24 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
                   (when msg
                     (string-prefix-p "/lordsonline" (mu4e-message-field msg :maildir))))
     :vars
-    '(
-      (user-mail-address . "john@lordsonline.org")
+    '((user-mail-address . "john@lordsonline.org")
       (user-full-name . "John Lord")
-      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature"
-                         )
+      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
       (mu4e-drafts-folder . "/lordsonline/drafts")
       (mu4e-sent-folder   . "/lordsonline/sent")
       (mu4e-trash-folder  . "/lordsonline/trash")
       (mu4e-refile-folder . "/lordsonline/all")
       (mu4e-maildir-shortcuts
-       . (
-          (:maildir "/lordsonline/INBOX"        :key ?i)
+       . ((:maildir "/lordsonline/INBOX"        :key ?i)
           (:maildir "/lordsonline/sent"         :key ?s)
           (:maildir "/lordsonline/trash"        :key ?t)
           (:maildir "/lordsonline/drafts"       :key ?d)
           (:maildir "/lordsonline/all"          :key ?a)
-          (:maildir "/archive"                  :key ?A)
-          )
-       )
+          (:maildir "/archive"                  :key ?A)))
       (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
       (smtpmail-smtp-user . "john@lordsonline.org")
       (smtpmail-smtp-server . "smtp.gmail.com")
-      (smtpmail-smtp-service . 587)
-      )
-    )
+      (smtpmail-smtp-service . 587)))
 #+end_src
 *** iCloud context
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
@@ -893,31 +878,24 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
                   (when msg
                     (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
     :vars
-    '(
-      (user-mail-address . "lordjd@icloud.com")
+    '((user-mail-address . "lordjd@icloud.com")
       (user-full-name . "John Lord")
-      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature"
-                         )
+      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
       (mu4e-drafts-folder . "/icloud/Drafts")
       (mu4e-sent-folder   . "/icloud/Sent")
       (mu4e-trash-folder  . "/icloud/Trash")
       (mu4e-refile-folder . "/icloud/Archive")
       (mu4e-maildir-shortcuts
-       . (
-          (:maildir "/icloud/INBOX"              :key ?i)
+       . ((:maildir "/icloud/INBOX"              :key ?i)
           (:maildir "/icloud/Sent"               :key ?s)
           (:maildir "/icloud/Trash"              :key ?t)
           (:maildir "/icloud/Drafts"             :key ?d)
           (:maildir "/icloud/Archive"            :key ?a)
-          (:maildir "/archive"                   :key ?A)
-          )
-       )
+          (:maildir "/archive"                   :key ?A)))
       (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
       (smtpmail-smtp-user . "john")
       (smtpmail-smtp-server . "smtp.gmail.com")
-      (smtpmail-smtp-service . 587)
-      )
-    )
+      (smtpmail-smtp-service . 587)))
 #+end_src
 *** Outlook context
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
@@ -930,31 +908,24 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
                   (when msg
                     (string-prefix-p "/outlook" (mu4e-message-field msg :maildir))))
     :vars
-    '(
-      (user-mail-address . "lordjd@outlook.com")
+    '((user-mail-address . "lordjd@outlook.com")
       (user-full-name . "John Lord")
-      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature"
-                         )
+      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
       (mu4e-drafts-folder . "/outlook/Drafts")
       (mu4e-sent-folder   . "/outlook/Sent")
       (mu4e-trash-folder  . "/outlook/Trash")
       (mu4e-refile-folder . "/outlook/Archive")
       (mu4e-maildir-shortcuts
-       . (
-          (:maildir "/outlook/INBOX"              :key ?i)
+       . ((:maildir "/outlook/INBOX"              :key ?i)
           (:maildir "/outlook/Sent"               :key ?s)
           (:maildir "/outlook/Trash"              :key ?t)
           (:maildir "/outlook/Drafts"             :key ?d)
           (:maildir "/outlook/Archive"            :key ?a)
-          (:maildir "/archive"                    :key ?A)
-          )
-       )
+          (:maildir "/archive"                    :key ?A)))
       (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
       (smtpmail-smtp-user . "john")
       (smtpmail-smtp-server . "smtp.gmail.com")
-      (smtpmail-smtp-service . 587)
-      )
-    )
+      (smtpmail-smtp-service . 587)))
 #+end_src
 *** Archive context
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
@@ -967,16 +938,9 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
                   (when msg
                     (string-prefix-p "/archive" (mu4e-message-field msg :maildir))))
     :vars
-    '(
-      (user-mail-address . "john@lordsonline.org")
+    '((user-mail-address . "john@lordsonline.org")
       (user-full-name . "John Lord")
-      (mu4e-maildir-shortcuts
-       . (
-          (:maildir "/archive"                  :key ?a)
-          )
-       )
-      )
-    )
+      (mu4e-maildir-shortcuts . ((:maildir "/archive" :key ?a)))))
 #+end_src
 *** Protonmail context
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
@@ -987,35 +951,28 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
     :match-func (lambda (msg)
                   (when msg
                     (string-prefix-p "/protonmail" (mu4e-message-field msg :maildir))))
-    :vars '(
-            (user-mail-address . "john@lordpharmaconsulting.com")
+    :vars '((user-mail-address . "john@lordpharmaconsulting.com")
             (user-full-name . "John Lord")
             (org-msg-signature . "\n\nBest regards,\n\nJohn
     ,,#+begin_signature
     -- 
     ,,*John Lord* \\\\
     Tel (US): /+1-512-550-4917/
-    ,,#+end_signature"
-                               )
+    ,,#+end_signature")
             (mu4e-drafts-folder . "/protonmail/Drafts")
             (mu4e-sent-folder   . "/protonmail/Sent")
             (mu4e-trash-folder  . "/protonmail/Trash")
             (mu4e-refile-folder . "/protonmail/Archive")
             (mu4e-maildir-shortcuts
-             . (
-                (:maildir "/protonmail/INBOX"     :key ?i)
+             . ((:maildir "/protonmail/INBOX"     :key ?i)
                 (:maildir "/protonmail/Sent"      :key ?s)
                 (:maildir "/protonmail/Trash"     :key ?t)
                 (:maildir "/protonmail/Archive"   :key ?a)
-                (:maildir "/archive"              :key ?A)
-                )
-             )
+                (:maildir "/archive"              :key ?A)))
             (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
             (smtpmail-smtp-user . "lordjd1@pm.me")
             (smtpmail-smtp-server . "127.0.0.1")
-            (smtpmail-smtp-service . 1025)
-            )
-    )
+            (smtpmail-smtp-service . 1025)))
 #+end_src
 ** Mu4e bookmarks
 
@@ -1040,10 +997,8 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
      org-msg-recipient-names '(("john@lordsonline.org" . "John Lord"))
      org-msg-greeting-name-limit 3
      org-msg-default-alternatives '(text html)
-     org-msg-convert-citation t
-     )
-    (org-msg-mode)
-    )
+     org-msg-convert-citation t)
+    (org-msg-mode))
 #+end_src
 
 * Magit
@@ -1071,8 +1026,7 @@ Set various dired custom variables.
     (dired-recursive-copies  'always)
     (dired-recursive-deletes 'top)
     (dired-create-destination-dirs 'ask)
-    (image-dired-thumb-size 150)
-    )
+    (image-dired-thumb-size 150))
 #+end_src
 
 Use =peep-dired= to show dired file previews.
@@ -1128,30 +1082,27 @@ Use =dired-rsync= for rsync functionality in dired mode.
           python-shell-interpreter-args "console --simple-prompt"
           python-shell-prompt-detect-failure-warning nil)
     (add-to-list 'python-shell-completion-native-disabled-interpreters
-                 "jupyter")
-    )
+                 "jupyter"))
 #+end_src
 
 #+name: ein
 #+begin_src emacs-lisp :tangle no
   (use-package ein
-    :ensure t
-   ) 
+    :ensure t) 
 #+end_src
 
 * Yaml
-** Yaml
+
 #+begin_src emacs-lisp
   (use-package yaml-mode
     :defer t)
 #+end_src
 
 * Terminals
-** Vterm
+
 #+begin_src emacs-lisp
   (use-package vterm
-    :defer t
-    ) 
+    :commands 'vterm) 
 #+end_src
 
 
