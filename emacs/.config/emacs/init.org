@@ -23,7 +23,7 @@ Add a hook that reports how long and how many garbage collections the startup to
 
 Declare the package repositories.
 
-#+begin_src elisp
+#+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 #+end_src
