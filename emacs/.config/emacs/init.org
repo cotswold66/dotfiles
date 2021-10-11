@@ -42,61 +42,94 @@ Finally, load =use-package= and ensure packages are installed by default. Later,
 
 #+begin_src emacs-lisp
   (require 'use-package)
-  ;; (custom-set-variables '(use-package-always-ensure t))
   (custom-set-variables '(use-package-always-ensure t)
                         '(use-package-verbose t))
 #+end_src
 
 * Global defaults and custom variables
 
-Clean up the interface by removing the menu bar, tool bar, and scroll bars. Also, inhibit the startup screen and provide an empty scratch buffer.
+Setup a noweb template to allow calling emacs functions and setting emacs custom variables with =use-package= for consistency with the rest of the config file.
 
-#+begin_src elisp
+#+begin_src emacs-lisp :noweb yes
+    (use-package emacs
+      :init
+      <<emacs-init>>
+      :bind
+      <<emacs-bind>>
+      :custom
+      <<emacs-custom>>
+      :config
+      <<emacs-config>>)
+#+end_src
+
+Clean up the interface by removing the menu bar, tool bar, and scroll bars. Show balanced parentheses.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  (custom-set-variables '(inhibit-startup-screen t)
-                        '(initial-scratch-message ""))
+  (show-paren-mode)
 #+end_src
 
-Do not create backup files since files under version control. Also, move deleted files to system trash instead of deleting outright.
+Inhibit the startup screen and provide an empty scratch buffer.
 
-#+begin_src elisp
-  (custom-set-variables '(delete-by-moving-to-trash t)
-                        '(make-backup-files nil))
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (inhibit-startup-screen t)
+  (initial-scratch-message "")
 #+end_src
 
-Move focus to help windows, which makes it easy to close them with a 'q'.
+Do not create backup files since files are under version control. Also, move deleted files to system trash instead of deleting outright.
 
-#+begin_src elisp
-  (custom-set-variables '(help-window-select t))
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (delete-by-moving-to-trash t)
+  (make-backup-files nil)
+#+end_src
+
+Move focus to help window when help activated, which makes it easy to close them with a 'q'.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (help-window-select t)
 #+end_src
 
 Enable various non-beginner functions.
 
-#+begin_src elisp
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
   (put 'narrow-to-region 'disabled nil)
 #+end_src
 
 Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to =M-Z=.
 
-#+begin_src elisp
-  (global-set-key "\M-z" 'zap-up-to-char)
-  (global-set-key "\M-Z" 'zap-to-char)
-#+end_src
-
-Install =visual-fill-column= which allows sets the column width to the default column width instead of fitting to the window size.
-
-#+begin_src elisp
-  (use-package visual-fill-column
-    :hook
-    (visual-line-mode . visual-fill-column-mode))
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-bind
+  ("M-z" . zap-up-to-char)
+  ("M-Z" . zap-to-char)
 #+end_src
 
 Start the =protonmail-bridge= process, if not already started to ensure available for =mu4e= protonmail context.
 
-#+begin_src elisp
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-config
   (call-process "protonmail-bridge" nil 0)
+#+end_src
+
+* Privilege and Authentication
+
+Install =sudo-edit= to allow for easier editing of read-only system files. Do not provide a key-binding to reduce risk.
+
+#+begin_src emacs-lisp
+  (use-package sudo-edit
+    :commands sudo-edit)
+#+end_src
+
+Configure =auth-source-pass= to provide passwords to Emacs. This interfaces with the external =pass= program.
+
+#+begin_src emacs-lisp
+  (use-package auth-source-pass
+    :defer t
+    :custom
+    (auth-source-debug t)
+    (auth-source-do-cache nil)
+    (auth-sources '(password-store))
+    :init
+    (auth-source-pass-enable))
 #+end_src
 
 * Themes
