@@ -141,7 +141,7 @@ Configure =all-the-icons= which provides nice icons for the doom theme. Fonts ne
     :defer t)
 #+end_src
 
-Configure =doom-themes= and default to the *doom-one* theme.
+Configure =doom-themes= and default to the *doom-nord* theme.
    
 #+begin_src emacs-lisp
   (use-package doom-themes
@@ -149,7 +149,7 @@ Configure =doom-themes= and default to the *doom-one* theme.
     (doom-themes-enable-bold t)
     (doom-themes-enable-italic t)
     :config
-    (load-theme 'doom-one t)
+    (load-theme 'doom-nord t)
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config))
 #+end_src
