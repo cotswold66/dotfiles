@@ -169,35 +169,35 @@ Ensure that =visual-line-mode= uses =visual-fill-column= which defaults to using
 #+end_src
 
 * Evil
-#+name: evil
-#+begin_src elisp
-  (use-package evil 
-    :demand
-    :init
-    (setq evil-emacs-state-cursor '("#c678dd" box)
-          evil-normal-state-cursor '("#51afef" box)
-          evil-visual-state-cursor '("#dd8844" box)
-          evil-insert-state-cursor '("red" bar)
-          evil-replace-state-cursor '("red" bar)
-          evil-operator-state-cursor '("red" hollow)
-          )
-    :custom
-    (evil-want-C-i-jump nil)
-    (evil-cross-lines t)
-    (evil-want-keybinding nil)
-    :bind (:map evil-normal-state-map
-                ([remap evil-next-line] . evil-next-visual-line)
-                ([remap evil-previous-line] . evil-previous-visual-line)
-           :map evil-motion-state-map
-                ([remap evil-next-line] . evil-next-visual-line)
-                ([remap evil-previous-line] . evil-previous-visual-line)
-         )
-    :config
-    (evil-mode))
+
+Add vim-like key-bindings throughout using the =evil= package. Update some custom variables and activate evil mode.
+
+#+begin_src emacs-lisp :noweb yes
+   (use-package evil 
+     :custom
+     (evil-cross-lines t) ;; allow horizontal motions to traverse lines
+     (evil-want-keybinding nil) ;; required for evil-collection
+     (evil-move-beyond-eol t) ;; emacs parens matching works better
+     :bind
+     <<evil-bind>>
+     :config
+     (evil-mode))
 #+end_src
 
-#+name: evil-collection
-#+begin_src elisp
+Set vertical movements as visual lines instead of real lines. 
+
+#+begin_src emacs-lisp :tangle no :noweb-ref evil-bind
+  (:map evil-normal-state-map
+                  ([remap evil-next-line] . evil-next-visual-line)
+                  ([remap evil-previous-line] . evil-previous-visual-line)
+             :map evil-motion-state-map
+                  ([remap evil-next-line] . evil-next-visual-line)
+                  ([remap evil-previous-line] . evil-previous-visual-line))
+#+end_src
+
+Install the =evil-collection= which ensures broader support for vim-like keybindings throughout and also applies a consistent approach to keybindings.
+
+#+begin_src emacs-lisp
   (use-package evil-collection
     :after evil
     :config
@@ -227,78 +227,87 @@ Use =projectile= for project management, set the default keymap binding and defi
     (projectile-mode) 
     :custom
     (projectile-project-search-path
-     '(
-       "~/org/"
+     '("~/org/"
        ("~/git/" . 1)
-       ("~/Analysis/" . 1)
-       ))
-   )
+       ("~/Analysis/" . 1))))
 #+end_src
 
-** Vertico
-#+begin_src elisp
+* Corfu
+
+Use =corfu= instead of company for completions.
+
+#+begin_src emacs-lisp
+  (use-package corfu
+    :defer 2
+    :init
+    (corfu-global-mode))
+#+end_src
+
+Enable TAB cycling on completions if 3 or less candidates. Also, TAB completes if line already indented.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (completion-cycle-threshold 3)
+  (tab-always-indent 'complete)
+#+end_src
+
+* Vertico, orderless, and marginalia
+
+Use =vertico= to provide vertical display of completion candidates.
+
+#+begin_src emacs-lisp
   (use-package vertico
     :defer 2
     :init
-    (vertico-mode)
-    )
+    (vertico-mode))
 #+end_src
 
-** Orderless
-#+begin_src elisp
+Use =orderless= to provide completion styles, including ordering. Specifcally, allow the use of wildcard searches in file paths.
+
+#+begin_src emacs-lisp
   (use-package orderless
     :defer t
     :custom
     (completion-styles '(orderless))
-    (orderless-component-separator "[ &]")
-    :config
-    (defun just-one-face (fn &rest args)
-      (let ((orderless-match-faces [completions-common-part]))
-        (apply fn args)))
-    (advice-add 'company-capf--candidates :around #'just-one-face)
-    )
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles partial-completion)))))
 #+end_src
 
-** Which Key
-#+begin_src elisp
-  (use-package which-key
-    :defer 3
-    :init
-    (which-key-mode)
-    )
-#+end_src
+Use =marginalia= to provide additional details in the minibuffer like file modes, etc.
 
-** Marginalia
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package marginalia
-    :bind
-    (:map minibuffer-local-map
-          ("M-A" . marginalia-cycle))
+    :bind (:map minibuffer-local-map
+                ("M-A" . marginalia-cycle))
     :init
-    (marginalia-mode)
-    )
+    (marginalia-mode))
 #+end_src
 
-** Embark
-#+begin_src elisp
+* Embark
+
+Use =embark= to provide minibuffer actions.  
+
+#+begin_src emacs-lisp :noweb yes
   (use-package embark
     :bind
-    ("C-." . embark-act)         ;; pick some comfortable binding
-    ("C-;" . embark-dwim)        ;; good alternative: M-.
+    ("C-." . embark-act)	      ;; pick some comfortable binding
+    ("C-;" . embark-dwim)	      ;; good alternative: M-.
     ("C-h B" . embark-bindings) ;; alternative for `describe-bindings'
-    :init
-    ;; Optionally replace the key help with a completing-read interface
-    (setq prefix-help-command #'embark-prefix-help-command)
     :config
-    ;; Hide the mode line of the Embark live/completions buffers
-    (add-to-list 'display-buffer-alist
-                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                   nil
-                   (window-parameters (mode-line-format . none)))))
+    <<embark-config>>)
 #+end_src
 
-** Consult
-#+begin_src elisp
+Hide the mode line of the Embark live/completions buffers.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref embark-config
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+#+end_src
+
+* Consult
+
+#+begin_src emacs-lisp :noweb yes
   ;; Example configuration for Consult
   (use-package consult
     :bind
@@ -307,23 +316,23 @@ Use =projectile= for project management, set the default keymap binding and defi
     ("C-c b" . consult-bookmark)
     ("C-c k" . consult-kmacro)
     ;; C-x bindings (ctl-x-map)
-    ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-    ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+    ("C-x M-:" . consult-complex-command)	;; orig. repeat-complex-command
+    ("C-x b" . consult-buffer)		;; orig. switch-to-buffer
     ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-    ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+    ("C-x 5 b" . consult-buffer-other-frame) ;; orig. switch-to-buffer-other-frame
     ;; Custom M-# bindings for fast register access
     ("M-#" . consult-register-load)
-    ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+    ("M-'" . consult-register-store) ;; orig. abbrev-prefix-mark (unrelated)
     ("C-M-#" . consult-register)
     ;; Other custom bindings
-    ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-    ("<help> a" . consult-apropos)            ;; orig. apropos-command
+    ("M-y" . consult-yank-pop)	 ;; orig. yank-pop
+    ("<help> a" . consult-apropos) ;; orig. apropos-command
     ;; M-g bindings (goto-map)
     ("M-g e" . consult-compile-error)
-    ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-    ("M-g g" . consult-goto-line)             ;; orig. goto-line
-    ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-    ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+    ("M-g f" . consult-flymake)	  ;; Alternative: consult-flycheck
+    ("M-g g" . consult-goto-line)	  ;; orig. goto-line
+    ("M-g M-g" . consult-goto-line) ;; orig. goto-line
+    ("M-g o" . consult-outline)	  ;; Alternative: consult-org-heading
     ("M-g m" . consult-mark)
     ("M-g k" . consult-global-mark)
     ("M-g i" . consult-imenu)
@@ -342,57 +351,86 @@ Use =projectile= for project management, set the default keymap binding and defi
     ;; Isearch integration
     ("M-s e" . consult-isearch)
     (:map isearch-mode-map
-     ("M-e" . consult-isearch)                 ;; orig. isearch-edit-string
-     ("M-s e" . consult-isearch)               ;; orig. isearch-edit-string
-     ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-     ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
+          ("M-e" . consult-isearch) ;; orig. isearch-edit-string
+          ("M-s e" . consult-isearch) ;; orig. isearch-edit-string
+          ("M-s l" . consult-line) ;; needed by consult-line to detect isearch
+          ("M-s L" . consult-line-multi))	;; needed by consult-line to detect isearch
     :init
-    ;; Optionally configure the register formatting. This improves the register
-    ;; preview for `consult-register', `consult-register-load',
-    ;; `consult-register-store' and the Emacs built-ins.
-    (setq register-preview-delay 0
-          register-preview-function #'consult-register-format)
-
-    ;; Optionally tweak the register preview window.
-    ;; This adds thin lines, sorting and hides the mode line of the window.
-    (advice-add #'register-preview :override #'consult-register-window)
-
-    ;; Optionally replace `completing-read-multiple' with an enhanced version.
-    (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
-
-    ;; Use Consult to select xref locations with preview
-    (setq xref-show-xrefs-function #'consult-xref
-          xref-show-definitions-function #'consult-xref)
+    <<consult-init>>
+    :custom
+    <<consult-custom>>
     :config
-    (setq consult-narrow-key "<") ;; (kbd "C-+")
-    (autoload 'projectile-project-root "projectile")
-    (setq consult-project-root-function #'projectile-project-root)
-  )
+    <<consult-config>>)
 #+end_src
 
-** Consult dir
-#+begin_src elisp :tangle no
+Optionally configure the register formatting. This improves the register preview for =consult-register=, =consult-register-load=, =consult-register-store= and the Emacs built-ins. Also, tweak the register preview window. This adds thin lines, sorting and hides the mode line of the window. Finally, replace =completing-read-multiple= with an enhanced version.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-init
+  (setq register-preview-function #'consult-register-format)
+  (advice-add 'register-preview
+              :override #'consult-register-window)
+  (advice-add 'completing-read-multiple
+              :override #'consult-completing-read-multiple)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
+  (register-preview-delay 0)
+#+end_src
+
+Use =consult= to select xref locations with preview.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
+  (xref-show-xrefs-function 'consult-xref)
+  (xref-show-definitions-function 'consult-xref)
+#+end_src
+
+Set the narrow key.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
+  (consult-narrow-key "<")
+#+end_src
+
+Set =consult= to use =projectile= for project completions.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
+  (consult-project-root-function 'projectile-project-root)
+#+end_src
+
+Use =consult-completion-in-region= if =vertico= is enabled. Otherwise use the default =completion--in-region= function.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref config
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args)))
+#+end_src
+
+Use =consult-dir= for easy switching of directories and projects.
+
+#+begin_src emacs-lisp
   (use-package consult-dir
     :ensure t
     :bind (("C-x C-d" . consult-dir)
            :map minibuffer-local-completion-map
            ("C-x C-d" . consult-dir)
-           ("C-x C-j" . consult-dir-jump-file)))
+           ("C-x C-j" . consult-dir-jump-file))
+    :custom
+    (consult-dir-project-list-function 'consult-dir-projectile-dirs))
 #+end_src
-** Embark Consult
-#+begin_src elisp
-  ;; Consult users will also want the embark-consult package.
+
+Use the =embark-consult= package.
+
+#+begin_src emacs-lisp
   (use-package embark-consult
     :after (embark consult)
-    :demand t ; only necessary if you have the hook below
-    ;; if you want to have consult previews as you move around an
-    ;; auto-updating embark collect buffer
-    :hook
-    (embark-collect-mode . consult-preview-at-point-mode))
+    :demand t
+    :hook (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
 ** Wgrep
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package wgrep
     :defer t
     :bind
@@ -403,45 +441,72 @@ Use =projectile= for project management, set the default keymap binding and defi
      )
     )
 #+end_src
-* Parentheses
-** Highlight parentheses
-#+begin_src elisp
-  (use-package highlight-parentheses
-    :defer 5
-    :config
-    (global-highlight-parentheses-mode)
-    )
+
+* Savehist and which-key
+
+Remember search histories between sessions with =savehist=.
+
+#+begin_src emacs-lisp
+  (use-package savehist
+    :init
+    (savehist-mode))
 #+end_src
 
-** Smartparens
-#+begin_src elisp
-  (use-package smartparens
-    :defer 6
-    :config
-    (smartparens-global-mode)
-    )
+Enable key completions with =which-key=.
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :defer 3
+    :init
+    (which-key-mode))
 #+end_src
+
+* Parentheses
+
+Use the =emacs= builtin parenthesis matching system.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (show-paren-mode)
+#+end_src
+
+Use =smartparens= to automatically produce matching parentheses. Manually change to strict mode to force matches (too restrictive to have on by default).
+
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :defer 2
+    :config
+    (smartparens-global-mode))
+#+end_src
+
+Add some evil convenience features from the =evil-smartparens= package.
+
+#+begin_src emacs-lisp
+  (use-package evil-smartparens
+    :hook (smartparens-enabled . evil-smartparens-mode))
+#+end_src
+
 * Org
 ** Org mode
-#+begin_src elisp :noweb yes
+
+#+begin_src emacs-lisp :noweb yes
   (use-package org
     :bind 
     ("C-c l" . org-store-link)
     ("C-c a" . org-agenda)
     ("C-c c" . org-capture)
-    :mode
-    ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
+    :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :hook
     (org-mode . (lambda () (set-fill-column 80)))
     (org-mode . visual-line-mode)
     :config
     <<org-config>>
     :custom
-    <<org-custom>>
-    )
+    <<org-custom>>)
 #+end_src
+
 ** Org custom
-#+begin_src elisp :tangle no :noweb-ref org-custom
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-directory "~/org/")
   (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
@@ -463,6 +528,7 @@ Use =projectile= for project management, set the default keymap binding and defi
   (org-agenda-files
    '("~/org/companies.org"
      "~/org/journal.org"
+     "~/org/todo.org"
      "~/org/contacts.org"))
   (org-agenda-tags-todo-honor-ignore-options t)
   (org-agenda-todo-ignore-scheduled 'all)
@@ -474,7 +540,7 @@ Use =projectile= for project management, set the default keymap binding and defi
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %? :fleeting:\n"
                ":PROPERTIES:\n"
-               ":created: %U\n"
+               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
                ":END:\n")
       :unnarrowed t
       :time-prompt t)
@@ -484,7 +550,7 @@ Use =projectile= for project management, set the default keymap binding and defi
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* Journal :journal:\n"
                ":PROPERTIES:\n"
-               ":created: %U\n"
+               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
                ":END:\n"
                "%?")
       :unnarrowed t)
@@ -494,7 +560,7 @@ Use =projectile= for project management, set the default keymap binding and defi
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %? :meeting:\n"
                ":PROPERTIES:\n"
-               ":created: %U\n"
+               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
                ":END:\n"
                ":DETAILS:\n"
                "- date :: %T\n"
@@ -512,8 +578,18 @@ Use =projectile= for project management, set the default keymap binding and defi
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %?  :task:\n"
                ":PROPERTIES:\n"
-               ":created: %U\n"
-               ":source: %a\n"
+               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+               ":SOURCE:   %a\n"
+               ":END:\n")
+      :unnarrowed t)
+     ("d"
+      "todo"
+      entry
+      (file "~/org/todo.org")
+      ,(concat "* TODO %?\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+               ":SOURCE:   %a\n"
                ":END:\n")
       :unnarrowed t)))
   (org-duration-format 'h:mm)
@@ -521,7 +597,9 @@ Use =projectile= for project management, set the default keymap binding and defi
   (org-log-done 'time)
   (org-log-into-drawer t)
   (org-outline-path-complete-in-steps nil)
-  (org-refile-targets '(("~/org/journal.org" . (:maxlevel . 3))))
+  (org-refile-targets '(
+                        ("~/org/journal.org" . (:maxlevel . 3))
+                        ("~/org/todo.org" . (:maxlevel . 3))))
   (org-refile-use-outline-path t)
   (org-startup-indented t)
   (org-tag-alist '(("@work" . ?w)
@@ -529,32 +607,24 @@ Use =projectile= for project management, set the default keymap binding and defi
   (org-time-stamp-rounding-minutes '(0 1))
   (org-todo-keywords
    '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)")))
-  (org-todo-keyword-faces '(("TODO" :foreground "red" :weight bold)
-                            ("NEXT" :foreground "light blue" :weight bold)
-                            ("WAITING" :foreground "orange" :weight bold)
-                            ("SOMETIME" :foreground "magenta" :weight bold)
-                            ("DONE" :foreground "forest green" :weight bold)
-                            ("CANCELLED" :foreground "forest green" :weight bold)))
 #+end_src
 ** org-babel
-#+begin_src elisp :tangle no :noweb-ref org-config
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '(
-     (emacs-lisp . t)
+   '((emacs-lisp . t)
      ;; (R . t)
      ;; (python .t)
      ;; (shell .t)
      ;; (org . t)
-     )
-   )
+     ))
 #+end_src
 
-#+begin_src elisp :tangle no :noweb-ref org-custom
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-confirm-babel-evaluate nil)
 #+end_src
 ** Org roam
-#+begin_src elisp
+#+begin_src emacs-lisp :noweb yes
   (use-package org-roam
     ;; :after org
     :custom
@@ -567,7 +637,6 @@ Use =projectile= for project management, set the default keymap binding and defi
         :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org"
                            ,(concat "#+title: ${title}\n"
                                     "#+filetags: :source:\n"
-                                    "- date :: %U\n"
                                     "- author :: ${author-or-editor}\n"
                                     "- journal :: ${journal}\n"
                                     "- year :: ${year}\n"
@@ -576,14 +645,12 @@ Use =projectile= for project management, set the default keymap binding and defi
        ("c" "company" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                            ,(concat "#+title: ${title}\n"
-                                    "#+filetags: :company:\n"
-                                    "- date :: %U\n"))
+                                    "#+filetags: :company:\n"))
         :unnarrowed t)
        ("p" "person" plain "%?" 
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                            ,(concat "#+title: ${title}\n"
                                     "#+filetags: :person:\n"
-                                    "- date :: %U\n"
                                     "- company :: \n"
                                     "- dob :: \n"
                                     "- interest :: \n"))
@@ -593,7 +660,6 @@ Use =projectile= for project management, set the default keymap binding and defi
         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                            ,(concat "#+title: ${title}\n"
                                     "#+filetags: :source:\n"
-                                    "- date :: %U\n"
                                     "- author :: ${author-or-editor}\n"
                                     "- journal :: ${journal}\n"
                                     "- year :: ${year}\n\n"))
@@ -614,6 +680,7 @@ Use =projectile= for project management, set the default keymap binding and defi
     (setq org-roam-v2-ack t)
     :config
     (org-roam-db-autosync-mode)
+    <<org-roam-config>>
     (require 'org-roam-protocol)
     ;; (add-to-list 'display-buffer-alist
     ;;              '("\\*org-roam\\*"
@@ -632,8 +699,29 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 
+The following function was borrowed online and adds a CREATED date property to new org roam nodes created at the file level.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-roam-config
+  (defun bms/add-other-auto-props-to-org-roam-properties (&optional ARG PRED)
+    (unless (org-find-property "CREATED")
+      (org-roam-add-property
+       (format-time-string "%Y-%m-%dT%H:%M:%S")
+       "CREATED")))	
+  (add-hook 'org-roam-capture-new-node-hook 'bms/add-other-auto-props-to-org-roam-properties)
+#+end_src
+
+The following function was modified from the above and adds a CREATED date property to new org roam nodes created at the heading level.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-roam-config
+  (defun jdl/add-other-auto-props-to-org-roam-properties (&optional ARG PRED)
+    (unless (org--property-local-values "CREATED" nil)
+      (org-roam-add-property
+       (format-time-string "%Y-%m-%dT%H:%M:%S")
+       "CREATED")))	
+  (advice-add  'org-id-get-create :before 'jdl/add-other-auto-props-to-org-roam-properties)
+#+end_src
 ** org-ref
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package org-ref
     :after org
     :custom
@@ -643,20 +731,28 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 
-** helm-bibtex
-#+begin_src elisp
-  (use-package helm-bibtex
-    :commands helm-bibtex
-    :bind
-    ("C-c n b" . helm-bibtex)
+** Consult bibtex
+
+#+begin_src emacs-lisp
+  (use-package consult-bibtex
+    :load-path ("~/.emacs.d/site-lisp/consult-bibtex")
+    :bind ("C-c n b" . consult-bibtex)
+    :config
+    (org-roam-bibtex-mode)
     :custom
     (bibtex-completion-pdf-field "file")
-    (bibtex-completion-bibliography "~/git/bibliography/references.bib")
-    )
+    (bibtex-completion-bibliography "~/git/bibliography/references.bib"))
+#+end_src
+
+Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides a good replacement for =helm-bibtex=.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref embark-config
+  (add-to-list 'embark-keymap-alist
+               '(bibtex-completion . consult-bibtex-embark-map))
 #+end_src
 
 ** org-roam-bibtex
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package org-roam-bibtex
     :after org-roam
     :custom
@@ -670,7 +766,7 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 * Beancount
-#+begin_src elisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package beancount
     :straight (beancount
                :type git
@@ -688,7 +784,7 @@ Use =projectile= for project management, set the default keymap binding and defi
 
 * Mu4e
 ** Mu4e
-#+begin_src elisp :noweb yes
+#+begin_src emacs-lisp :noweb yes
   (use-package mu4e
     :ensure nil
     :load-path "/usr/local/share/emacs/site-lisp/mu4e"
@@ -710,32 +806,13 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+END_SRC
 
-#+begin_src elisp :tangle no :noweb-ref mu4e-config
-  (defun my-remove-attachment (msg num)
-    "Remove attachment."
-    (let*
-        (
-         (attach (mu4e~view-get-attach msg num))
-         (path (mu4e-msg-field msg :path))
-         (filename (and attach (plist-get attach :name)))
-         (cmd (format "altermime --input='%s' --remove='%s'"  path filename)))
-      (when (and filename
-                 (yes-or-no-p
-                  (format "Are you sure you want to remove '%s'?" filename)))
-        (shell-command cmd)
-        (message cmd))))
-  (add-to-list 'mu4e-view-actions '("ViewInBrowser" . mu4e-action-view-in-browser) t)
-  (add-to-list 'mu4e-view-attachment-actions '("remove-attachment" . my-remove-attachment))
-  (advice-add #'shr-colorize-region :around (defun shr-no-colourise-region (&rest ignore)))
-#+end_src
-
 ** Mu4e custom set variables
-#+begin_src elisp :tangle no :noweb-ref mu4e-custom-vars
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-custom-vars
   (mail-user-agent 'mu4e-user-agent)
   (message-kill-buffer-on-exit t)
   (message-send-mail-function 'smtpmail-send-it)
   (mu4e-change-filenames-when-moving t)
-  ;;(mu4e-completing-read-function 'ivy-completing-read)
+  (mu4e-completing-read-function 'completing-read)
   (mu4e-compose-dont-reply-to-self t)
   (mu4e-compose-format-flowed t)
   (mu4e-compose-in-new-frame t)
@@ -747,8 +824,7 @@ Use =projectile= for project management, set the default keymap binding and defi
   (mu4e-headers-date-format "%Y-%m-%d")
   (mu4e-headers-auto-update t)
   (mu4e-headers-fields
-   '(
-     (:human-date . 12)
+   '((:human-date . 12)
      (:flags . 6)
      (:mailing-list . 10)
      (:from-or-to . 22)
@@ -770,7 +846,7 @@ Use =projectile= for project management, set the default keymap binding and defi
 #+end_src
 ** Mu4e contexts
 *** Lordsonline context
-#+begin_src elisp :tangle no :noweb-ref mu4e-context
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "Lordsonline"
     :enter-func (lambda () (mu4e-message "Entering Lordsonline context"))
@@ -807,7 +883,7 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 *** iCloud context
-#+begin_src elisp :tangle no :noweb-ref mu4e-context
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "iCloud"
     :enter-func (lambda () (mu4e-message "Entering iCloud context"))
@@ -844,7 +920,7 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 *** Outlook context
-#+begin_src elisp :tangle no :noweb-ref mu4e-context
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "Outlook"
     :enter-func (lambda () (mu4e-message "Entering outlook context"))
@@ -881,7 +957,7 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 *** Archive context
-#+begin_src elisp :tangle no :noweb-ref mu4e-context
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "Archive"
     :enter-func (lambda () (mu4e-message "Entering archive context"))
@@ -903,7 +979,7 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 *** Protonmail context
-#+begin_src elisp :tangle no :noweb-ref mu4e-context
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "P ProtonMail"
     :enter-func (lambda () (mu4e-message "Entering ProtonMail context"))
@@ -943,7 +1019,7 @@ Use =projectile= for project management, set the default keymap binding and defi
 #+end_src
 ** Mu4e bookmarks
 
-#+begin_src elisp :tangle no :noweb-ref mu4e-config
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-config
   (add-to-list 'mu4e-bookmarks
                '( :name  "Business messages"
                          :query "from:john@lordpharma.com or to:john@lordpharma.com or cc:john@lordpharma.com or bcc:john@lordpharma.com or from:john@lordpharmaconsulting.com or to:john@lordpharmaconsulting.com or cc:john@lordpharmaconsulting.com or bcc:john@lordpharmaconsulting.com"
@@ -953,7 +1029,7 @@ Use =projectile= for project management, set the default keymap binding and defi
 
 ** Org msg
 #+name: org-msg
-#+begin_src elisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package org-msg
     :after mu4e 
     :config
@@ -971,15 +1047,17 @@ Use =projectile= for project management, set the default keymap binding and defi
 #+end_src
 
 * Magit
-#+begin_src elisp
+
+#+begin_src emacs-lisp
   (use-package magit
-    :defer t
-    )
+    :defer t)
 #+end_src
 
 * Dired
-** Dired variables
-#+begin_src elisp
+
+Set various dired custom variables.
+
+#+begin_src emacs-lisp
   (use-package dired
     :defer t
     :hook
@@ -997,10 +1075,11 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 
-** Peep dired
-#+begin_src elisp
+Use =peep-dired= to show dired file previews.
+
+#+begin_src emacs-lisp
   (use-package peep-dired
-    :defer t
+    :commands 'peep-dired
     :custom
     (peep-dired-cleanup-on-disable t)
     :hook
@@ -1011,30 +1090,21 @@ Use =projectile= for project management, set the default keymap binding and defi
       (kbd "C-<SPC>") 'peep-dired-scroll-page-up
       (kbd "<backspace>") 'peep-dired-scroll-page-up
       (kbd "j") 'peep-dired-next-file
-      (kbd "k") 'peep-dired-prev-file)
-  )
+      (kbd "k") 'peep-dired-prev-file))
 #+end_src
 
-** Dired rsync
-#+begin_src elisp
+Use =dired-rsync= for rsync functionality in dired mode.
+
+#+begin_src emacs-lisp
   (use-package dired-rsync
     :bind
     (:map dired-mode-map
-          ("C-c C-r" . dired-rsync))
-    ) 
-#+end_src
-
-** Diredfl
-#+begin_src elisp
-  (use-package diredfl
-    :hook
-    (dired-mode . diredfl-mode)
-    ) 
+          ("C-c C-r" . dired-rsync))) 
 #+end_src
 
 * Latex
 #+name: auctex
-#+begin_src elisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package auctex
     :ensure t
     :defer t
@@ -1045,18 +1115,9 @@ Use =projectile= for project management, set the default keymap binding and defi
     )
 #+end_src
 
-#+name: moderncv
-#+begin_src elisp :tangle no 
-  ;; (use-package general
-  ;; (use-package ox-moderncv
-  ;;   :straight (ox-moderncv :type git :host gitlab :repo "Titan-C/org-cv")
-  ;;   :init (require 'ox-moderncv)
-  ;;   )
-#+end_src
-
 * Python
 #+name: python
-#+begin_src elisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package elpy
     :init
     (elpy-enable)
@@ -1072,7 +1133,7 @@ Use =projectile= for project management, set the default keymap binding and defi
 #+end_src
 
 #+name: ein
-#+begin_src elisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (use-package ein
     :ensure t
    ) 
@@ -1080,14 +1141,14 @@ Use =projectile= for project management, set the default keymap binding and defi
 
 * Yaml
 ** Yaml
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package yaml-mode
     :defer t)
 #+end_src
 
 * Terminals
 ** Vterm
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package vterm
     :defer t
     ) 
