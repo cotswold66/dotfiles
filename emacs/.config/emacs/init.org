@@ -136,14 +136,14 @@ Configure =auth-source-pass= to provide passwords to Emacs. This interfaces with
 
 Configure =all-the-icons= which provides nice icons for the doom theme. Fonts need to be manually installed using =(all-the-icons-install-fonts)=.
 
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package all-the-icons
     :defer t)
 #+end_src
 
 Configure =doom-themes= and default to the *doom-one* theme.
    
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package doom-themes
     :custom
     (doom-themes-enable-bold t)
@@ -156,27 +156,14 @@ Configure =doom-themes= and default to the *doom-one* theme.
 
 Configure =doom-modeline= for consistency with the doom theme.
    
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package doom-modeline
     :hook (after-init . doom-modeline-mode))
 #+end_src
 
-Configure =auth-source-pass= to provide passwords to Emacs. This interfaces with the external =pass= program.
-
-#+begin_src elisp
-  (use-package auth-source-pass
-    :defer t
-    :custom
-    (auth-source-debug t)
-    (auth-source-do-cache nil)
-    (auth-sources '(password-store))
-    :init
-    (auth-source-pass-enable))
-#+end_src
-
 Ensure that =visual-line-mode= uses =visual-fill-column= which defaults to using the value set in the variable =fill-column= to provide a fixed column width instead of defaulting to the window width.
 
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package visual-fill-column
     :hook (visual-line-mode . visual-fill-column-mode))
 #+end_src
