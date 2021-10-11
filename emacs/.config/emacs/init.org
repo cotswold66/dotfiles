@@ -206,27 +206,20 @@ Ensure that =visual-line-mode= uses =visual-fill-column= which defaults to using
 
 Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
 
-#+begin_src elisp
+#+begin_src emacs-lisp
   (use-package evil-org
     :after org
-    :hook
-    (org-mode . (lambda () evil-org-mode))
+    :hook (org-mode . (lambda () evil-org-mode))
     :config
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys))
 #+end_src
 
-* Completions and Projects
-** Company
-#+begin_src elisp
-  (use-package company
-    :hook
-    (after-init . global-company-mode)
-    )
-#+end_src
+* Projectile
 
-** Projectile
-#+begin_src elisp
+Use =projectile= for project management, set the default keymap binding and define some starting search paths.
+
+#+begin_src emacs-lisp
   (use-package projectile
     :bind-keymap
     ("C-c p" . projectile-command-map)
