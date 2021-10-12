@@ -487,7 +487,8 @@ Add some evil convenience features from the =evil-smartparens= package.
 #+end_src
 
 * Org
-** Org mode
+
+In order to use the latest version, start emacs with =emacs -q= and then install org for the ="M-x list-packages"= menu.
 
 #+begin_src emacs-lisp :noweb yes
   (use-package org
@@ -505,10 +506,49 @@ Add some evil convenience features from the =evil-smartparens= package.
     <<org-custom>>)
 #+end_src
 
-** Org custom
+Ensure that sparse regex and tag searches show entry details and not just the headings. This is very handy for browsing journal entries in a multipurpose file.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
+  (add-to-list 'org-show-context-detail '(occur-tree . local))
+  (add-to-list 'org-show-context-detail '(tags-tree . local))
+#+end_src
+
+Define the default org directory.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-directory "~/org/")
+  (org-directory "~/org")
+#+end_src
+
+Define the sequence of org todo keywords. Those before the ="|"= are todo items and those after are done items.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-todo-keywords
+   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|"
+               "DONE(d)" "CANCELLED(c)")))
+#+end_src
+
+When a task is marked as done, place the time of completion in a log drawer.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-log-done 'time)
+  (org-log-into-drawer t)
+#+end_src
+
+Improve the visual style of org buffers by indenting and hiding emphasis markers.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-hide-emphasis-markers t)
+  (org-startup-indented t)
+#+end_src
+
+Define the files used to create the agenda. For formatting, prefer to have a compact view which removes extra lines. Add a custom agenda view which splits todos into the sub-todo headings, e.g. "TODO", "NEXT", etc.. Load the agenda into the current window, which prevents agenda messing up window layout. Finally, ensure that todos with scheduled or deadlined timestamps are not included in the sub-todo lists as they are already included in the calendar view.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-agenda-files
+   '("~/org/companies.org"
+     "~/org/journal.org"
+     "~/org/todo.org"
+     "~/org/contacts.org"))
   (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
    '(("h" "Agenda and home tasks"
@@ -516,24 +556,24 @@ Add some evil convenience features from the =evil-smartparens= package.
        (todo "NEXT" ((org-agenda-overriding-header "Next")))
        (todo "TODO" ((org-agenda-overriding-header "Todo")))
        (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
-       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))))
-     ("j" tags-tree "+journal"
-      ((org-show-context-detail 'minimal)
-       (org-agenda-files '("~/org/journal.org"))
-       (org-agenda-text-search-extra-files nil)))
-     ("m" tags-tree "+meeting"
-      ((org-show-context-detail 'minimal)
-       (org-agenda-files '("~/org/journal.org"))
-       (org-agenda-text-search-extra-files nil)))))
-  (org-agenda-dim-blocked-tasks nil)
-  (org-agenda-files
-   '("~/org/companies.org"
-     "~/org/journal.org"
-     "~/org/todo.org"
-     "~/org/contacts.org"))
-  (org-agenda-tags-todo-honor-ignore-options t)
+       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))))))
+  (org-agenda-window-setup 'current-window)
   (org-agenda-todo-ignore-scheduled 'all)
   (org-agenda-todo-ignore-deadlines 'all)
+#+end_src
+
+Define refile targets and how outline paths are displayed. Specifically, allow all paths to be visualized since we use completion to narrow down the options.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-outline-path-complete-in-steps nil)
+  (org-refile-targets '(("~/org/journal.org" . (:maxlevel . 3))
+                        ("~/org/todo.org" . (:maxlevel . 3))))
+  (org-refile-use-outline-path t)
+#+end_src
+
+Define various capture templates. The list starts with =`(= instead of ='(= which enables the inclusion of the =concat= function (the =concat= list also needs to be proceeded by a comma) for improved template visualization in the code.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-capture-templates
    `(("f"
       "fleeting note"
@@ -593,23 +633,23 @@ Add some evil convenience features from the =evil-smartparens= package.
                ":SOURCE:   %a\n"
                ":END:\n")
       :unnarrowed t)))
-  (org-duration-format 'h:mm)
-  (org-hide-emphasis-markers t)
-  (org-log-done 'time)
-  (org-log-into-drawer t)
-  (org-outline-path-complete-in-steps nil)
-  (org-refile-targets '(
-                        ("~/org/journal.org" . (:maxlevel . 3))
-                        ("~/org/todo.org" . (:maxlevel . 3))))
-  (org-refile-use-outline-path t)
-  (org-startup-indented t)
+#+end_src
+
+Do not round timestamps.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-time-stamp-rounding-minutes '(0 1))
+#+end_src
+
+Set some standard tags.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-tag-alist '(("@work" . ?w)
                    ("@home" . ?h)))
-  (org-time-stamp-rounding-minutes '(0 1))
-  (org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|" "DONE(d)" "CANCELLED(c)")))
 #+end_src
-** org-babel
+
+Load org code block language support.
+
 #+begin_src emacs-lisp :tangle no :noweb-ref org-config
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -621,10 +661,13 @@ Add some evil convenience features from the =evil-smartparens= package.
      ))
 #+end_src
 
+Do not ask for confirmation before executing code.
+
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-confirm-babel-evaluate nil)
 #+end_src
-** Org roam
+
+* Org roam
 #+begin_src emacs-lisp :noweb yes
   (use-package org-roam
     ;; :after org
@@ -720,6 +763,7 @@ The following function was modified from the above and adds a CREATED date prope
        "CREATED")))	
   (advice-add  'org-id-get-create :before 'jdl/add-other-auto-props-to-org-roam-properties)
 #+end_src
+* Reference management
 ** org-ref
 #+begin_src emacs-lisp
   (use-package org-ref
@@ -762,6 +806,7 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
     (:map org-mode-map
           ("C-c n a" . orb-note-actions)))
 #+end_src
+
 * Beancount
 #+begin_src emacs-lisp :tangle no
   (use-package beancount
@@ -800,6 +845,7 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
 #+END_SRC
 
 ** Mu4e custom set variables
+
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-custom-vars
   (mail-user-agent 'mu4e-user-agent)
   (message-kill-buffer-on-exit t)
@@ -837,8 +883,10 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
   (shr-use-colors nil)
   (smtpmail-queue-mail nil)
 #+end_src
+
 ** Mu4e contexts
 *** Lordsonline context
+
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "Lordsonline"
@@ -868,7 +916,9 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
       (smtpmail-smtp-server . "smtp.gmail.com")
       (smtpmail-smtp-service . 587)))
 #+end_src
+
 *** iCloud context
+
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "iCloud"
@@ -898,7 +948,9 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
       (smtpmail-smtp-server . "smtp.gmail.com")
       (smtpmail-smtp-service . 587)))
 #+end_src
+
 *** Outlook context
+
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "Outlook"
@@ -928,7 +980,9 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
       (smtpmail-smtp-server . "smtp.gmail.com")
       (smtpmail-smtp-service . 587)))
 #+end_src
+
 *** Archive context
+
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "Archive"
@@ -943,7 +997,9 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
       (user-full-name . "John Lord")
       (mu4e-maildir-shortcuts . ((:maildir "/archive" :key ?a)))))
 #+end_src
+
 *** Protonmail context
+
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
     :name "P ProtonMail"
@@ -975,6 +1031,7 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
             (smtpmail-smtp-server . "127.0.0.1")
             (smtpmail-smtp-service . 1025)))
 #+end_src
+
 ** Mu4e bookmarks
 
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-config
@@ -1061,13 +1118,11 @@ Use =dired-rsync= for rsync functionality in dired mode.
 #+name: auctex
 #+begin_src emacs-lisp :tangle no
   (use-package auctex
-    :ensure t
     :defer t
     :config
     (setq TeX-auto-save t
           TeX-parse-self t)
-    (setq-default TeX-engine 'xetex)
-    )
+    (setq-default TeX-engine 'xetex))
 #+end_src
 
 * Python
