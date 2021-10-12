@@ -173,15 +173,16 @@ Ensure that =visual-line-mode= uses =visual-fill-column= which defaults to using
 Add vim-like key-bindings throughout using the =evil= package. Update some custom variables and activate evil mode.
 
 #+begin_src emacs-lisp :noweb yes
-   (use-package evil 
-     :custom
-     (evil-cross-lines t) ;; allow horizontal motions to traverse lines
-     (evil-want-keybinding nil) ;; required for evil-collection
-     (evil-move-beyond-eol t) ;; emacs parens matching works better
-     :bind
-     <<evil-bind>>
-     :config
-     (evil-mode))
+  (use-package evil 
+    :custom
+    (evil-cross-lines t) ;; allow horizontal motions to traverse lines
+    (evil-want-keybinding nil) ;; required for evil-collection
+    (evil-move-beyond-eol t) ;; emacs parens matching works better
+    (evil-want-C-i-jump nil) ;; allows org-cycle to work
+    :bind
+    <<evil-bind>>
+    :config
+    (evil-mode))
 #+end_src
 
 Set vertical movements as visual lines instead of real lines. 
