@@ -581,7 +581,7 @@ Define various capture templates. The list starts with =`(= instead of ='(= whic
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %? :fleeting:\n"
                ":PROPERTIES:\n"
-               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
                ":END:\n")
       :unnarrowed t
       :time-prompt t)
@@ -591,7 +591,7 @@ Define various capture templates. The list starts with =`(= instead of ='(= whic
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* Journal :journal:\n"
                ":PROPERTIES:\n"
-               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
                ":END:\n"
                "%?")
       :unnarrowed t)
@@ -601,7 +601,7 @@ Define various capture templates. The list starts with =`(= instead of ='(= whic
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %? :meeting:\n"
                ":PROPERTIES:\n"
-               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
                ":END:\n"
                ":DETAILS:\n"
                "- date :: %T\n"
@@ -619,7 +619,7 @@ Define various capture templates. The list starts with =`(= instead of ='(= whic
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %?  :task:\n"
                ":PROPERTIES:\n"
-               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
                ":SOURCE:   %a\n"
                ":END:\n")
       :unnarrowed t)
@@ -629,7 +629,7 @@ Define various capture templates. The list starts with =`(= instead of ='(= whic
       (file "~/org/todo.org")
       ,(concat "* TODO %?\n"
                ":PROPERTIES:\n"
-               ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
                ":SOURCE:   %a\n"
                ":END:\n")
       :unnarrowed t)))
