@@ -216,23 +216,6 @@ Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
     (evil-org-agenda-set-keys))
 #+end_src
 
-* Projectile
-
-Use =projectile= for project management, set the default keymap binding and define some starting search paths.
-
-#+begin_src emacs-lisp
-  (use-package projectile
-    :bind-keymap
-    ("C-c p" . projectile-command-map)
-    :config
-    (projectile-mode) 
-    :custom
-    (projectile-project-search-path
-     '("~/org/"
-       ("~/git/" . 1)
-       ("~/Analysis/" . 1))))
-#+end_src
-
 * Corfu
 
 Use =corfu= instead of company for completions.
@@ -391,10 +374,12 @@ Set the narrow key.
   (consult-narrow-key "<")
 #+end_src
 
-Set =consult= to use =projectile= for project completions.
+Set =consult= to use =project= for project completions.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
-  (consult-project-root-function 'projectile-project-root)
+  (consult-project-root-function
+   (lambda () (when-let (project (project-current))
+                (car (project-roots project)))))
 #+end_src
 
 Use =consult-completion-in-region= if =vertico= is enabled. Otherwise use the default =completion--in-region= function.
