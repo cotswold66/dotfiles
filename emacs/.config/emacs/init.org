@@ -668,6 +668,7 @@ Do not ask for confirmation before executing code.
 #+end_src
 
 * Org roam
+
 #+begin_src emacs-lisp :noweb yes
   (use-package org-roam
     ;; :after org
