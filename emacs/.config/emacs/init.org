@@ -1110,7 +1110,7 @@ Use =dired-rsync= for rsync functionality in dired mode.
 
 * Latex
 #+name: auctex
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package auctex
     :defer t
     :config
