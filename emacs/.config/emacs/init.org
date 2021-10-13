@@ -750,14 +750,19 @@ The following function was modified from the above and adds a CREATED date prope
   (advice-add  'org-id-get-create :before 'jdl/add-other-auto-props-to-org-roam-properties)
 #+end_src
 * Reference management
+** Org cite
+
+#+begin_src emacs-lisp
+  (use-package emacs
+    :custom
+    (org-cite-global-bibliography '("~/git/bibliography/references.bib")))
+#+end_src
+
 ** org-ref
+
 #+begin_src emacs-lisp
   (use-package org-ref
-    :after org
-    :custom
-    (org-ref-notes-function 'orb-org-ref-edit)
-    (org-ref-default-bibliography
-     (list "~/git/bibliography/references.bib")))
+    :after org)
 #+end_src
 
 ** Consult bibtex
@@ -781,11 +786,14 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
 #+end_src
 
 ** org-roam-bibtex
+
 #+begin_src emacs-lisp
   (use-package org-roam-bibtex
     :after org-roam
     :custom
-    (orb-preformat-keywords '("citekey" "title" "url" "file" "author-or-editor" "keywords" "doi" "date" "year" "journal" "journaltitle"))
+    (orb-preformat-keywords
+     '("citekey" "title" "url" "file" "author-or-editor"
+       "keywords" "doi" "date" "year" "journal" "journaltitle"))
     :hook
     (org-roam-mode . org-roam-bibtex-mode)
     :bind
