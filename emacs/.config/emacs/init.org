@@ -483,7 +483,7 @@ In order to use the latest version, start emacs with =emacs -q= and then install
     ("C-c c" . org-capture)
     :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :hook
-    (org-mode . (lambda () (set-fill-column 80)))
+    ;; (org-mode . (lambda () (set-fill-column 80)))
     (org-mode . visual-line-mode)
     :config
     <<org-config>>
