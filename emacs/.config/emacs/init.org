@@ -646,10 +646,11 @@ Load org code block language support.
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
-     ;; (R . t)
+     (R . t)
+     (latex . t)
      ;; (python .t)
-     ;; (shell .t)
-     ;; (org . t)
+     (shell .t)
+     (org . t)
      ))
 #+end_src
 
