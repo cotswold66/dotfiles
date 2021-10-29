@@ -830,7 +830,7 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
 #+begin_src emacs-lisp :noweb yes
   (use-package mu4e
     :ensure nil
-    :load-path "/usr/local/share/emacs/site-lisp/mu4e"
+    :load-path "/usr/share/emacs/site-lisp/mu4e"
     :commands mu4e
     :hook
     (mu4e-compose-mode . turn-off-auto-fill)
@@ -1030,7 +1030,7 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
                 (:maildir "/protonmail/Archive"   :key ?a)
                 (:maildir "/archive"              :key ?A)))
             (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
-            (smtpmail-smtp-user . "lordjd1@pm.me")
+            (smtpmail-smtp-user . "john@lordpharmaconsulting.com")
             (smtpmail-smtp-server . "127.0.0.1")
             (smtpmail-smtp-service . 1025)))
 #+end_src
