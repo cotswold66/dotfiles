@@ -526,6 +526,13 @@ Improve the visual style of org buffers by indenting and hiding emphasis markers
   (org-startup-indented t)
 #+end_src
 
+Make latex greek letters and sub and superscripts show visually.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-pretty-entities t)
+  (org-pretty-entities-include-sub-superscripts t)
+#+end_src
+
 Define the files used to create the agenda. For formatting, prefer to have a compact view which removes extra lines. Add a custom agenda view which splits todos into the sub-todo headings, e.g. "TODO", "NEXT", etc.. Load the agenda into the current window, which prevents agenda messing up window layout. Finally, ensure that todos with scheduled or deadlined timestamps are not included in the sub-todo lists as they are already included in the calendar view.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
