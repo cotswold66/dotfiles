@@ -432,10 +432,8 @@ Use the =embark-consult= package.
 
 Remember search histories between sessions with =savehist=.
 
-#+begin_src emacs-lisp
-  (use-package savehist
-    :init
-    (savehist-mode))
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (savehist-mode)
 #+end_src
 
 Enable key completions with =which-key=.
