@@ -459,7 +459,9 @@ Use =smartparens= to automatically produce matching parentheses. Manually change
   (use-package smartparens
     :defer 2
     :config
-    (smartparens-global-mode))
+    (smartparens-global-mode)
+    (sp-pair "'" nil :actions :rem)
+    (sp-pair "`" nil :actions :rem))
 #+end_src
 
 Add some evil convenience features from the =evil-smartparens= package.
