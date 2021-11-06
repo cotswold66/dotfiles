@@ -3,7 +3,7 @@
 #+PROPERTY: header-args :results silent :tangle "/home/john/.emacs.d/init.el"
 #+STARTUP: overview
 
-* Init load time
+* Early init
 
 Add a hook that reports how long and how many garbage collections the startup took. The hook is run at the very end, so the message doesn't get clobbered by other messages during startup.
 
