@@ -420,19 +420,6 @@ Use the =embark-consult= package.
     :hook (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
-** Wgrep
-#+begin_src emacs-lisp
-  (use-package wgrep
-    :defer t
-    :bind
-    (:map
-     grep-mode-map
-     ("C-x C-q" . wgrep-change-to-wgrep-mode)
-     ("C-c C-c" . wgrep-finish-edit)
-     )
-    )
-#+end_src
-
 * Savehist and which-key
 
 Remember search histories between sessions with =savehist=.
