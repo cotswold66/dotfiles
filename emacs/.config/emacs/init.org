@@ -19,6 +19,12 @@ Add a hook that reports how long and how many garbage collections the startup to
       gcs-done)))
   (server-start)
 #+end_src
+
+Specify a separate custom file.
+
+#+begin_src emacs-lisp
+  (setq custom-file "~/git/config/emacs-custom.el")
+  (load custom-file)
 #+end_src
 
 * Package Management
