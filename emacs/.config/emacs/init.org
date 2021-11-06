@@ -171,6 +171,9 @@ Ensure that =visual-line-mode= uses =visual-fill-column= which defaults to using
 #+end_src
 
 * Evil
+:PROPERTIES:
+:header-args: :tangle no
+:END:
 
 Add vim-like key-bindings throughout using the =evil= package. Update some custom variables and activate evil mode.
 
