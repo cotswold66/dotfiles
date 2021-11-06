@@ -112,12 +112,6 @@ Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to =M-Z=
   ("M-Z" . zap-to-char)
 #+end_src
 
-# Start the =protonmail-bridge= process, if not already started to ensure available for =mu4e= protonmail context.
-
-# #+begin_src emacs-lisp :tangle no :noweb-ref emacs-config
-#   (call-process "protonmail-bridge" nil 0)
-# #+end_src
-
 * Privilege and Authentication
 
 Install =sudo-edit= to allow for easier editing of read-only system files. Do not provide a key-binding to reduce risk.
