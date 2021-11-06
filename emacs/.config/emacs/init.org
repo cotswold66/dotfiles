@@ -408,7 +408,7 @@ Use =consult-dir= for easy switching of directories and projects.
            ("C-x C-d" . consult-dir)
            ("C-x C-j" . consult-dir-jump-file))
     :custom
-    (consult-dir-project-list-function 'consult-dir-projectile-dirs))
+    (consult-dir-project-list-function 'consult-dir-project-dirs))
 #+end_src
 
 Use the =embark-consult= package.
