@@ -437,32 +437,6 @@ Enable key completions with =which-key=.
     (which-key-mode))
 #+end_src
 
-* Parentheses
-
-Use the =emacs= builtin parenthesis matching system.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
-  (show-paren-mode)
-#+end_src
-
-Use =smartparens= to automatically produce matching parentheses. Manually change to strict mode to force matches (too restrictive to have on by default).
-
-#+begin_src emacs-lisp
-  (use-package smartparens
-    :defer 2
-    :config
-    (smartparens-global-mode)
-    (sp-pair "'" nil :actions :rem)
-    (sp-pair "`" nil :actions :rem))
-#+end_src
-
-Add some evil convenience features from the =evil-smartparens= package.
-
-#+begin_src emacs-lisp
-  (use-package evil-smartparens
-    :hook (smartparens-enabled . evil-smartparens-mode))
-#+end_src
-
 * Org
 
 In order to use the latest version, start emacs with =emacs -q= and then install org for the ="M-x list-packages"= menu.
