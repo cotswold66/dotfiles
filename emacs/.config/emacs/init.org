@@ -17,6 +17,11 @@ Add a hook that reports how long and how many garbage collections the startup to
               (float-time
                (time-subtract after-init-time before-init-time)))
       gcs-done)))
+#+end_src
+
+Start the emacs server.
+
+#+begin_src emacs-lisp
   (server-start)
 #+end_src
 
