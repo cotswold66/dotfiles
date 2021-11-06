@@ -782,21 +782,6 @@ Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides 
           ("C-c n a" . orb-note-actions)))
 #+end_src
 
-* Beancount
-#+begin_src emacs-lisp :tangle no
-  (use-package beancount
-    :straight (beancount
-               :type git
-               :host github
-               :repo "beancount/beancount-mode")
-    :mode ("\\.beancount\\'" . beancount-mode)
-    :hook (beancount-mode . outline-minor-mode)
-    :bind
-    (:map beancount-mode-map
-          ("C-j" . outline-next-visible-heading)
-          ("C-k" . outline-previous-visible-heading)))
-#+end_src
-
 * Mu4e
 ** Mu4e
 #+begin_src emacs-lisp :noweb yes
