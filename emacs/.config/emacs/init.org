@@ -64,15 +64,15 @@ Finally, load =use-package= and ensure packages are installed by default. Later,
 Setup a noweb template to allow calling emacs functions and setting emacs custom variables with =use-package= for consistency with the rest of the config file.
 
 #+begin_src emacs-lisp :noweb yes
-    (use-package emacs
-      :init
-      <<emacs-init>>
-      :bind
-      <<emacs-bind>>
-      :custom
-      <<emacs-custom>>
-      :config
-      <<emacs-config>>)
+  (use-package emacs
+    :init
+    <<emacs-init>>
+    :bind
+    <<emacs-bind>>
+    :custom
+    <<emacs-custom>>
+    :config
+    <<emacs-config>>)
 #+end_src
 
 Clean up the interface by removing the menu bar, tool bar, and scroll bars. Show balanced parentheses.
