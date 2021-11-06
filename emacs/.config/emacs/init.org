@@ -1082,8 +1082,8 @@ Use =dired-rsync= for rsync functionality in dired mode.
   (use-package tex
     :ensure auctex
     :defer t
-    ;; :custom
-    ;; (TeX-engine 'xetex)
+    :custom
+    (TeX-engine 'luatex)
     :config
     (setq TeX-auto-save t
           TeX-parse-self t)
