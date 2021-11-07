@@ -415,6 +415,14 @@ Remember search histories between sessions with =savehist=.
   (savehist-mode)
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package recentf
+    :init
+    (recentf-mode)
+    :custom
+    (recentf-max-saved-items 50))
+#+end_src
+
 Enable key completions with =which-key=.
 
 #+begin_src emacs-lisp
