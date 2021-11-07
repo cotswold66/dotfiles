@@ -25,13 +25,6 @@ Start the emacs server.
   (server-start)
 #+end_src
 
-Specify a separate custom file.
-
-#+begin_src emacs-lisp
-  (setq custom-file "~/git/config/emacs-custom.el")
-  (load custom-file)
-#+end_src
-
 * Package Management
 
 Declare the package repositories.
