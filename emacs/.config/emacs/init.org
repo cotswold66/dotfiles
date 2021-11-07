@@ -468,7 +468,7 @@ Improve the visual style of org buffers by indenting and hiding emphasis markers
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-hide-emphasis-markers t)
-  (org-startup-indented t)
+  ;; (org-startup-indented t)
 #+end_src
 
 Make latex greek letters and sub and superscripts show visually.
