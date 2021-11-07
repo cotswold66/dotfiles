@@ -143,16 +143,9 @@ Enable the built-in leuven theme.
   (custom-enabled-themes '(leuven))
 #+end_src
 
-Ensure that =visual-line-mode= uses =visual-fill-column= which defaults to using the value set in the variable =fill-column= to provide a fixed column width instead of defaulting to the window width.
-
-#+begin_src emacs-lisp
-  (use-package visual-fill-column
-    :hook (visual-line-mode . visual-fill-column-mode))
-#+end_src
-
 * Evil
 :PROPERTIES:
-:header-args: :tangle no
+# :header-args: :tangle no
 :END:
 
 Add vim-like key-bindings throughout using the =evil= package. Update some custom variables and activate evil mode.
@@ -436,9 +429,7 @@ In order to use the latest version, start emacs with =emacs -q= and then install
     ("C-c a" . org-agenda)
     ("C-c c" . org-capture)
     :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
-    :hook
-    ;; (org-mode . (lambda () (set-fill-column 80)))
-    (org-mode . visual-line-mode)
+    :hook (org-mode . auto-fill-mode)
     :config
     <<org-config>>
     :custom
