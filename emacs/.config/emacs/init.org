@@ -163,8 +163,6 @@ interfaces with the external =pass= program.
     (auth-source-pass-enable))
 #+end_src
 
-#+end_src
-
 * Themes
 
 Configure =modus-themes=.
@@ -291,65 +289,6 @@ Configure =modus-themes=.
     :custom
     (meow-expand-exclude-mode-list '(markdown-mode))
     (meow-expand-hint-remove-delay 2.0))
-#+end_src
-
-* Evil
-:PROPERTIES:
-:header-args: :tangle no
-:END:
-
-
-
-Add vim-like key-bindings throughout using the =evil= package. Update some custom variables and activate evil mode.
-
-#+begin_src emacs-lisp :noweb yes
-  (use-package evil 
-    :custom
-    (evil-cross-lines t) ;; allow horizontal motions to traverse lines
-    (evil-want-keybinding nil) ;; required for evil-collection
-    (evil-move-beyond-eol t) ;; emacs parens matching works better
-    (evil-want-C-i-jump nil) ;; allows org-cycle to work
-    :bind
-    <<evil-bind>>
-    :init
-    (evil-mode)
-    (evil-set-initial-state 'dired-mode 'emacs)
-    (evil-set-initial-state 'org-agenda-mode 'emacs)
-    (evil-set-initial-state 'help-mode 'emacs)
-    (evil-set-initial-state 'info-mode 'emacs)
-    (evil-set-initial-state 'vterm-mode 'emacs)
-    (evil-set-initial-state 'calc-mode 'emacs))
-#+end_src
-
-Set vertical movements as visual lines instead of real lines. 
-
-#+begin_src emacs-lisp :tangle no :noweb-ref evil-bind
-  (:map evil-normal-state-map
-                  ([remap evil-next-line] . evil-next-visual-line)
-                  ([remap evil-previous-line] . evil-previous-visual-line)
-             :map evil-motion-state-map
-                  ([remap evil-next-line] . evil-next-visual-line)
-                  ([remap evil-previous-line] . evil-previous-visual-line))
-#+end_src
-
-Install the =evil-collection= which ensures broader support for vim-like keybindings throughout and also applies a consistent approach to keybindings.
-
-#+begin_src emacs-lisp :tangle no
-  (use-package evil-collection
-    :after evil
-    :config
-    (evil-collection-init))
-#+end_src
-
-Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
-
-#+begin_src emacs-lisp
-  (use-package evil-org
-    :after org
-    :hook (org-mode . (lambda () evil-org-mode))
-    :config
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys))
 #+end_src
 
 * Corfu
@@ -1186,8 +1125,6 @@ Set various dired custom variables.
 #+begin_src emacs-lisp
   (use-package dired
     :defer t
-    ;; :hook
-    ;; (dired-mode . evil-mode)
     :ensure nil
     :custom
     (dired-listing-switches "-alh -v --group-directories-first")
@@ -1207,15 +1144,6 @@ Use =peep-dired= to show dired file previews.
     :commands 'peep-dired
     :custom
     (peep-dired-cleanup-on-disable t))
-    ;; :hook
-    ;; (peep-dired . evil-normalize-keymaps)
-    ;; :config
-    ;; (evil-define-key 'normal peep-dired-mode-map
-    ;;   (kbd "<SPC>") 'peep-dired-scroll-page-down
-    ;;   (kbd "C-<SPC>") 'peep-dired-scroll-page-up
-    ;;   (kbd "<backspace>") 'peep-dired-scroll-page-up
-    ;;   (kbd "j") 'peep-dired-next-file
-    ;;   (kbd "k") 'peep-dired-prev-file))
 #+end_src
 
 Use =dired-rsync= for rsync functionality in dired mode.
