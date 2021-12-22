@@ -5,7 +5,9 @@
 
 * Early init
 
-Add a hook that reports how long and how many garbage collections the startup took. The hook is run at the very end, so the message doesn't get clobbered by other messages during startup.
+Add a hook that reports how long and how many garbage collections the
+startup took. The hook is run at the very end, so the message doesn't
+get clobbered by other messages during startup.
 
 #+begin_src emacs-lisp
   (add-hook
@@ -34,7 +36,8 @@ Declare the package repositories.
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 #+end_src
 
-Initialize the package system, refresh the list of packages and install =use-package= if needed.
+Initialize the package system, refresh the list of packages and
+install =use-package= if needed.
 
 #+begin_src emacs-lisp
   (package-initialize)
@@ -44,7 +47,9 @@ Initialize the package system, refresh the list of packages and install =use-pac
     (package-install 'use-package))
 #+end_src
 
-Finally, load =use-package= and ensure packages are installed by default. Later, system packages and already installed packages can include an =:ensure nil= clause.
+Finally, load =use-package= and ensure packages are installed by
+default. Later, system packages and already installed packages can
+include an =:ensure nil= clause.
 
 #+begin_src emacs-lisp
   (require 'use-package)
@@ -54,7 +59,9 @@ Finally, load =use-package= and ensure packages are installed by default. Later,
 
 * Global defaults and custom variables
 
-Setup a noweb template to allow calling emacs functions and setting emacs custom variables with =use-package= for consistency with the rest of the config file.
+Setup a noweb template to allow calling emacs functions and setting
+emacs custom variables with =use-package= for consistency with the rest
+of the config file.
 
 #+begin_src emacs-lisp :noweb yes
   (use-package emacs
@@ -68,7 +75,8 @@ Setup a noweb template to allow calling emacs functions and setting emacs custom
     <<emacs-config>>)
 #+end_src
 
-Clean up the interface by removing the menu bar, tool bar, and scroll bars. Show balanced parentheses.
+Clean up the interface by removing the menu bar, tool bar, and scroll
+bars. Show balanced parentheses.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
   (menu-bar-mode -1)
@@ -85,20 +93,23 @@ Inhibit the startup screen and provide an empty scratch buffer.
   (initial-scratch-message "")
 #+end_src
 
-Do not create backup files since files are under version control. Also, move deleted files to system trash instead of deleting outright.
+Do not create backup files since files are under version control.
+Also, move deleted files to system trash instead of deleting outright.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
   (delete-by-moving-to-trash t)
   (make-backup-files nil)
 #+end_src
 
-Move focus to help window when help activated, which makes it easy to close them with a 'q'.
+Move focus to help window when help activated, which makes it easy to
+close them with a 'q'.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
   (help-window-select t)
 #+end_src
 
-Define a sentence as only having one space after the final punctuation.
+Define a sentence as only having one space after the final
+punctuation.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
   (sentence-end-double-space nil)
@@ -110,7 +121,8 @@ Enable various non-beginner functions.
   (put 'narrow-to-region 'disabled nil)
 #+end_src
 
-Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to =M-Z=.
+Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to
+=M-Z=.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-bind
   ("M-z" . zap-up-to-char)
@@ -129,14 +141,16 @@ Set the default font.
 
 * Privilege and Authentication
 
-Install =sudo-edit= to allow for easier editing of read-only system files. Do not provide a key-binding to reduce risk.
+Install =sudo-edit= to allow for easier editing of read-only system
+files. Do not provide a key-binding to reduce risk.
 
 #+begin_src emacs-lisp
   (use-package sudo-edit
     :commands sudo-edit)
 #+end_src
 
-Configure =auth-source-pass= to provide passwords to Emacs. This interfaces with the external =pass= program.
+Configure =auth-source-pass= to provide passwords to Emacs. This
+interfaces with the external =pass= program.
 
 #+begin_src emacs-lisp
   (use-package auth-source-pass
@@ -349,7 +363,8 @@ Use =corfu= instead of company for completions.
     (corfu-global-mode))
 #+end_src
 
-Enable TAB cycling on completions if 3 or less candidates. Also, TAB completes if line already indented.
+Enable TAB cycling on completions if 3 or less candidates. Also, TAB
+completes if line already indented.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
   (completion-cycle-threshold 3)
@@ -367,7 +382,8 @@ Use =vertico= to provide vertical display of completion candidates.
     (vertico-mode))
 #+end_src
 
-Use =orderless= to provide completion styles, including ordering. Specifcally, allow the use of wildcard searches in file paths.
+Use =orderless= to provide completion styles, including ordering.
+Specifcally, allow the use of wildcard searches in file paths.
 
 #+begin_src emacs-lisp
   (use-package orderless
@@ -378,7 +394,8 @@ Use =orderless= to provide completion styles, including ordering. Specifcally, a
     (completion-category-overrides '((file (styles partial-completion)))))
 #+end_src
 
-Use =marginalia= to provide additional details in the minibuffer like file modes, etc.
+Use =marginalia= to provide additional details in the minibuffer like
+file modes, etc.
 
 #+begin_src emacs-lisp
   (use-package marginalia
@@ -469,7 +486,12 @@ Hide the mode line of the Embark live/completions buffers.
     <<consult-config>>)
 #+end_src
 
-Optionally configure the register formatting. This improves the register preview for =consult-register=, =consult-register-load=, =consult-register-store= and the Emacs built-ins. Also, tweak the register preview window. This adds thin lines, sorting and hides the mode line of the window. Finally, replace =completing-read-multiple= with an enhanced version.
+Optionally configure the register formatting. This improves the
+register preview for =consult-register=, =consult-register-load=,
+=consult-register-store= and the Emacs built-ins. Also, tweak the
+register preview window. This adds thin lines, sorting and hides the
+mode line of the window. Finally, replace =completing-read-multiple=
+with an enhanced version.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref consult-init
   (setq register-preview-function #'consult-register-format)
@@ -504,7 +526,8 @@ Set =consult= to use =project= for project completions.
                 (car (project-roots project)))))
 #+end_src
 
-Use =consult-completion-in-region= if =vertico= is enabled. Otherwise use the default =completion--in-region= function.
+Use =consult-completion-in-region= if =vertico= is enabled. Otherwise use
+the default =completion--in-region= function.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref config
   (setq completion-in-region-function
@@ -564,7 +587,8 @@ Enable key completions with =which-key=.
 
 * Org
 
-In order to use the latest version, start emacs with =emacs -q= and then install org for the ="M-x list-packages"= menu.
+In order to use the latest version, start emacs with =emacs -q= and then
+install org for the ="M-x list-packages"= menu.
 
 #+begin_src emacs-lisp :noweb yes
   (use-package org
@@ -580,7 +604,9 @@ In order to use the latest version, start emacs with =emacs -q= and then install
     <<org-custom>>)
 #+end_src
 
-Ensure that sparse regex and tag searches show entry details and not just the headings. This is very handy for browsing journal entries in a multipurpose file.
+Ensure that sparse regex and tag searches show entry details and not
+just the headings. This is very handy for browsing journal entries in
+a multipurpose file.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-config
   (add-to-list 'org-show-context-detail '(occur-tree . local))
@@ -593,7 +619,8 @@ Define the default org directory.
   (org-directory "~/org")
 #+end_src
 
-Define the sequence of org todo keywords. Those before the ="|"= are todo items and those after are done items.
+Define the sequence of org todo keywords. Those before the ="|"= are
+todo items and those after are done items.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-todo-keywords
@@ -601,14 +628,16 @@ Define the sequence of org todo keywords. Those before the ="|"= are todo items 
                "DONE(d)" "CANCELLED(c)")))
 #+end_src
 
-When a task is marked as done, place the time of completion in a log drawer.
+When a task is marked as done, place the time of completion in a log
+drawer.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-log-done 'time)
   (org-log-into-drawer t)
 #+end_src
 
-Improve the visual style of org buffers by indenting and hiding emphasis markers.
+Improve the visual style of org buffers by indenting and hiding
+emphasis markers.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-hide-emphasis-markers t)
@@ -622,7 +651,13 @@ Make latex greek letters and sub and superscripts show visually.
   (org-pretty-entities-include-sub-superscripts t)
 #+end_src
 
-Define the files used to create the agenda. For formatting, prefer to have a compact view which removes extra lines. Add a custom agenda view which splits todos into the sub-todo headings, e.g. "TODO", "NEXT", etc.. Load the agenda into the current window, which prevents agenda messing up window layout. Finally, ensure that todos with scheduled or deadlined timestamps are not included in the sub-todo lists as they are already included in the calendar view.
+Define the files used to create the agenda. For formatting, prefer to
+have a compact view which removes extra lines. Add a custom agenda
+view which splits todos into the sub-todo headings, e.g. "TODO",
+"NEXT", etc.. Load the agenda into the current window, which prevents
+agenda messing up window layout. Finally, ensure that todos with
+scheduled or deadlined timestamps are not included in the sub-todo
+lists as they are already included in the calendar view.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-agenda-files
@@ -643,7 +678,9 @@ Define the files used to create the agenda. For formatting, prefer to have a com
   (org-agenda-todo-ignore-deadlines 'all)
 #+end_src
 
-Define refile targets and how outline paths are displayed. Specifically, allow all paths to be visualized since we use completion to narrow down the options.
+Define refile targets and how outline paths are displayed.
+Specifically, allow all paths to be visualized since we use completion
+to narrow down the options.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-outline-path-complete-in-steps nil)
@@ -652,7 +689,10 @@ Define refile targets and how outline paths are displayed. Specifically, allow a
   (org-refile-use-outline-path t)
 #+end_src
 
-Define various capture templates. The list starts with =`(= instead of ='(= which enables the inclusion of the =concat= function (the =concat= list also needs to be proceeded by a comma) for improved template visualization in the code.
+Define various capture templates. The list starts with =`(= instead of
+='(= which enables the inclusion of the =concat= function (the =concat= list
+also needs to be proceeded by a comma) for improved template
+visualization in the code.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-capture-templates
@@ -825,7 +865,8 @@ Do not ask for confirmation before executing code.
                                          (no-delete-other-windows . t))))))
 #+end_src
 
-The following function was borrowed online and adds a CREATED date property to new org roam nodes created at the file level.
+The following function was borrowed online and adds a CREATED date
+property to new org roam nodes created at the file level.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-roam-config
   (defun bms/add-other-auto-props-to-org-roam-properties (&optional ARG PRED)
@@ -836,7 +877,8 @@ The following function was borrowed online and adds a CREATED date property to n
   (add-hook 'org-roam-capture-new-node-hook 'bms/add-other-auto-props-to-org-roam-properties)
 #+end_src
 
-The following function was modified from the above and adds a CREATED date property to new org roam nodes created at the heading level.
+The following function was modified from the above and adds a CREATED
+date property to new org roam nodes created at the heading level.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-roam-config
   (defun jdl/add-other-auto-props-to-org-roam-properties (&optional ARG PRED)
@@ -876,7 +918,8 @@ The following function was modified from the above and adds a CREATED date prope
     (bibtex-completion-bibliography "~/git/bibliography/references.bib"))
 #+end_src
 
-Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This provides a good replacement for =helm-bibtex=.
+Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This
+provides a good replacement for =helm-bibtex=.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref embark-config
   (add-to-list 'embark-keymap-alist
