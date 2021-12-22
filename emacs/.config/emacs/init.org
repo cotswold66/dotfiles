@@ -117,6 +117,16 @@ Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to =M-Z=
   ("M-Z" . zap-to-char)
 #+end_src
 
+Set the default font.
+
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil
+                    :family "Inconsolata"
+                    :height 120
+                    :weight 'normal
+                    :width 'normal)
+#+end_src
+
 * Privilege and Authentication
 
 Install =sudo-edit= to allow for easier editing of read-only system files. Do not provide a key-binding to reduce risk.
