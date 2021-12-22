@@ -98,6 +98,12 @@ Move focus to help window when help activated, which makes it easy to close them
   (help-window-select t)
 #+end_src
 
+Define a sentence as only having one space after the final punctuation.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (sentence-end-double-space nil)
+#+end_src
+
 Enable various non-beginner functions.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
