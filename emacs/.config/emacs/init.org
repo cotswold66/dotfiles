@@ -153,10 +153,30 @@ Configure =auth-source-pass= to provide passwords to Emacs. This interfaces with
 
 * Themes
 
-Enable the built-in leuven theme.
+Configure =modus-themes=.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (custom-enabled-themes '(leuven))
+#+begin_src emacs-lisp
+  (use-package modus-themes
+    :ensure
+    :init
+    ;; Add all your customizations prior to loading the themes
+    (setq modus-themes-italic-constructs t
+	  modus-themes-deuteranopia t
+	  modus-themes-bold-constructs nil
+	  modus-themes-diffs 'desaturated
+	  modus-themes-hl-line 'accented-background
+	  modus-themes-links 'no-underline
+	  modus-themes-org-blocks 'grayscale
+	  modus-themes-region '(bg-only no-extend)
+	  modus-themes-headings
+	  '((t . rainbow-section)))
+    ;; Load the theme files before enabling a theme
+    (modus-themes-load-themes)
+    :config
+    ;; Load the theme of your choice:
+    (modus-themes-load-operandi) ;; OR (modus-themes-load-vivendi)
+    :bind ("<f5>" . modus-themes-toggle))
+#+end_src
 #+end_src
 
 * Evil
