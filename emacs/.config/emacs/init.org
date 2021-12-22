@@ -1184,25 +1184,17 @@ Use =dired-rsync= for rsync functionality in dired mode.
           ("C-c C-r" . dired-rsync))) 
 #+end_src
 
-* Latex
+* Tex
 #+name: auctex
 #+begin_src emacs-lisp
-  (use-package tex
-    :ensure auctex
+  (use-package auctex
     :defer t
     :custom
     (TeX-engine 'luatex)
+    (ConTeXt-Mark-version "IV") 
     :config
     (setq TeX-auto-save t
-          TeX-parse-self t)
-    (add-to-list 'org-latex-classes
-      '("myreport" 
-        "\\documentclass[11pt]{report}"
-        ;; ("\\part{%s}" . "\\part*{%s}")
-        ("\\chapter{%s}" . "\\chapter*{%s}")
-        ("\\section{%s}" . "\\section*{%s}")
-        ("\\subsection{%s}" . "\\subsection*{%s}")
-        ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+	  TeX-parse-self t))
 #+end_src
 
 #+begin_src emacs-lisp
