@@ -134,7 +134,7 @@ Set the default font.
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil
                     :family "Inconsolata"
-                    :height 120
+                    :height 130
                     :weight 'normal
                     :width 'normal)
 #+end_src
@@ -165,12 +165,10 @@ interfaces with the external =pass= program.
 
 * Themes
 
-Configure =nord-theme=.
+Enable the built-in leuven theme.
 
-#+begin_src emacs-lisp
-  (use-package nord-theme
-    :init
-    (load-theme 'nord t))
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (custom-enabled-themes '(leuven))
 #+end_src
 
 * Meow
@@ -232,7 +230,7 @@ Configure =nord-theme=.
    '("H" . meow-left-expand)
    '("i" . meow-insert)
    '("I" . meow-open-above)
-   '("j" . meow-next)
+   '("j" . meow-next) 
    '("J" . meow-next-expand)
    '("k" . meow-prev)
    '("K" . meow-prev-expand)
@@ -1023,6 +1021,39 @@ provides a good replacement for =helm-bibtex=.
       (smtpmail-smtp-service . 587)))
 #+end_src
 
+*** Zoho context
+
+#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
+  ,(make-mu4e-context
+    :name "Zoho"
+    :enter-func (lambda () (mu4e-message "Entering zoho context"))
+    :leave-func (lambda () (mu4e-message "Leaving zoho context"))
+    ;; we match based on the maildir of the message
+    :match-func (lambda (msg)
+		  (when msg
+		    (string-prefix-p "/zoho" (mu4e-message-field msg :maildir))))
+    :vars
+    '((user-mail-address . "john@lordpharmaconsulting.com")
+      (user-full-name . "John Lord")
+      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
+      (mu4e-drafts-folder . "/zoho/Drafts")
+      (mu4e-sent-folder   . "/zoho/Sent")
+      (mu4e-trash-folder  . "/zoho/Trash")
+      (mu4e-refile-folder . "/zoho/Archive")
+      (mu4e-maildir-shortcuts
+       . ((:maildir "/zoho/INBOX"              :key ?i)
+	  (:maildir "/zoho/Sent"               :key ?s)
+	  (:maildir "/zoho/Trash"              :key ?t)
+	  (:maildir "/zoho/Drafts"             :key ?d)
+	  (:maildir "/zoho/Archive"            :key ?a)
+	  (:maildir "/archive"                    :key ?A)))
+      (smtpmail-queue-dir . "~/Maildir/zoho/queue/cur")
+     (smtpmail-auth-credentials . '((smtppro.zoho.com 587 john@lordpharmaconsulting.com nil))) 
+      (smtpmail-smtp-user . "john@lordpharmaconsulting.com")
+      (smtpmail-smtp-server . "smtppro.zoho.com")
+      (smtpmail-smtp-service . 587)))
+#+end_src
+
 *** Archive context
 
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
@@ -1040,39 +1071,6 @@ provides a good replacement for =helm-bibtex=.
       (mu4e-maildir-shortcuts . ((:maildir "/archive" :key ?a)))))
 #+end_src
 
-*** Protonmail context
-
-#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
-  ,(make-mu4e-context
-    :name "P ProtonMail"
-    :enter-func (lambda () (mu4e-message "Entering ProtonMail context"))
-    :leave-func (lambda () (mu4e-message "Leaving ProtonMail context"))
-    :match-func (lambda (msg)
-                  (when msg
-                    (string-prefix-p "/protonmail" (mu4e-message-field msg :maildir))))
-    :vars '((user-mail-address . "john@lordpharmaconsulting.com")
-            (user-full-name . "John Lord")
-            (org-msg-signature . "\n\nBest regards,\n\nJohn
-    ,,#+begin_signature
-    -- 
-    ,,*John Lord* \\\\
-    Tel (US): /+1-512-550-4917/
-    ,,#+end_signature")
-            (mu4e-drafts-folder . "/protonmail/Drafts")
-            (mu4e-sent-folder   . "/protonmail/Sent")
-            (mu4e-trash-folder  . "/protonmail/Trash")
-            (mu4e-refile-folder . "/protonmail/Archive")
-            (mu4e-maildir-shortcuts
-             . ((:maildir "/protonmail/INBOX"     :key ?i)
-                (:maildir "/protonmail/Sent"      :key ?s)
-                (:maildir "/protonmail/Trash"     :key ?t)
-                (:maildir "/protonmail/Archive"   :key ?a)
-                (:maildir "/archive"              :key ?A)))
-            (smtpmail-queue-dir . "~/Maildir/protonmail/queue/cur")
-            (smtpmail-smtp-user . "john@lordpharmaconsulting.com")
-            (smtpmail-smtp-server . "127.0.0.1")
-            (smtpmail-smtp-service . 1025)))
-#+end_src
 
 ** Mu4e bookmarks
 
@@ -1141,14 +1139,21 @@ Use =dired-rsync= for rsync functionality in dired mode.
 * Tex
 #+name: auctex
 #+begin_src emacs-lisp
-  (use-package auctex
-    :defer t
-    :custom
-    (TeX-engine 'luatex)
-    (ConTeXt-Mark-version "IV") 
-    :config
-    (setq TeX-auto-save t
-	  TeX-parse-self t))
+    (use-package auctex
+      :defer t
+      :custom
+      (TeX-engine 'luatex)
+      (ConTeXt-Mark-version "IV") 
+      :config
+      (setq TeX-auto-save t
+	    TeX-parse-self t)
+      (setq TeX-view-program-list
+      '(("zathura" 
+	 ("zathura" (mode-io-correlate "-sync.sh")
+	  " "
+	  (mode-io-correlate "%n:1:%t ")
+	  "%o")))))
+	  
 #+end_src
 
 #+begin_src emacs-lisp
