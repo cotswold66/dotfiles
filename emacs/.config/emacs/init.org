@@ -820,7 +820,7 @@ date property to new org roam nodes created at the heading level.
 
 ** org-ref
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package org-ref
     :after org)
 #+end_src
@@ -1156,7 +1156,7 @@ Use =dired-rsync= for rsync functionality in dired mode.
 	  
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package cdlatex
     :hook (org-mode . turn-on-org-cdlatex))  
 #+end_src
@@ -1170,7 +1170,7 @@ Use =dired-rsync= for rsync functionality in dired mode.
 ; these math abbrevs (` as prefix char) are also useful in TeX/ConTeXt files
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package mmm-mode
     :custom-face
     (mmm-code-submode-face ((t (:background "white")))))
