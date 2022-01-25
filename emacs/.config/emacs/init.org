@@ -167,11 +167,69 @@ interfaces with the external =pass= program.
 
 Enable the built-in leuven theme.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (custom-enabled-themes '(leuven))
+#+begin_src emacs-lisp
+  (use-package base16-theme
+   :defer nil
+   :init
+   (load-theme 'base16-tomorrow-night t))
+#+end_src
+
+* Evil
+:PROPERTIES:
+# :header-args: :tangle no
+:END:
+
+Add vim-like key-bindings throughout using the =evil= package. Update some custom variables and activate evil mode.
+
+#+begin_src emacs-lisp :noweb yes
+  (use-package evil
+    :defer nil
+    :custom
+    (evil-cross-lines t) ;; allow horizontal motions to traverse lines
+    (evil-want-keybinding nil) ;; required for evil-collection
+    (evil-move-beyond-eol t) ;; emacs parens matching works better
+    (evil-want-C-i-jump nil) ;; allows org-cycle to work
+    :bind
+    <<evil-bind>>
+    :config
+    (evil-mode))
+#+end_src
+
+Set vertical movements as visual lines instead of real lines. 
+
+#+begin_src emacs-lisp :tangle no :noweb-ref evil-bind
+  (:map evil-normal-state-map
+                  ([remap evil-next-line] . evil-next-visual-line)
+                  ([remap evil-previous-line] . evil-previous-visual-line)
+             :map evil-motion-state-map
+                  ([remap evil-next-line] . evil-next-visual-line)
+                  ([remap evil-previous-line] . evil-previous-visual-line))
+#+end_src
+
+Install the =evil-collection= which ensures broader support for vim-like keybindings throughout and also applies a consistent approach to keybindings.
+
+#+begin_src emacs-lisp
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
+#+end_src
+
+Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
+
+#+begin_src emacs-lisp
+  (use-package evil-org
+    :after org
+    :hook (org-mode . (lambda () evil-org-mode))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys))
 #+end_src
 
 * Meow
+:PROPERTIES:
+:header-args: :tangle no
+:END:
 
 #+begin_src emacs-lisp
   (defun meow-setup ()
