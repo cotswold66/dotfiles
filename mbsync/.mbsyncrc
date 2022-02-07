@@ -1,4 +1,4 @@
-IMAPAccount lordsonline
+IMAPAccount personal
 Host imap.gmail.com
 User john@lordsonline.org
 PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/imap.gmail.com:587/john@lordsonline.org.gpg"
@@ -9,275 +9,99 @@ SSLVersions TLSv1.2
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 PipelineDepth 50
 
-IMAPStore lordsonline-remote
-Account lordsonline
+IMAPStore personal-remote
+Account personal
 
-MaildirStore lordsonline-local
-Path ~/Maildir/lordsonline/
-Inbox ~/Maildir/lordsonline/INBOX
+MaildirStore personal-local
+Path ~/Maildir/personal/
+Inbox ~/Maildir/personal/INBOX
 
-Channel lordsonline-inbox
-Far :lordsonline-remote:
-Near :lordsonline-local:
+Channel personal-inbox
+Far :personal-remote:
+Near :personal-local:
 Patterns "INBOX"
 Create Both
 Expunge Both
 SyncState *
 
-Channel lordsonline-trash
-Far :lordsonline-remote:"[Gmail]/Trash"
-Near :lordsonline-local:"trash"
+Channel personal-trash
+Far :personal-remote:"[Gmail]/Trash"
+Near :personal-local:"trash"
 Create Both
 Expunge Both
 SyncState *
 
-Channel lordsonline-sent
-Far :lordsonline-remote:"[Gmail]/Sent Mail"
-Near :lordsonline-local:"sent"
+Channel personal-sent
+Far :personal-remote:"[Gmail]/Sent Mail"
+Near :personal-local:"sent"
 Create Both
 Expunge Both
 SyncState *
 
-Channel lordsonline-all
-Far :lordsonline-remote:"[Gmail]/All Mail"
-Near :lordsonline-local:"all"
+Channel personal-all
+Far :personal-remote:"[Gmail]/All Mail"
+Near :personal-local:"all"
 Create Both
 Expunge Both
 SyncState *
 
-Group lordsonline
-Channel lordsonline-inbox
-Channel lordsonline-sent
-Channel lordsonline-trash
-Channel lordsonline-all
+Group personal
+Channel personal-inbox
+Channel personal-sent
+Channel personal-trash
+Channel personal-all
 
 ## ------------------------------------------------------------ 
 
-IMAPAccount icloud
-Host imap.mail.me.com
-User lordjd
-PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/imap.mail.me.com:993/lordjd@icloud.com.gpg"
-AuthMechs LOGIN
-SSLType IMAPS
-# SSLVersions TLSv1.2
-# CertificateFile /etc/ssl/certs/ca-bundle.crt
-PipelineDepth 50
-
-IMAPStore icloud-remote
-Account icloud
-
-MaildirStore icloud-local
-Path ~/Maildir/icloud/
-Inbox ~/Maildir/icloud/INBOX
-
-Channel icloud-inbox
-Far :icloud-remote:
-Near :icloud-local:
-Patterns "INBOX"
-Create Both
-Expunge Both
-SyncState *
-
-Channel icloud-trash
-Far :icloud-remote:"Deleted Messages"
-Near :icloud-local:"Trash"
-Create Both
-Expunge Both
-SyncState *
-
-Channel icloud-sent
-Far :icloud-remote:"Sent Messages"
-Near :icloud-local:"Sent"
-Create Both
-Expunge Both
-SyncState *
-
-Channel icloud-archive
-Far :icloud-remote:"Archive"
-Near :icloud-local:"Archive"
-Create Both
-Expunge Both
-SyncState *
-
-Group icloud
-Channel icloud-inbox
-Channel icloud-sent
-Channel icloud-trash
-Channel icloud-archive
-
-## ------------------------------------------------------------ 
-
-IMAPAccount outlook
-Host outlook.office365.com
-User lordjd@outlook.com
-PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/outlook.office365.com:993/lordjd@outlook.com.gpg"
-AuthMechs LOGIN
-SSLType IMAPS
-SSLVersions TLSv1.2
-CertificateFile /etc/ssl/certs/ca-certificates.crt
-# CertificateFile /etc/ssl/certs/ca-bundle.crt
-PipelineDepth 50
-
-IMAPStore outlook-remote
-Account outlook
-
-MaildirStore outlook-local
-Path ~/Maildir/outlook/
-Inbox ~/Maildir/outlook/INBOX
-
-Channel outlook-inbox
-Far :outlook-remote:
-Near :outlook-local:
-Patterns "INBOX"
-Create Both
-Expunge Both
-SyncState *
-
-Channel outlook-trash
-Far :outlook-remote:"Deleted"
-Near :outlook-local:"Trash"
-Create Both
-Expunge Both
-SyncState *
-
-Channel outlook-sent
-Far :outlook-remote:"Sent"
-Near :outlook-local:"Sent"
-Create Both
-Expunge Both
-SyncState *
-
-Channel outlook-archive
-Far :outlook-remote:"Archive"
-Near :outlook-local:"Archive"
-Create Both
-Expunge Both
-SyncState *
-
-Group outlook
-Channel outlook-inbox
-Channel outlook-sent
-Channel outlook-trash
-Channel outlook-archive
-
-## ------------------------------------------------------------ 
-
-IMAPAccount zoho
-Host imappro.zoho.com
+IMAPAccount business
+Host imap.gmail.com
 User john@lordpharmaconsulting.com
-PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/imappro.zoho.com:993/john@lordpharmaconsulting.com.gpg"
+PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/imap.gmail.com:587/john@lordpharmaconsulting.com.gpg"
 AuthMechs LOGIN
 SSLType IMAPS
 SSLVersions TLSv1.2
-CertificateFile /etc/ssl/certs/ca-certificates.crt
 # CertificateFile /etc/ssl/certs/ca-bundle.crt
+CertificateFile /etc/ssl/certs/ca-certificates.crt
 PipelineDepth 50
 
-IMAPStore zoho-remote
-Account zoho
+IMAPStore business-remote
+Account business
 
-MaildirStore zoho-local
-Path ~/Maildir/zoho/
-Inbox ~/Maildir/zoho/INBOX
+MaildirStore business-local
+Path ~/Maildir/business/
+Inbox ~/Maildir/business/INBOX
 
-Channel zoho-inbox
-Far :zoho-remote:
-Near :zoho-local:
+Channel business-inbox
+Far :business-remote:
+Near :business-local:
 Patterns "INBOX"
 Create Both
 Expunge Both
 SyncState *
 
-Channel zoho-trash
-Far :zoho-remote:"Trash"
-Near :zoho-local:"Trash"
+Channel business-trash
+Far :business-remote:"[Gmail]/Trash"
+Near :business-local:"trash"
 Create Both
 Expunge Both
 SyncState *
 
-Channel zoho-sent
-Far :zoho-remote:"Sent"
-Near :zoho-local:"Sent"
+Channel business-sent
+Far :business-remote:"[Gmail]/Sent Mail"
+Near :business-local:"sent"
 Create Both
 Expunge Both
 SyncState *
 
-Channel zoho-archive
-Far :zoho-remote:"Archive"
-Near :zoho-local:"Archive"
+Channel business-all
+Far :business-remote:"[Gmail]/All Mail"
+Near :business-local:"all"
 Create Both
 Expunge Both
 SyncState *
 
-Group zoho
-Channel zoho-inbox
-Channel zoho-sent
-Channel zoho-trash
-Channel zoho-archive
-
-## -----------------------------------------------------------------
-
-# IMAPAccount protonmail
-# Host 127.0.0.1
-# Port 1143
-# User john@lordpharmaconsulting.com
-# PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/127.0.0.1:1143/john@lordpharmaconsulting.com.gpg"
-# # AuthMechs LOGIN
-# SSLType STARTTLS
-# SSLVersions TLSv1.2
-# Certificatefile ~/.config/protonmail/bridge/cert.pem
-# #SSLVersions SSLv3
-# # CertificateFile /etc/ssl/certs/ca-bundle.crt
-# # PipelineDepth 50
-
-# # REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
-# IMAPStore pm-remote
-# Account protonmail
-
-# # LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p ~/Maildir/protonmail)
-# MaildirStore pm-local
-# Path ~/Maildir/protonmail/
-# Inbox ~/Maildir/protonmail/INBOX/
-
-# Channel pm-inbox
-# Far :pm-remote:
-# Near :pm-local:
-# Patterns "INBOX"
-# Create Both
-# Expunge Both
-# SyncState *
-
-# Channel pm-sent
-# Far :pm-remote:"Sent"
-# Near :pm-local:"Sent"
-# Create Both
-# Expunge Both
-# SyncState *
-
-# Channel pm-trash
-# Far :pm-remote:"Trash"
-# Near :pm-local:"Trash"
-# Create Both
-# Expunge Both
-# SyncState *
-
-# Channel pm-spam
-# Far :pm-remote:"Spam"
-# Near :pm-local:"Spam"
-# Create Both
-# Expunge Both
-# SyncState *
-
-# Channel pm-archive
-# Far :pm-remote:"Archive"
-# Near :pm-local:"Archive"
-# Create Both
-# Expunge Both
-# SyncState *
-
-# Group protonmail
-# Channel pm-inbox
-# Channel pm-sent
-# Channel pm-trash
-# Channel pm-spam
-# Channel pm-archive
+Group business
+Channel business-inbox
+Channel business-sent
+Channel business-trash
+Channel business-all
