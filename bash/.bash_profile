@@ -21,8 +21,6 @@ export WORKON_HOME=~/src
 export SSH_AUTH_SOCK=/run/user/1000/keyring/ssh
 export LESS='-R --use-color -Dd+r$Du+b'
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
-# export GDK_SCALE=2
-# export GDK_DPI_SCALE=0.5
 
 if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
   MOZ_ENABLE_WAYLAND=1 QT_QPA_PLATFORM=wayland XDG_SESSION_TYPE=wayland exec sway
