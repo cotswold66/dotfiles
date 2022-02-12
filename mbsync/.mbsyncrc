@@ -13,8 +13,8 @@ IMAPStore personal-remote
 Account personal
 
 MaildirStore personal-local
-Path ~/Maildir/personal/
-Inbox ~/Maildir/personal/INBOX
+Path ~/mail/personal/
+Inbox ~/mail/personal/INBOX
 
 Channel personal-inbox
 Far :personal-remote:
@@ -68,8 +68,8 @@ IMAPStore business-remote
 Account business
 
 MaildirStore business-local
-Path ~/Maildir/business/
-Inbox ~/Maildir/business/INBOX
+Path ~/mail/business/
+Inbox ~/mail/business/INBOX
 
 Channel business-inbox
 Far :business-remote:
