@@ -12,8 +12,6 @@ alias ls='ls --color=auto'
 alias ll="ls -alh --color=auto"
 PS1='[\u@\h \W]\$ '
 
-
-
 bind '"\e[A": history-search-backward'
 bind '"\eOA": history-search-backward'
 bind '"\e[B": history-search-forward'
