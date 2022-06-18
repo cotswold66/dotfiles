@@ -81,7 +81,6 @@ bars. Show balanced parentheses.
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
   (menu-bar-mode -1)
   (tool-bar-mode -1)
-  (scroll-bar-mode -1)
   (show-paren-mode)
   (electric-pair-mode)
 #+end_src
@@ -165,169 +164,12 @@ interfaces with the external =pass= program.
 
 * Themes
 
-Enable the built-in leuven theme.
+Enable the tomorrow night theme from the base16 collection.
 
 #+begin_src emacs-lisp
   (use-package base16-theme
-   :defer nil
-   :init
+   :config
    (load-theme 'base16-tomorrow-night t))
-#+end_src
-
-* Evil
-:PROPERTIES:
-# :header-args: :tangle no
-:END:
-
-Add vim-like key-bindings throughout using the =evil= package. Update some custom variables and activate evil mode.
-
-#+begin_src emacs-lisp :noweb yes
-  (use-package evil
-    :defer nil
-    :custom
-    (evil-cross-lines t) ;; allow horizontal motions to traverse lines
-    (evil-want-keybinding nil) ;; required for evil-collection
-    (evil-move-beyond-eol t) ;; emacs parens matching works better
-    (evil-want-C-i-jump nil) ;; allows org-cycle to work
-    :bind
-    <<evil-bind>>
-    :config
-    (evil-mode))
-#+end_src
-
-Set vertical movements as visual lines instead of real lines. 
-
-#+begin_src emacs-lisp :tangle no :noweb-ref evil-bind
-  (:map evil-normal-state-map
-                  ([remap evil-next-line] . evil-next-visual-line)
-                  ([remap evil-previous-line] . evil-previous-visual-line)
-             :map evil-motion-state-map
-                  ([remap evil-next-line] . evil-next-visual-line)
-                  ([remap evil-previous-line] . evil-previous-visual-line))
-#+end_src
-
-Install the =evil-collection= which ensures broader support for vim-like keybindings throughout and also applies a consistent approach to keybindings.
-
-#+begin_src emacs-lisp
-  (use-package evil-collection
-    :after evil
-    :config
-    (evil-collection-init))
-#+end_src
-
-Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
-
-#+begin_src emacs-lisp
-  (use-package evil-org
-    :after org
-    :hook (org-mode . (lambda () evil-org-mode))
-    :config
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys))
-#+end_src
-
-* Meow
-:PROPERTIES:
-:header-args: :tangle no
-:END:
-
-#+begin_src emacs-lisp
-  (defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-  (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
-  (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
-   '("j" . "H-j")
-   '("k" . "H-k")
-   ;; Use SPC (0-9) for digit arguments.
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-delete)
-   '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
-   '("f" . meow-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-next) 
-   '("J" . meow-next-expand)
-   '("k" . meow-prev)
-   '("K" . meow-prev-expand)
-   '("l" . meow-right)
-   '("L" . meow-right-expand)
-   '("m" . meow-join)
-   '("n" . meow-search)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-yank)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("s" . meow-kill)
-   '("t" . meow-till)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
-   '("x" . meow-line)
-   '("X" . meow-goto-line)
-   '("y" . meow-save)
-   '("Y" . meow-sync-grab)
-   '("z" . meow-pop-selection)
-   '("'" . repeat)
-   '("<escape>" . ignore)))
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package meow
-    :init
-    (meow-global-mode)
-    :config
-    (meow-setup)
-    :custom
-    (meow-expand-exclude-mode-list '(markdown-mode))
-    (meow-expand-hint-remove-delay 2.0))
 #+end_src
 
 * Corfu
@@ -954,7 +796,7 @@ provides a good replacement for =helm-bibtex=.
   (mu4e-compose-format-flowed t)
   (mu4e-compose-in-new-frame t)
   (mu4e-compose-signature "John Lord\nTel: +1-512-550-4917")
-  (mu4e-attachment-dir "~/Downloads")
+  (mu4e-attachment-dir "~/downloads")
   (mu4e-enable-mode-line t)
   (mu4e-flowed-encode-column 998)
   (mu4e-get-mail-command "mbsync -a")
@@ -983,132 +825,67 @@ provides a good replacement for =helm-bibtex=.
 #+end_src
 
 ** Mu4e contexts
-*** Lordsonline context
+*** Personal context
 
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
-    :name "Lordsonline"
-    :enter-func (lambda () (mu4e-message "Entering Lordsonline context"))
-    :leave-func (lambda () (mu4e-message "Leaving Lordsonline context"))
+    :name "Personal"
+    :enter-func (lambda () (mu4e-message "Entering Personal context"))
+    :leave-func (lambda () (mu4e-message "Leaving Personal context"))
     ;; we match based on the maildir of the message
     :match-func (lambda (msg)
                   (when msg
-                    (string-prefix-p "/lordsonline" (mu4e-message-field msg :maildir))))
+                    (string-prefix-p "/personal" (mu4e-message-field msg :maildir))))
     :vars
     '((user-mail-address . "john@lordsonline.org")
       (user-full-name . "John Lord")
       (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
-      (mu4e-drafts-folder . "/lordsonline/drafts")
-      (mu4e-sent-folder   . "/lordsonline/sent")
-      (mu4e-trash-folder  . "/lordsonline/trash")
-      (mu4e-refile-folder . "/lordsonline/all")
+      (mu4e-drafts-folder . "/personal/drafts")
+      (mu4e-sent-folder   . "/personal/sent")
+      (mu4e-trash-folder  . "/personal/trash")
+      (mu4e-refile-folder . "/personal/all")
       (mu4e-maildir-shortcuts
-       . ((:maildir "/lordsonline/INBOX"        :key ?i)
-          (:maildir "/lordsonline/sent"         :key ?s)
-          (:maildir "/lordsonline/trash"        :key ?t)
-          (:maildir "/lordsonline/drafts"       :key ?d)
-          (:maildir "/lordsonline/all"          :key ?a)
+       . ((:maildir "/personal/INBOX"        :key ?i)
+          (:maildir "/personal/sent"         :key ?s)
+          (:maildir "/personal/trash"        :key ?t)
+          (:maildir "/personal/drafts"       :key ?d)
+          (:maildir "/personal/all"          :key ?a)
           (:maildir "/archive"                  :key ?A)))
-      (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
+      (smtpmail-queue-dir . "~/mail/personal/queue/cur")
       (smtpmail-smtp-user . "john@lordsonline.org")
       (smtpmail-smtp-server . "smtp.gmail.com")
       (smtpmail-smtp-service . 587)))
 #+end_src
 
-*** iCloud context
+*** Business context
 
 #+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
   ,(make-mu4e-context
-    :name "iCloud"
-    :enter-func (lambda () (mu4e-message "Entering iCloud context"))
-    :leave-func (lambda () (mu4e-message "Leaving iCloud context"))
+    :name "Business"
+    :enter-func (lambda () (mu4e-message "Entering Business context"))
+    :leave-func (lambda () (mu4e-message "Leaving Business context"))
     ;; we match based on the maildir of the message
     :match-func (lambda (msg)
                   (when msg
-                    (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
-    :vars
-    '((user-mail-address . "lordjd@icloud.com")
-      (user-full-name . "John Lord")
-      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
-      (mu4e-drafts-folder . "/icloud/Drafts")
-      (mu4e-sent-folder   . "/icloud/Sent")
-      (mu4e-trash-folder  . "/icloud/Trash")
-      (mu4e-refile-folder . "/icloud/Archive")
-      (mu4e-maildir-shortcuts
-       . ((:maildir "/icloud/INBOX"              :key ?i)
-          (:maildir "/icloud/Sent"               :key ?s)
-          (:maildir "/icloud/Trash"              :key ?t)
-          (:maildir "/icloud/Drafts"             :key ?d)
-          (:maildir "/icloud/Archive"            :key ?a)
-          (:maildir "/archive"                   :key ?A)))
-      (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
-      (smtpmail-smtp-user . "john")
-      (smtpmail-smtp-server . "smtp.gmail.com")
-      (smtpmail-smtp-service . 587)))
-#+end_src
-
-*** Outlook context
-
-#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
-  ,(make-mu4e-context
-    :name "Outlook"
-    :enter-func (lambda () (mu4e-message "Entering outlook context"))
-    :leave-func (lambda () (mu4e-message "Leaving outlook context"))
-    ;; we match based on the maildir of the message
-    :match-func (lambda (msg)
-                  (when msg
-                    (string-prefix-p "/outlook" (mu4e-message-field msg :maildir))))
-    :vars
-    '((user-mail-address . "lordjd@outlook.com")
-      (user-full-name . "John Lord")
-      (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
-      (mu4e-drafts-folder . "/outlook/Drafts")
-      (mu4e-sent-folder   . "/outlook/Sent")
-      (mu4e-trash-folder  . "/outlook/Trash")
-      (mu4e-refile-folder . "/outlook/Archive")
-      (mu4e-maildir-shortcuts
-       . ((:maildir "/outlook/INBOX"              :key ?i)
-          (:maildir "/outlook/Sent"               :key ?s)
-          (:maildir "/outlook/Trash"              :key ?t)
-          (:maildir "/outlook/Drafts"             :key ?d)
-          (:maildir "/outlook/Archive"            :key ?a)
-          (:maildir "/archive"                    :key ?A)))
-      (smtpmail-queue-dir . "~/Maildir/lordsonline/queue/cur")
-      (smtpmail-smtp-user . "john")
-      (smtpmail-smtp-server . "smtp.gmail.com")
-      (smtpmail-smtp-service . 587)))
-#+end_src
-
-*** Zoho context
-
-#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-context
-  ,(make-mu4e-context
-    :name "Zoho"
-    :enter-func (lambda () (mu4e-message "Entering zoho context"))
-    :leave-func (lambda () (mu4e-message "Leaving zoho context"))
-    ;; we match based on the maildir of the message
-    :match-func (lambda (msg)
-		  (when msg
-		    (string-prefix-p "/zoho" (mu4e-message-field msg :maildir))))
+                    (string-prefix-p "/business" (mu4e-message-field msg :maildir))))
     :vars
     '((user-mail-address . "john@lordpharmaconsulting.com")
       (user-full-name . "John Lord")
       (org-msg-signature . "\n\nBest regards,\n\nJohn\n ,#+begin_signature\n--\n,*John Lord* \\\\\nTel: /+1-512-550-4917/\n,#+end_signature")
-      (mu4e-drafts-folder . "/zoho/Drafts")
-      (mu4e-sent-folder   . "/zoho/Sent")
-      (mu4e-trash-folder  . "/zoho/Trash")
-      (mu4e-refile-folder . "/zoho/Archive")
+      (mu4e-drafts-folder . "/business/drafts")
+      (mu4e-sent-folder   . "/business/sent")
+      (mu4e-trash-folder  . "/business/trash")
+      (mu4e-refile-folder . "/business/all")
       (mu4e-maildir-shortcuts
-       . ((:maildir "/zoho/INBOX"              :key ?i)
-	  (:maildir "/zoho/Sent"               :key ?s)
-	  (:maildir "/zoho/Trash"              :key ?t)
-	  (:maildir "/zoho/Drafts"             :key ?d)
-	  (:maildir "/zoho/Archive"            :key ?a)
-	  (:maildir "/archive"                    :key ?A)))
-      (smtpmail-queue-dir . "~/Maildir/zoho/queue/cur")
-     (smtpmail-auth-credentials . '((smtppro.zoho.com 587 john@lordpharmaconsulting.com nil))) 
+       . ((:maildir "/business/INBOX"        :key ?i)
+          (:maildir "/business/sent"         :key ?s)
+          (:maildir "/business/trash"        :key ?t)
+          (:maildir "/business/drafts"       :key ?d)
+          (:maildir "/business/all"          :key ?a)
+          (:maildir "/archive"                  :key ?A)))
+      (smtpmail-queue-dir . "~/mail/business/queue/cur")
       (smtpmail-smtp-user . "john@lordpharmaconsulting.com")
-      (smtpmail-smtp-server . "smtppro.zoho.com")
+      (smtpmail-smtp-server . "smtp.gmail.com")
       (smtpmail-smtp-service . 587)))
 #+end_src
 
@@ -1129,17 +906,6 @@ provides a good replacement for =helm-bibtex=.
       (mu4e-maildir-shortcuts . ((:maildir "/archive" :key ?a)))))
 #+end_src
 
-
-** Mu4e bookmarks
-
-#+begin_src emacs-lisp :tangle no :noweb-ref mu4e-config
-  (add-to-list 'mu4e-bookmarks
-               '( :name  "Business messages"
-                         :query "from:john@lordpharma.com or to:john@lordpharma.com or cc:john@lordpharma.com or bcc:john@lordpharma.com or from:john@lordpharmaconsulting.com or to:john@lordpharmaconsulting.com or cc:john@lordpharmaconsulting.com or bcc:john@lordpharmaconsulting.com"
-                         :key   ?b)
-               t)
-#+end_src
-
 ** Org msg
 #+name: org-msg
 #+begin_src emacs-lisp :tangle no
@@ -1157,7 +923,8 @@ provides a good replacement for =helm-bibtex=.
     (org-msg-mode))
 #+end_src
 
-* Dired
+*
+Dired
 
 Set various dired custom variables.
 
@@ -1170,6 +937,7 @@ Set various dired custom variables.
     (dired-auto-revert-buffer t)
     (dired-dwim-target t)
     (dired-hide-details-hide-symlink-targets nil)
+    (dired-kill-when-opening-new-dired-buffer t)
     (dired-recursive-copies  'always)
     (dired-recursive-deletes 'top)
     (dired-create-destination-dirs 'ask)
@@ -1278,14 +1046,4 @@ Use =dired-rsync= for rsync functionality in dired mode.
   (use-package yaml-mode
     :defer t)
 #+end_src
-
-* Terminals
-
-#+begin_src emacs-lisp
-  (use-package vterm
-    :commands 'vterm) 
-#+end_src
-
-
-
 
