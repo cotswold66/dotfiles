@@ -4,10 +4,10 @@ User john@lordsonline.org
 PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/imap.gmail.com:587/john@lordsonline.org.gpg"
 AuthMechs LOGIN
 SSLType IMAPS
-SSLVersions TLSv1.2
-# CertificateFile /etc/ssl/certs/ca-bundle.crt
+#SSLVersions TLSv1.2
+#CertificateFile /etc/ssl/certs/ca-bundle.crt
 CertificateFile /etc/ssl/certs/ca-certificates.crt
-PipelineDepth 50
+#PipelineDepth 50
 
 IMAPStore personal-remote
 Account personal

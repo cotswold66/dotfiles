@@ -423,7 +423,7 @@ font:
 #  program: /bin/bash
 #  args:
 #    - --login
-
+  
 # Startup directory
 #
 # Directory the shell is started in. If this is unset, or `None`, the working

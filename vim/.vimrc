@@ -102,20 +102,21 @@ call plug#begin()
 " Plug 'markonm/traces.vim'
 " Plug 'kassio/neoterm'
 Plug 'kana/vim-fakeclip'
-Plug 'chriskempson/base16-vim'
+" Plug 'chriskempson/base16-vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'francoiscabrol/ranger.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'jceb/vim-orgmode'
 
 call plug#end()
 
 runtime macros/matchit.vim
 
-let base16colorspace=256
-colorscheme base16-tomorrow-night
+" let base16colorspace=256
+" colorscheme base16-tomorrow-night
 
 " enable omni-completion
 set omnifunc=syntaxcomplete#Complete
@@ -136,4 +137,4 @@ endif
 cmap W w !sudo tee % >/dev/null<CR>
 
 let g:airline_powerline_fonts=1
-let g:airline_theme='base16_tomorrow_night'
+" let g:airline_theme='base16_tomorrow_night'
