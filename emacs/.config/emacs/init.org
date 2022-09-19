@@ -180,7 +180,7 @@ Use =corfu= instead of company for completions.
   (use-package corfu
     :defer 2
     :init
-    (corfu-global-mode))
+    (global-corfu-mode))
 #+end_src
 
 Enable TAB cycling on completions if 3 or less candidates. Also, TAB
