@@ -13,43 +13,16 @@ IMAPStore personal-remote
 Account personal
 
 MaildirStore personal-local
-Path ~/mail/personal/
-Inbox ~/mail/personal/INBOX
+Path ~/.mail/org.lordsonline.john/
 
-Channel personal-inbox
-Far :personal-remote:
-Near :personal-local:
-Patterns "INBOX"
-Create Both
-Expunge Both
-SyncState *
-
-Channel personal-trash
-Far :personal-remote:"[Gmail]/Trash"
-Near :personal-local:"trash"
-Create Both
-Expunge Both
-SyncState *
-
-Channel personal-sent
-Far :personal-remote:"[Gmail]/Sent Mail"
-Near :personal-local:"sent"
-Create Both
-Expunge Both
-SyncState *
-
-Channel personal-all
+Channel personal
 Far :personal-remote:"[Gmail]/All Mail"
-Near :personal-local:"all"
+Near :personal-local:"."
 Create Both
 Expunge Both
 SyncState *
+CopyArrivalDate yes
 
-Group personal
-Channel personal-inbox
-Channel personal-sent
-Channel personal-trash
-Channel personal-all
 
 ## ------------------------------------------------------------ 
 
@@ -60,7 +33,6 @@ PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/i
 AuthMechs LOGIN
 SSLType IMAPS
 SSLVersions TLSv1.2
-# CertificateFile /etc/ssl/certs/ca-bundle.crt
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 PipelineDepth 50
 
@@ -68,40 +40,13 @@ IMAPStore business-remote
 Account business
 
 MaildirStore business-local
-Path ~/mail/business/
-Inbox ~/mail/business/INBOX
+Path ~/.mail/com.lordpharmaconsulting.john/
 
-Channel business-inbox
-Far :business-remote:
-Near :business-local:
-Patterns "INBOX"
-Create Both
-Expunge Both
-SyncState *
-
-Channel business-trash
-Far :business-remote:"[Gmail]/Trash"
-Near :business-local:"trash"
-Create Both
-Expunge Both
-SyncState *
-
-Channel business-sent
-Far :business-remote:"[Gmail]/Sent Mail"
-Near :business-local:"sent"
-Create Both
-Expunge Both
-SyncState *
-
-Channel business-all
+Channel business
 Far :business-remote:"[Gmail]/All Mail"
-Near :business-local:"all"
+Near :business-local:"."
 Create Both
 Expunge Both
 SyncState *
+CopyArrivalDate yes
 
-Group business
-Channel business-inbox
-Channel business-sent
-Channel business-trash
-Channel business-all

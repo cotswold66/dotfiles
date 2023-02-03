@@ -1,6 +1,6 @@
 {
-    "layer": "bottom", // Waybar at top layer
-    // "position": "bottom", // Waybar position (top|bottom|left|right)
+    "layer": "top", // Waybar at top layer
+    "position": "bottom", // Waybar position (top|bottom|left|right)
     "height": 30, // Waybar height (to be removed for auto height)
     // "width": 1280, // Waybar width
     // Choose the order of the modules
@@ -77,12 +77,17 @@
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "format-alt": "{:%Y-%m-%d}"
     },
+    "sway/language": {
+        "on-click": ""
+    },
     "cpu": {
         "format": "{usage}% ",
-        "tooltip": false
+        "tooltip": false,
+	"on-click": ""
     },
     "memory": {
-        "format": "{}% "
+        "format": "{}% ",
+	"on-click": ""
     },
     "temperature": {
         // "thermal-zone": 2,
@@ -90,7 +95,8 @@
         "critical-threshold": 80,
         // "format-critical": "{temperatureC}°C {icon}",
         "format": "{temperatureC}°C {icon}",
-        "format-icons": ["", "", ""]
+        "format-icons": ["", "", ""],
+	"on-click": ""
     },
     "battery": {
         "states": {

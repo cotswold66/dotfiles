@@ -2,7 +2,7 @@
 	name = John Lord
 	email = john@lordsonline.org
 [core]
-	editor = vim
+#	editor = vim
 [pull]
 	rebase = false
 [filter "lfs"]
