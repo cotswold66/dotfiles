@@ -210,9 +210,9 @@ Specifcally, allow the use of wildcard searches in file paths.
   (use-package orderless
     :defer t
     :custom
-    (completion-styles '(orderless))
+    (completion-styles '(orderless basic))
     (completion-category-defaults nil)
-    (completion-category-overrides '((file (styles partial-completion)))))
+    (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 
 Use =marginalia= to provide additional details in the minibuffer like
