@@ -826,8 +826,6 @@ provides a good replacement for =helm-bibtex=.
 #+begin_src emacs-lisp
   (use-package dired
     :defer t
-    :hook
-    (dired-mode . evil-mode)
     :ensure nil
     :custom
     (dired-listing-switches "-alh -v --group-directories-first")
@@ -847,15 +845,6 @@ Use =peep-dired= to show dired file previews.
     :commands 'peep-dired
     :custom
     (peep-dired-cleanup-on-disable t)
-    :hook
-    (peep-dired . evil-normalize-keymaps)
-    :config
-    (evil-define-key 'normal peep-dired-mode-map
-      (kbd "<SPC>") 'peep-dired-scroll-page-down
-      (kbd "C-<SPC>") 'peep-dired-scroll-page-up
-      (kbd "<backspace>") 'peep-dired-scroll-page-up
-      (kbd "j") 'peep-dired-next-file
-      (kbd "k") 'peep-dired-prev-file))
 #+end_src
 
 Use =dired-rsync= for rsync functionality in dired mode.
