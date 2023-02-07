@@ -83,6 +83,7 @@ bars. Show balanced parentheses.
   (tool-bar-mode -1)
   (show-paren-mode)
   (electric-pair-mode)
+  (delete-selection-mode 1)
 #+end_src
 
 Inhibit the startup screen and provide an empty scratch buffer.
