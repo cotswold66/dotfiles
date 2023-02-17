@@ -23,7 +23,7 @@ get clobbered by other messages during startup.
 
 Start the emacs server.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (server-start)
 #+end_src
 
