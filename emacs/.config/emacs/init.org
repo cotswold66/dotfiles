@@ -21,12 +21,6 @@ get clobbered by other messages during startup.
       gcs-done)))
 #+end_src
 
-Start the emacs server.
-
-#+begin_src emacs-lisp :tangle no
-  (server-start)
-#+end_src
-
 * Package Management
 
 Declare the package repositories.
