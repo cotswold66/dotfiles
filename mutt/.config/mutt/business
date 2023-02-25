@@ -1,0 +1,31 @@
+# Account settings
+set from = "john@lordpharmaconsulting.com"
+set realname = "John Lord"
+
+set mbox_type = Maildir
+set folder = "~/mail/business/"
+
+set sendmail = "msmtp -a john@lordpharmaconsulting.com"
+
+# cache settings
+set header_cache = "~/.cache/mutt/com.lordpharmaconsulting.john/header_cache"
+set message_cachedir = "~/.cache/mutt/com.lordpharmaconsulting.john/message_cache"
+
+# mailbox settings
+#set spoolfile = +INBOX
+#set postponed = +Drafts
+#set record = +Sent
+#set trash = +Trash
+#set copy = no
+
+# navigation settings
+#bind index,pager g noop
+#macro index,pager gi "<change-folder>=INBOX<enter>" "go to inbox"
+#macro index,pager gs "<change-folder>=Sent<enter>" "go to sent"
+#macro index,pager gd "<change-folder>=Drafts<enter>" "go to drafts"
+#macro index,pager gt "<change-folder>=Trash<enter>" "go to trash"
+
+
+
+
+

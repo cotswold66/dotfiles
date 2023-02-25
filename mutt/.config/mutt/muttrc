@@ -1,0 +1,89 @@
+## General options
+set imap_check_subscribed
+set imap_keepalive = 300
+unset imap_passive
+set mail_check = 60
+set mbox_type=Maildir
+set date_format="%F"
+auto_view text/html
+set folder=/home/john/mail
+named-mailboxes "john@lordsonline.org" "+org.lordsonline.john"
+named-mailboxes "john@lordpharmaconsulting.com" "+com.lordpharmaconsulting.john"
+#named-mailboxes "john@lordpharma.com" "+com.lordpharma.john"
+#named-mailboxes "lordj@ibm.net" "+net.ibm.lordj"
+#named-mailboxes "john.lord@savarapharma.com" "+com.savarapharma.lord.john"
+#named-mailboxes "lordjd@icloud.com" "+com.icloud.lordjd"
+#named-mailboxes "lordjd@pacbell.net" "+net.pacbell.lordjd"
+#named-mailboxes "john66email.mac.com" "+com.mac.john66email"
+#named-mailboxes "jlord@nektar.com" "+com.nektar.jlord"
+#named-mailboxes "john66email@gmail.com" "+com.gmail.john66email"
+#named-mailboxes "john66email@yahoo.com" "+com.yahoo.john66email"
+#named-mailboxes "lordjd@email.msn.com" "+com.msn.email.lordjd"
+#named-mailboxes "johndavidlord@hotmail.com" "+com.hotmail.johndavidlord"
+#named-mailboxes "john@fourlords.us" "+us.fourlords.john"
+#named-mailboxes "archive" "+archive"
+
+macro index S "<shell-escape>mbsync -Va <enter><shell-escape>~/.local/bin/notmuch-hook.sh<enter>" "sync email"
+
+
+# notmuch
+set nm_default_uri="notmuch:///home/john/mail" # path to the maildir
+set virtual_spoolfile=yes                          # enable virtual folders
+#set sendmail="/PATH/TO/bin/nm_sendmail"            # enables parsing of outgoing mail
+virtual-mailboxes \
+    "inbox"     "notmuch://?query=tag:inbox"\
+    "unread"    "notmuch://?query=tag:unread"\
+    "starred"   "notmuch://?query=tag:*"\
+    "sent"      "notmuch://?query=tag:sent"        # sets up queries for virtual folders
+
+# notmuch bindings
+macro index \\\\ "<vfolder-from-query>"              # looks up a hand made query
+macro index + "<modify-labels>+*\\n<sync-mailbox>"               # tag as starred
+macro index - "<modify-labels>-*\\n<sync-mailbox>"               # tag as unstarred
+
+## ACCOUNT1
+#source "~/.config/mutt/business"
+# Here we use the $folder variable that has just been set in the sourced file.
+# We must set it right now otherwise the 'folder' variable will change in the next sourced file.
+#folder-hook $folder 'source ~/.config/mutt/business'
+
+## ACCOUNT2
+#source "~/.config/mutt/personal"
+#folder-hook $folder 'source ~/.config/mutt/personal'
+
+bind index,pager g noop
+macro index,pager gp "<change-folder>org.lordsonline.john/All<enter>" "go to inbox"
+macro index,pager gb "<change-folder>business/All<enter>" "go to inbox"
+
+
+## Other Settings
+set mail_check_stats
+#set sort = 'reverse-date'
+set sidebar_visible = no
+set sidebar_width = 40
+set sidebar_short_path = yes
+set sidebar_next_new_wrap = yes
+sidebar_whitelist '/home/john/mail/org.lordsonline.john/All'
+set sidebar_format = '%D%?F? [%F]?%* %?N?%N/? %?S?%S?'
+bind index,pager \Ck sidebar-prev
+bind index,pager \Cj sidebar-next
+bind index,pager \Cl sidebar-open
+bind index,pager b sidebar-toggle-visible
+set markers = no # Disables the `+` displayed at line wraps
+set mime_forward = yes # attachments are forwarded with mail
+set wait_key = no # mutt won't ask "press key to continue"
+set fast_reply # skip to compose when replying
+set fcc_attach # save attachments with the body
+set forward_format = "Fwd: %s" # format of subject when forwarding
+set forward_quote # include message in forwards
+set reverse_name # reply as whomever it was to
+set include # include message in replies
+color header blue default ".*"
+color header brightgreen default "^(From)"
+color header brightcyan default "^(Subject)"
+color body brightred default "[\-\.+_a-zA-Z0-9]+@[\-\.a-zA-Z0-9]+" # Email addresses
+color header brightwhite default "^(To|CC|BCC)"
+color body brightblue default "(https?|ftp|file)://[\-\.,/%~_:?&=\#a-zA-Z0-9;+]+" # URL
+# Simplify UI
+set status_format = "%f"
+set index_format = "%Z %D %-15.15n %s"
