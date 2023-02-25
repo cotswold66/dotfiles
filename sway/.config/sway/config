@@ -282,8 +282,8 @@ bar {
     swaybar_command waybar
 }
 
-exec lxpolkit &
-# exec_always /usr/lib/polkit-kde-authentication-agent-1
+# exec lxpolkit &
+exec_always /usr/lib/polkit-kde-authentication-agent-1
   
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
 bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
