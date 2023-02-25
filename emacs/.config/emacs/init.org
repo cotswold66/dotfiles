@@ -167,69 +167,6 @@ Enable the tomorrow night theme from the base16 collection.
    (load-theme 'base16-tomorrow-night t))
 #+end_src
 
-* Evil
-:PROPERTIES:
-# :header-args: :tangle no
-:END:
-
-Add vim-like key-bindings throughout using the =evil= package. Update
-some custom variables and activate evil mode.
-
-#+begin_src emacs-lisp :noweb yes
-  (use-package evil
-    :after org
-    :defer nil
-    :init
-    (setq evil-emacs-state-cursor '("red" box))
-    (setq evil-normal-state-cursor '("green" box))
-    (setq evil-visual-state-cursor '("orange" box))
-    (setq evil-insert-state-cursor '("red" bar))
-    (setq evil-replace-state-cursor '("red" bar))
-    (setq evil-operator-state-cursor '("red" hollow))
-    :custom
-    (evil-cross-lines t) ;; allow horizontal motions to traverse lines
-    (evil-want-keybinding nil) ;; required for evil-collection
-    (evil-move-beyond-eol t) ;; emacs parens matching works better
-    (evil-want-C-i-jump nil) ;; allows org-cycle to work
-    (evil-want-keybinding nil)
-    :bind
-    <<evil-bind>>
-    :config
-    (evil-mode))
-#+end_src
-
-Set vertical movements as visual lines instead of real lines. 
-
-#+begin_src emacs-lisp :tangle no :noweb-ref evil-bind
-  (:map evil-normal-state-map
-                  ([remap evil-next-line] . evil-next-visual-line)
-                  ([remap evil-previous-line] . evil-previous-visual-line)
-             :map evil-motion-state-map
-                  ([remap evil-next-line] . evil-next-visual-line)
-                  ([remap evil-previous-line] . evil-previous-visual-line))
-#+end_src
-
-Install the =evil-collection= which ensures broader support for vim-like
-keybindings throughout and also applies a consistent approach to
-keybindings.
-
-#+begin_src emacs-lisp #:tangle no
-  (use-package evil-collection
-    :after evil
-    :config
-    (evil-collection-init))
-#+end_src
-
-Install =evil-org= after =org-mode= to provide evil bindings in =org-mode=.
-
-#+begin_src emacs-lisp :tangle no
-  (use-package evil-org
-    :after org
-    :hook (org-mode . (lambda () evil-org-mode))
-    :config
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys))
-#+end_src
 * Corfu
 
 Use =corfu= instead of company for completions.
@@ -829,44 +766,6 @@ date property to new org roam nodes created at the heading level.
     (org-msg-mode))
 #+end_src
 
-*
-Dired
-
-Set various dired custom variables.
-
-#+begin_src emacs-lisp
-  (use-package dired
-    :defer t
-    :ensure nil
-    :custom
-    (dired-listing-switches "-alh -v --group-directories-first")
-    (dired-auto-revert-buffer t)
-    (dired-dwim-target t)
-    (dired-hide-details-hide-symlink-targets nil)
-    (dired-kill-when-opening-new-dired-buffer t)
-    (dired-recursive-copies  'always)
-    (dired-recursive-deletes 'top)
-    (dired-create-destination-dirs 'ask)
-    (image-dired-thumb-size 150))
-#+end_src
-
-Use =peep-dired= to show dired file previews.
-
-#+begin_src emacs-lisp
-  (use-package peep-dired
-    :commands 'peep-dired
-    :custom
-    (peep-dired-cleanup-on-disable t))
-#+end_src
-
-Use =dired-rsync= for rsync functionality in dired mode.
-
-#+begin_src emacs-lisp
-  (use-package dired-rsync
-    :bind
-    (:map dired-mode-map
-          ("C-c C-r" . dired-rsync))) 
-#+end_src
 * Reference management
 ** Org cite
 
@@ -1004,54 +903,6 @@ Use =peep-dired= to show dired file previews.
     :commands 'peep-dired
     :custom
     (peep-dired-cleanup-on-disable t)
-#+end_src
-
-Use =dired-rsync= for rsync functionality in dired mode.
-
-#+begin_src emacs-lisp
-  (use-package dired-rsync
-    :bind
-    (:map dired-mode-map
-          ("C-c C-r" . dired-rsync))) 
-#+end_src
-* Dired
-:PROPERTIES:
-#:header-args: :tangle no
-:END:
-
-#+begin_src emacs-lisp
-  (use-package dired
-    :defer t
-    :hook
-    (dired-mode . evil-mode)
-    :ensure nil
-    :custom
-    (dired-listing-switches "-alh -v --group-directories-first")
-    (dired-auto-revert-buffer t)
-    (dired-dwim-target t)
-    (dired-hide-details-hide-symlink-targets nil)
-    (dired-recursive-copies  'always)
-    (dired-recursive-deletes 'top)
-    (dired-create-destination-dirs 'ask)
-    (image-dired-thumb-size 150))
-#+end_src
-
-Use =peep-dired= to show dired file previews.
-
-#+begin_src emacs-lisp
-  (use-package peep-dired
-    :commands 'peep-dired
-    :custom
-    (peep-dired-cleanup-on-disable t)
-    :hook
-    (peep-dired . evil-normalize-keymaps)
-    :config
-    (evil-define-key 'normal peep-dired-mode-map
-      (kbd "<SPC>") 'peep-dired-scroll-page-down
-      (kbd "C-<SPC>") 'peep-dired-scroll-page-up
-      (kbd "<backspace>") 'peep-dired-scroll-page-up
-      (kbd "j") 'peep-dired-next-file
-      (kbd "k") 'peep-dired-prev-file))
 #+end_src
 
 Use =dired-rsync= for rsync functionality in dired mode.
