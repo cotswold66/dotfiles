@@ -324,6 +324,7 @@ exec wl-paste -t text --watch clipman store --no-persist
 exec nm-applet --indicator
 exec mako
 exec 1password --ozone-platform-hint=auto --silent
+exec pcloud
 
 include /etc/sway/config.d/*
 include ~/.config/sway/grimshot.sh
