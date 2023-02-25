@@ -27,12 +27,13 @@ export XDG_SCREENSHOTS_DIR=~/Screenshots
 export QT_QPA_PLATFORMTHEME=qt5ct
 export VDPAU_DRIVER=va_gl
 
-# if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-#   exec sway
-# fi
 
-# if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty2" ]; then
-#   exec startplasma-wayland
-# fi
+#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+#  exec startplasma-x11
+#fi
+#
+if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+  exec sh sway.sh
+fi
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
