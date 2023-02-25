@@ -297,6 +297,10 @@ bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
+bindsym Ctrl+Shift+l exec 1password --toggle
+bindsym Ctrl+shift+space exec 1password --quick-access
+
+
 exec ~/.config/sway/homescreen.sh
 
 #font pango:Source Code Pro 11
@@ -309,7 +313,7 @@ assign [app_id="gnucash"] 6
 for_window [class="zoom"] floating enable
 assign [class="zoom"] 3
 
-for_window [class="1Password"] floating enable
+for_window [app_id="1Password"] floating enable
 
 for_window [app_id="org.kde.dolphin"] floating enable
 
@@ -319,6 +323,7 @@ default_border pixel 5
 exec wl-paste -t text --watch clipman store --no-persist
 exec nm-applet --indicator
 exec mako
+exec 1password --ozone-platform-hint=auto --silent
 
 include /etc/sway/config.d/*
 include ~/.config/sway/grimshot.sh
