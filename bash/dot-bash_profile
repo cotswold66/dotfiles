@@ -14,7 +14,6 @@ export B2_ACCOUNT_KEY=K001d7VjWLgjEdQXFhqvn8QUeW84sns
 # export RESTIC_PASSWORD_COMMAND='pass show backup/pluto'
 export RESTIC_PASSWORD='LzjQVnS8tkCrhNYVcExS'
 
-# export MOZ_ENABLE_WAYLAND=1
 export EDITOR='emacsclient -a "" -t'
 export VIEWER='emacsclient -a "" -c -a emacs'
 export HISTFILESIZE=100000
