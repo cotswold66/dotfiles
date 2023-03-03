@@ -410,7 +410,8 @@ install org for the ="M-x list-packages"= menu.
     ("C-c a" . org-agenda)
     ("C-c c" . org-capture)
     :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
-    :hook (org-mode . auto-fill-mode)
+    :hook
+    (org-mode . auto-fill-mode)
     :config
     <<org-config>>
     :custom
@@ -607,44 +608,44 @@ Do not ask for confirmation before executing code.
 
 #+begin_src emacs-lisp :noweb yes
   (use-package org-roam
-    ;; :after org
+    ;; :after org				
     :custom
     (org-roam-directory (file-truename "~/org"))
     (org-roam-capture-templates
      `(("d" "default" plain "%?" 
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
-        :unnarrowed t)
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+	:unnarrowed t)
        ("a" "article" plain "%?"
-        :target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org"
-                           ,(concat "#+title: ${title}\n"
-                                    "#+filetags: :source:\n"
-                                    "- author :: ${author-or-editor}\n"
-                                    "- journal :: ${journal}\n"
-                                    "- year :: ${year}\n"
-                                    "- doi :: ${doi}\n\n"))
-        :unnarrowed t)
+	:target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :source:\n"
+				    "- author :: ${author-or-editor}\n"
+				    "- journal :: ${journal}\n"
+				    "- year :: ${year}\n"
+				    "- doi :: ${doi}\n\n"))
+	:unnarrowed t)
        ("c" "company" plain "%?" 
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                           ,(concat "#+title: ${title}\n"
-                                    "#+filetags: :company:\n"))
-        :unnarrowed t)
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :company:\n"))
+	:unnarrowed t)
        ("p" "person" plain "%?" 
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                           ,(concat "#+title: ${title}\n"
-                                    "#+filetags: :person:\n"
-                                    "- company :: \n"
-                                    "- dob :: \n"
-                                    "- interest :: \n"))
-        :unnarrowed t)))
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :person:\n"
+				    "- company :: \n"
+				    "- dob :: \n"
+				    "- interest :: \n"))
+	:unnarrowed t)))
     (org-roam-capture-ref-templates
      `(("r" "ref" plain "%?"
-        :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                           ,(concat "#+title: ${title}\n"
-                                    "#+filetags: :source:\n"
-                                    "- author :: ${author-or-editor}\n"
-                                    "- journal :: ${journal}\n"
-                                    "- year :: ${year}\n\n"))
-        :unnarrowed t)))
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :source:\n"
+				    "- author :: ${author-or-editor}\n"
+				    "- journal :: ${journal}\n"
+				    "- year :: ${year}\n\n"))
+	:unnarrowed t)))
     :bind
     ("C-c n l" . org-roam-buffer-toggle)
     ("C-c n f" . org-roam-node-find)
@@ -660,7 +661,7 @@ Do not ask for confirmation before executing code.
     :init
     (setq org-roam-v2-ack t)
     :config
-    (org-roam-db-autosync-mode)
+    (org-roam-db-autosync-enable)
     <<org-roam-config>>
     (require 'org-roam-protocol)
     ;; (add-to-list 'display-buffer-alist
@@ -670,13 +671,13 @@ Do not ask for confirmation before executing code.
     ;;                (window-width . 0.33)
     ;;                (window-height . fit-window-to-buffer)))
     (add-to-list 'display-buffer-alist
-                 '("\\*org-roam\\*"
-                   (display-buffer-in-side-window)
-                   (side . right)
-                   (slot . 0)
-                   (window-width . 0.33)
-                   (window-parameters . ((no-other-window . t)
-                                         (no-delete-other-windows . t))))))
+		 '("\\*org-roam\\*"
+		   (display-buffer-in-side-window)
+		   (side . right)
+		   (slot . 0)
+		   (window-width . 0.33)
+		   (window-parameters . ((no-other-window . t)
+					 (no-delete-other-windows . t))))))
 #+end_src
 
 The following function was borrowed online and adds a CREATED date
@@ -777,7 +778,7 @@ date property to new org roam nodes created at the heading level.
 #+end_src
 
 ** Citar
-[cite:@munro2017matching]
+
 #+begin_src emacs-lisp
       (use-package citar
 	:no-require
@@ -811,7 +812,6 @@ date property to new org roam nodes created at the heading level.
     (citar-org-roam-capture-template-key "a")
     :config (citar-org-roam-mode))
 #+end_src
-
 
 * Tex
 #+name: auctex
