@@ -776,49 +776,6 @@ date property to new org roam nodes created at the heading level.
     (org-cite-global-bibliography '("~/git/bibliography/references.bib")))
 #+end_src
 
-** org-ref
-
-#+begin_src emacs-lisp :tangle no
-  (use-package org-ref
-    :after org)
-#+end_src
-
-** Consult bibtex
-
-#+begin_src emacs-lisp
-  (use-package consult-bibtex
-    :load-path ("~/.emacs.d/site-lisp/consult-bibtex")
-    :bind ("C-c n b" . consult-bibtex)
-    :config
-    (org-roam-bibtex-mode)
-    :custom
-    (bibtex-completion-pdf-field "file")
-    (bibtex-completion-bibliography "~/git/bibliography/references.bib"))
-#+end_src
-
-Ensure that =bibtex-completion= uses the =consult-bibtex= keymap. This
-provides a good replacement for =helm-bibtex=.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref embark-config
-  (add-to-list 'embark-keymap-alist
-               '(bibtex-completion . consult-bibtex-embark-map))
-#+end_src
-
-** org-roam-bibtex
-
-#+begin_src emacs-lisp
-  (use-package org-roam-bibtex
-    :after org-roam
-    :custom
-    (orb-preformat-keywords
-     '("citekey" "title" "url" "file" "author-or-editor"
-       "keywords" "doi" "date" "year" "journal" "journaltitle"))
-    :hook
-    (org-roam-mode . org-roam-bibtex-mode)
-    :bind
-    (:map org-mode-map
-          ("C-c n a" . orb-note-actions)))
-#+end_src
 
 * Tex
 #+name: auctex
