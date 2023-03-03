@@ -232,14 +232,11 @@ input type:touchpad {
     # Show the next scratchpad window or hide the focused scratchpad window.
     # If there are multiple scratchpad windows, this command cycles through them.
     bindsym $mod+minus scratchpad show
+
 #
-# Resizing containers:
+# Resizing containers:---------------------------------------------------------------
 #
 mode "resize" {
-    # left will shrink the containers width
-    # right will grow the containers width
-    # up will shrink the containers height
-    # down will grow the containers height
     bindsym $left resize shrink width 10px
     bindsym $down resize grow height 10px
     bindsym $up resize shrink height 10px
@@ -258,23 +255,27 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 #
-# Status Bar:
+# Screenshots:-------------------------------------------------------------------------
 #
-# Read `man 5 sway-bar` for more information about this section.
-# bar {
-#     position top
+set $screenshot 1 save active, 2 save area, 3 save screen, 4 save window, 5 copy active
+mode "$screenshot" {
+    bindsym 1 exec 'grimshot --notify save active', mode "default"
+    bindsym 2 exec 'grimshot --notify save area', mode "default"
+    bindsym 3 exec 'grimshot --notify save output', mode "default"
+    bindsym 4 exec 'grimshot --notify save window', mode "default"
+    bindsym 5 exec 'grimshot --notify copy active', mode "default"
 
-#     # When the status_command prints a new line to stdout, swaybar updates.
-#     # The default just shows the current date and time.
-#     status_command while date +'%Y-%m-%d %l:%M:%S %p'; do sleep 1; done
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+Print mode "default"
+}
 
-#     colors {
-#         statusline #ffffff
-#         background #323232
-#         inactive_workspace #32323200 #32323200 #5c5c5c
-#     }
-# }
+bindsym $mod+Print mode "$screenshot"
 
+#
+# Status Bar:-------------------------------------------------------------------------
+#
 bar {
     swaybar_command waybar
 }
@@ -326,5 +327,5 @@ exec 1password --ozone-platform-hint=auto --silent
 exec pcloud
 
 include /etc/sway/config.d/*
-include ~/.config/sway/grimshot.sh
+# include ~/.config/sway/grimshot.sh
 
