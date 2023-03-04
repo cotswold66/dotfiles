@@ -9,10 +9,10 @@ then
 fi
 export PATH
 
-export B2_ACCOUNT_ID=001fcd061368b830000000002
-export B2_ACCOUNT_KEY=K001d7VjWLgjEdQXFhqvn8QUeW84sns
+# export B2_ACCOUNT_ID=001fcd061368b830000000002
+# export B2_ACCOUNT_KEY=K001d7VjWLgjEdQXFhqvn8QUeW84sns
 # export RESTIC_PASSWORD_COMMAND='pass show backup/pluto'
-export RESTIC_PASSWORD='LzjQVnS8tkCrhNYVcExS'
+# export RESTIC_PASSWORD='LzjQVnS8tkCrhNYVcExS'
 
 export EDITOR='emacsclient -a "" -t'
 export VIEWER='emacsclient -a "" -c -a emacs'
