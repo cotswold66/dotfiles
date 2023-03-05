@@ -895,7 +895,7 @@ Use =peep-dired= to show dired file previews.
   (use-package peep-dired
     :commands 'peep-dired
     :custom
-    (peep-dired-cleanup-on-disable t)
+    (peep-dired-cleanup-on-disable t))
 #+end_src
 
 Use =dired-rsync= for rsync functionality in dired mode.
@@ -906,6 +906,7 @@ Use =dired-rsync= for rsync functionality in dired mode.
     (:map dired-mode-map
           ("C-c C-r" . dired-rsync))) 
 #+end_src
+
 * Python
 #+name: python
 #+begin_src emacs-lisp :tangle no
