@@ -1,6 +1,6 @@
 #+TITLE: Emacs config file in org format
 #+AUTHOR: John Lord
-#+PROPERTY: header-args :results silent :tangle "/home/john/.emacs.d/init.el"
+##+PROPERTY: header-args :results silent :tangle "/home/john/.emacs.d/init.el"
 #+STARTUP: overview
 
 * Early init
