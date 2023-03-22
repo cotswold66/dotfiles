@@ -929,10 +929,14 @@ Use =dired-rsync= for rsync functionality in dired mode.
     :ensure t) 
 #+end_src
 
-* Yaml
+* Other Packages
 
 #+begin_src emacs-lisp
   (use-package yaml-mode
+    :defer t)
+  (use-package magit
+    :defer t)
+  (use-package nix-mode
     :defer t)
 #+end_src
 
