@@ -871,7 +871,7 @@ date property to new org roam nodes created at the heading level.
 
 * Dired
 :PROPERTIES:
-:header-args: :tangle no
+# :header-args: :tangle no
 :END:
 
 #+begin_src emacs-lisp
