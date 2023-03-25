@@ -838,36 +838,15 @@ date property to new org roam nodes created at the heading level.
     :hook (org-mode . turn-on-org-cdlatex))  
 #+end_src
 
+* ESS
+
 #+begin_src emacs-lisp
-; for outline views (hide/show sections, chapters, etc.)
-(add-hook 'TeX-mode-hook '(lambda () (TeX-fold-mode 1)))
-(add-hook 'TeX-mode-hook '(lambda () (outline-minor-mode 1)))
-; make PDF by default (can toggle with C-c C-t C-p
-(add-hook 'TeX-mode-hook '(lambda () (TeX-PDF-mode 1)))
-; these math abbrevs (` as prefix char) are also useful in TeX/ConTeXt files
+  (use-package ess
+    :commands R
+    :config
+    (require 'ess-r-mode))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no
-  (use-package mmm-mode
-    :custom-face
-    (mmm-code-submode-face ((t (:background "white")))))
-
-  (setq mmm-global-mode 'maybe)
-  (setq mmm-submode-decoration-level 2)
-  (mmm-add-group 'context-plus
-		 '((context-R
-		    :submode r-mode
-		    :face mmm-comment-submode-face
-		    :front ".*\\\\startR\\w*\\({\\w*}\\|\\[\\w*\\]\\|\\)\\W*"
-		    :back  ".*\\\\stopR")
-		   (context-MP
-		    :submode metapost-mode
-		    :face mmm-code-submode-face
-		    :front ".*\\\\start\\w*MP\\w*\\({\\w*}\\|\\[\\w*\\]\\|\\)\\W*"
-		    :back  ".*\\\\stop\\w*MP")
-		   ))
-  (add-to-list 'mmm-mode-ext-classes-alist '(context-mode nil context-plus))
-#+end_src
 
 * Dired
 :PROPERTIES:
