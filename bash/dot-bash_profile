@@ -9,8 +9,8 @@ then
 fi
 export PATH
 
-export EDITOR='emacsclient -a "" -t'
-export VIEWER='emacsclient -a "" -c -a emacs'
+export EDITOR='emacsclient -t'
+export VIEWER='emacsclient -c'
 export HISTFILESIZE=100000
 export HISTSIZE=100000
 export WORKON_HOME=~/src
@@ -21,14 +21,15 @@ export XDG_SCREENSHOTS_DIR=~/Screenshots
 #export PLASMA_USE_QT_SCALING=1
 export QT_QPA_PLATFORMTHEME=qt5ct
 export VDPAU_DRIVER=va_gl
-
+export MOZ_ENABLE_WAYLAND=1
+export GTK_THEME=Adwaita:dark
 
 #if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
 #  exec startplasma-x11
 #fi
 #
 if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-  exec sh sway.sh
+  exec sway
 fi
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc

@@ -20,7 +20,7 @@ set $up k
 set $right l
 # Your preferred terminal emulator
 set $term "foot"
-set $emacs "emacsclient --alternate-editor= --create-frame --socket-name /run/user/1000/emacs/server"
+set $emacs "emacsclient -c " #"--alternate-editor= --create-frame --socket-name /run/user/1000/emacs/server"
 # Your preferred application launcher
 # Note: pass the final command to swaymsg so that the resulting window can be opened
 # on the original workspace that the command was run on.
@@ -311,7 +311,7 @@ assign [app_id="gnucash"] 6
 for_window [class="zoom"] floating enable
 assign [class="zoom"] 3
 
-for_window [app_id="1Password"] floating enable
+for_window [class="1Password"] floating enable
 
 for_window [app_id="org.kde.dolphin"] floating enable
 
@@ -321,10 +321,12 @@ default_border pixel 5
 exec wl-paste -t text --watch clipman store --no-persist
 exec nm-applet --indicator
 exec mako
-exec dex --autostart -s ~/.config/autostart/
+# exec dex --autostart -s ~/.config/autostart/
 exec /usr/lib/pam_kwallet_init
-exec 1password --ozone-platform-hint=auto --silent
+# exec 1password --ozone-platform-hint=auto --silent
+exec 1password --silent
 exec pcloud
+exec nextcloud
 
 include /etc/sway/config.d/*
 # include ~/.config/sway/grimshot.sh
