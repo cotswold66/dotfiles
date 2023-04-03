@@ -102,7 +102,7 @@ call plug#begin()
 " Plug 'markonm/traces.vim'
 " Plug 'kassio/neoterm'
 Plug 'kana/vim-fakeclip'
-" Plug 'chriskempson/base16-vim'
+Plug 'chriskempson/base16-vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'francoiscabrol/ranger.vim'
@@ -116,7 +116,7 @@ call plug#end()
 runtime macros/matchit.vim
 
 " let base16colorspace=256
-" colorscheme base16-tomorrow-night
+colorscheme base16-tomorrow-night
 
 " enable omni-completion
 set omnifunc=syntaxcomplete#Complete
