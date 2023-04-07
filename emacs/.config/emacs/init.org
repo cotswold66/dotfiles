@@ -707,6 +707,15 @@ date property to new org roam nodes created at the heading level.
        "CREATED")))	
   (advice-add  'org-id-get-create :before 'jdl/add-other-auto-props-to-org-roam-properties)
 #+end_src
+* Hugo
+
+#+begin_src emacs-lisp
+  (use-package ox-hugo
+    :ensure t   ;Auto-install the package from Melpa
+    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+    :after ox)
+#+end_src
+
 * Mu4e
 ** Mu4e
 #+begin_src emacs-lisp :noweb yes
