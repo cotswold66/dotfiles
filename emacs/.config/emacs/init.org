@@ -504,7 +504,6 @@ to narrow down the options.
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-outline-path-complete-in-steps nil)
   (org-refile-targets '(("~/org/journal.org" . (:maxlevel . 3))
-			("~/org/companies.org" . (:maxlevel . 3))
 			("~/org/todo.org" . (:maxlevel . 3))))
   (org-refile-use-outline-path t)
 #+end_src
