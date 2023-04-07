@@ -482,10 +482,8 @@ lists as they are already included in the calendar view.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-agenda-files
-   '("~/org/companies.org"
-     "~/org/journal.org"
-     "~/org/todo.org"
-     "~/org/contacts.org"))
+   '("~/org/journal.org"
+     "~/org/todo.org"))
   (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
    '(("h" "Agenda and home tasks"
