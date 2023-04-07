@@ -440,19 +440,20 @@ Define the default org directory.
 #+end_src
 
 Define the sequence of org todo keywords. Those before the ="|"= are
-todo items and those after are done items.
+todo items and those after are done items. The '!' means set a
+timestamp on change, '/!' means seat a timestamp on leaving the state,
+and '@' means request a note.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "SOMETIME(s)" "|"
-               "DONE(d)" "CANCELLED(c)")))
+   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w@/!)" "SOMETIME(s)" "|"
+               "DONE(d!)" "CANCELLED(c@)")))
 #+end_src
 
-When a task is marked as done, place the time of completion in a log
+Place the time of completion in a log
 drawer.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-log-done 'time)
   (org-log-into-drawer t)
 #+end_src
 
