@@ -531,15 +531,8 @@ visualization in the code.
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* Journal :journal:\n"
 	       ":PROPERTIES:\n"
-	       ":DATE:     %(format-time-string \"%Y-%m-%d\")\n"
+	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
 	       ":END:\n"
-	       "%^{ALCOHOL}p"
-	       "%^{COFFEE}p"
-	       "%^{STRETCH}p"
-	       "%^{CYCLE}p"
-	       "%^{ROW}p"
-	       "%^{RUN}p"
-	       "%^{WALK}p"
 	       "%?")
       :unnarrowed t)
      ("m"
