@@ -932,6 +932,16 @@ Use =dired-rsync= for rsync functionality in dired mode.
     :ensure t) 
 #+end_src
 
+* Clojure
+
+#+begin_src emacs-lisp
+  (use-package clojure-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package cider)
+#+end_src
+
 * Other Packages
 
 #+begin_src emacs-lisp
