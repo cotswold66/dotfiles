@@ -520,9 +520,9 @@ visualization in the code.
       entry 
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %? :fleeting:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n")
+	       ":PROPERTIES:\n"
+	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+	       ":END:\n")
       :unnarrowed t
       :time-prompt t)
      ("j"
@@ -530,27 +530,34 @@ visualization in the code.
       entry 
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* Journal :journal:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n"
-               "%?")
+	       ":PROPERTIES:\n"
+	       ":DATE:     %(format-time-string \"%Y-%m-%d\")\n"
+	       ":END:\n"
+	       "%^{ALCOHOL}p"
+	       "%^{COFFEE}p"
+	       "%^{STRETCH}p"
+	       "%^{CYCLE}p"
+	       "%^{ROW}p"
+	       "%^{RUN}p"
+	       "%^{WALK}p"
+	       "%?")
       :unnarrowed t)
      ("m"
       "meeting"
       entry 
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %? :meeting:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n"
-               ":DETAILS:\n"
-               "- date :: %T\n"
-               "- attendee :: John Lord\n"
-               "- company :: \n"
-               "- attendee :: \n"
-               "- agenda :: \n"
-               ":END:\n"
-               "- ")
+	       ":PROPERTIES:\n"
+	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+	       ":END:\n"
+	       ":DETAILS:\n"
+	       "- date :: %T\n"
+	       "- attendee :: John Lord\n"
+	       "- company :: \n"
+	       "- attendee :: \n"
+	       "- agenda :: \n"
+	       ":END:\n"
+	       "- ")
       :unnarrowed t
       :time-prompt t)
      ("t"
@@ -558,20 +565,20 @@ visualization in the code.
       entry
       (file+olp+datetree "~/org/journal.org")
       ,(concat "* %?  :task:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":SOURCE:   %a\n"
-               ":END:\n")
+	       ":PROPERTIES:\n"
+	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+	       ":SOURCE:   %a\n"
+	       ":END:\n")
       :unnarrowed t)
      ("d"
       "todo"
       entry
       (file "~/org/todo.org")
       ,(concat "* TODO %?\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":SOURCE:   %a\n"
-               ":END:\n")
+	       ":PROPERTIES:\n"
+	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+	       ":SOURCE:   %a\n"
+	       ":END:\n")
       :unnarrowed t)))
 #+end_src
 
