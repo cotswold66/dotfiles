@@ -430,7 +430,7 @@ a multipurpose file.
 Enable org habits
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-config
-  (add-to-list 'org-modules 'orh-habit t)
+  (add-to-list 'org-modules 'org-habit t)
 #+end_src
 
 Define the default org directory.
