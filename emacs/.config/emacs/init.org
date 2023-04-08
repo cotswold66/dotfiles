@@ -857,7 +857,14 @@ date property to new org roam nodes created at the heading level.
   (use-package ess
     :commands R
     :config
-    (require 'ess-r-mode))
+    (require 'ess-r-mode)
+    (add-to-list 'display-buffer-alist
+		 '("^\\*R"
+		   (display-buffer-reuse-window display-buffer-pop-up-frame)
+		   ;; (window-width . 0.5)
+		   (reusable-frames . 0)
+		   (dedicated . t))))
+
 #+end_src
 
 * Poly-R
