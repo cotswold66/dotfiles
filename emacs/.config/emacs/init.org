@@ -70,14 +70,16 @@ of the config file.
 #+end_src
 
 Clean up the interface by removing the menu bar, tool bar, and scroll
-bars. Show balanced parentheses.
+bars. Show balanced parentheses. Replace default completion with hippie-expand.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (global-set-key (kbd "M-/") 'hippie-expand)
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (show-paren-mode)
   (electric-pair-mode)
   (delete-selection-mode 1)
+  (global-hl-line-mode)
 #+end_src
 
 Inhibit the startup screen and provide an empty scratch buffer.
@@ -132,6 +134,13 @@ Set the default font.
                     :weight 'normal
                     :width 'normal)
 #+end_src
+
+Don't use hard tabs.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (indent-tabs-mode nil)
+#+end_src
+
 
 * Privilege and Authentication
 
@@ -939,14 +948,43 @@ Use =dired-rsync= for rsync functionality in dired mode.
     :ensure t) 
 #+end_src
 
+* Paredit
+
+#+begin_src emacs-lisp
+  (use-package paredit
+    :hook
+    ((emacs-lisp-mode
+      eval-expression-minibuffer-setup
+      ielm-mode
+      lisp-mode
+      lisp-interaction-mode
+      scheme-mode) . paredit-mode))
+#+end_src
 * Clojure
 
 #+begin_src emacs-lisp
-  (use-package clojure-mode)
+  (use-package clojure-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
+    (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
+    (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
+    :mode
+    ((paredit-mode lsp) . clojure-mode)
+    )
 #+end_src
 
 #+begin_src emacs-lisp
-  (use-package cider)
+  (use-package cider
+    :hook
+    (cider-repl-mode . paredit-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :hook
+    ((lsp-mode lsp-ui) . lsp-enable-which-key-integration)
+    :bind)
+    ;; ("M-<f7>" lsp-find-references))
 #+end_src
 
 * Other Packages
