@@ -111,6 +111,10 @@ punctuation.
   (sentence-end-double-space nil)
 #+end_src
 
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (electric-indent-mode nil)
+#+end_src
+
 Enable various non-beginner functions.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
@@ -140,7 +144,6 @@ Don't use hard tabs.
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
   (indent-tabs-mode nil)
 #+end_src
-
 
 * Privilege and Authentication
 
