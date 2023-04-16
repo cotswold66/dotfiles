@@ -964,16 +964,15 @@ Use =dired-rsync= for rsync functionality in dired mode.
       scheme-mode) . paredit-mode))
 #+end_src
 * Clojure
+:PROPERTIES:
+# :header-args: :tangle no
+:END:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp 
   (use-package clojure-mode
-    :config
-    (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
-    (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
-    (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
-    :mode
-    ((paredit-mode lsp) . clojure-mode)
-    )
+    :hook
+    (clojure-mode . paredit-mode)
+    (clojure-mode . lsp))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -985,9 +984,7 @@ Use =dired-rsync= for rsync functionality in dired mode.
 #+begin_src emacs-lisp
   (use-package lsp-mode
     :hook
-    ((lsp-mode lsp-ui) . lsp-enable-which-key-integration)
-    :bind)
-    ;; ("M-<f7>" lsp-find-references))
+    ((lsp-mode lsp-ui) . lsp-enable-which-key-integration))
 #+end_src
 
 * Other Packages
