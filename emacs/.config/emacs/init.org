@@ -970,7 +970,5 @@ Use =dired-rsync= for rsync functionality in dired mode.
     :defer t)
   (use-package magit
     :defer t)
-  (use-package nix-mode
-    :defer t)
 #+end_src
 
