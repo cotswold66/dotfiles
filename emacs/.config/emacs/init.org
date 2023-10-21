@@ -90,10 +90,10 @@ Inhibit the startup screen and provide an empty scratch buffer.
 #+end_src
 
 Do not create backup files since files are under version control.
-Also, move deleted files to system trash instead of deleting outright.
+Also, do move deleted files to system trash.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (delete-by-moving-to-trash t)
+  (delete-by-moving-to-trash nil)
   (make-backup-files nil)
 #+end_src
 
