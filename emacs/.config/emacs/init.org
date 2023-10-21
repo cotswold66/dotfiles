@@ -133,8 +133,8 @@ Set the default font.
 
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil
-                    :family "Inconsolata"
-                    :height 130
+                    :family "Source Code Pro"
+                    :height 120
                     :weight 'normal
                     :width 'normal)
 #+end_src
