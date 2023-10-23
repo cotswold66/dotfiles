@@ -855,18 +855,6 @@ date property to new org roam nodes created at the heading level.
     :hook (org-mode . turn-on-org-cdlatex))  
 #+end_src
 
-* Poly-R
-
-#+begin_src emacs-lisp
-  (use-package poly-R
-    :config
-    (add-to-list 'auto-mode-alist
-		 '("\\.[rR]md\\'" . poly-gfm+r-mode))
-    :custom
-    (markdown-code-block-braces t)
-    )
-#+end_src
-
 * Dired
 :PROPERTIES:
 # :header-args: :tangle no
