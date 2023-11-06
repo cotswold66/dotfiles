@@ -176,8 +176,10 @@ Enable the tomorrow night theme from the base16 collection.
 
 #+begin_src emacs-lisp
   (use-package base16-theme
-   :config
-   (load-theme 'base16-tomorrow-night t))
+    :custom
+    (base16-theme-256-color-source 'colors)
+    :config
+    (load-theme 'base16-tomorrow-night t))
 #+end_src
 
 * Corfu
