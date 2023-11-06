@@ -924,7 +924,6 @@ Use =dired-rsync= for rsync functionality in dired mode.
   (use-package paredit
     :hook
     ((emacs-lisp-mode
-      eval-expression-minibuffer-setup
       ielm-mode
       lisp-mode
       lisp-interaction-mode
