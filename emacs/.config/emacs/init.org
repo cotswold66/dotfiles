@@ -135,7 +135,7 @@ Set the default font.
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil
                     :family "Source Code Pro"
-                    :height 120
+                    :height 110
                     :weight 'normal
                     :width 'normal)
 #+end_src
