@@ -63,11 +63,7 @@
         (aliases '(("grep" . "grep --color=auto") ("la" . "ls -al")))
         (environment-variables 
          '(("XDG_DATA_DIRS" . "$XDG_DATA_DIRS:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share")
-           ("PATH" . "$HOME/bin:$HOME/perl5/bin:$PATH")
-           ("PERL5LIB" . "$HOME/perl5/lib/perl5:$PERL5LIB")
-           ("PERL_LOCAL_LIB_ROOT" . "$HOME/perl5:$PERL_LOCAL_LIB_ROOT")
-           ("PERL_MB_OPT" . "--install_base \"$HOME/perl5\"")
-           ("PERL_MM_OPT" . "INSTALL_BASE=$HOME/perl5")
+           ("PATH" . "$HOME/bin:$PATH")
            ("PASSWORD_STORE_DIR" . "$HOME/src/password-store")))))
            ;; (simple-service 'dotfiles-service
            ;;                 home-files-service-type
@@ -82,4 +78,4 @@
                     (home-gpg-agent-configuration
 
 (pinentry-program
-                      (file-append pinentry-gnome3 "/bin/pinentry-gnome3")))))))
+ (file-append pinentry-gnome3 "/bin/pinentry-gnome3")))))))
