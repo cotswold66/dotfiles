@@ -51,7 +51,10 @@
   ;; under their own account: use 'guix search KEYWORD' to search
   ;; for packages and 'guix install PACKAGE' to install a package.
   (packages (append (map specification->package
-                         '("nss-certs" "font-terminus" "ovmf"))
+                         '("nss-certs" 
+                           "font-terminus"
+                           "intel-media-driver-nonfree"
+                           "libvdpau-va-gl"))
                     %base-packages))
 
   ;; Below is the list of system services.  To search for available
