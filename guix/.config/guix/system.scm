@@ -1,6 +1,7 @@
 (use-modules (gnu)
              (gnu services virtualization)
              (gnu services avahi)
+             (gnu services networking)
              (gnu system nss)
              (nongnu packages linux))
 (use-package-modules fonts)
@@ -65,6 +66,7 @@
                           (libvirt-configuration
                            (unix-sock-group "libvirt")
                            (tls-port "16555")))
+                 (service nftables-service-type)
                  (service virtlog-service-type)
                  (service docker-service-type)
                  ;; (simple-service 'subugid-config etc-service-type
