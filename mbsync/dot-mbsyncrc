@@ -1,7 +1,7 @@
 IMAPAccount personal
 Host imap.gmail.com
 User john@lordsonline.org
-PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/imap.gmail.com:587/john@lordsonline.org.gpg"
+PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/src/password-store/imap.gmail.com:587/john@lordsonline.org.gpg"
 AuthMechs LOGIN
 SSLType IMAPS
 #SSLVersions TLSv1.2
@@ -29,7 +29,7 @@ CopyArrivalDate yes
 IMAPAccount business
 Host imap.gmail.com
 User john@lordpharmaconsulting.com
-PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/imap.gmail.com:587/john@lordpharmaconsulting.com.gpg"
+PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/src/password-store/imap.gmail.com:587/john@lordpharmaconsulting.com.gpg"
 AuthMechs LOGIN
 SSLType IMAPS
 SSLVersions TLSv1.2
