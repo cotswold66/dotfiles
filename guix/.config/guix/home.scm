@@ -7,6 +7,15 @@
              (guix gexp)
              (gnu home services shells))
 
+(define %base16-config
+  "\n# Base16 Shell
+BASE16_SHELL=\"$HOME/src/base16-shell/\"
+[ -n \"$PS1\" ] && \\
+    [ -s \"$BASE16_SHELL/profile_helper.sh\" ] && \\
+        source \"$BASE16_SHELL/profile_helper.sh\"
+        
+base16_tomorrow-night")
+
 (home-environment
    (packages  
     (specifications->packages
@@ -57,25 +66,24 @@
     ;; services, run 'guix home search KEYWORD' in a terminal.
     (services
      (list 
-      (service
-       home-bash-service-type
-       (home-bash-configuration
-        (aliases '(("grep" . "grep --color=auto") ("la" . "ls -al")))
-        (environment-variables 
-         '(("XDG_DATA_DIRS" . "$XDG_DATA_DIRS:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share")
-           ("PATH" . "$HOME/bin:$PATH")
-           ("PASSWORD_STORE_DIR" . "$HOME/src/password-store")))))
-           ;; (simple-service 'dotfiles-service
-           ;;                 home-files-service-type
-           ;;                 `((".gitconfig" ,(local-file "./dot-gitconfig"))))
-           (simple-service 'envars-service
-                           home-environment-variables-service-type
-                           `(("PLASMA_USE_QT_SCALING" . #t)
-                             ("QT_AUTO_SCREEN_SCALE_FACTOR" . "1")
-                             ("QT_ENABLE_HIGHDPI_SCALING" . "1")
-                             ("XDG_SCREENSHOTS_DIR" . "$HOME/Screenshots")))
-           (service home-gpg-agent-service-type
-                    (home-gpg-agent-configuration
-
-(pinentry-program
- (file-append pinentry-gnome3 "/bin/pinentry-gnome3")))))))
+      (service home-bash-service-type
+               (home-bash-configuration
+                (aliases '(("grep" . "grep --color=auto") ("la" . "ls -al")))
+                (environment-variables 
+                 '(("XDG_DATA_DIRS" . "$XDG_DATA_DIRS:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share")
+                   ("PATH" . "$HOME/bin:$PATH")
+                   ("PASSWORD_STORE_DIR" . "$HOME/src/password-store")))
+                (bashrc (list (plain-file "base16-config" %base16-config)))))
+      ;; (simple-service 'dotfiles-service
+      ;;                 home-files-service-type
+      ;;                 `((".gitconfig" ,(local-file "./dot-gitconfig"))))
+      (simple-service 'envars-service
+                      home-environment-variables-service-type
+                      `(("PLASMA_USE_QT_SCALING" . #t)
+                        ("QT_AUTO_SCREEN_SCALE_FACTOR" . "1")
+                        ("QT_ENABLE_HIGHDPI_SCALING" . "1")
+                        ("XDG_SCREENSHOTS_DIR" . "$HOME/Screenshots")))
+      (service home-gpg-agent-service-type
+               (home-gpg-agent-configuration
+                (pinentry-program
+                 (file-append pinentry-gnome3 "/bin/pinentry-gnome3")))))))
