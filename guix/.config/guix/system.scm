@@ -113,6 +113,16 @@
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
                 (keyboard-layout keyboard-layout)
+                (menu-entries
+                 (list
+                  (menu-entry
+                   (label "Arch Linux")
+                   (device (uuid "2548-F30B" 'fat))
+                   (chain-loader "/EFI/Arch/grubx64.efi"))
+                  (menu-entry
+                   (label "Windows 11")
+                   (device (uuid "2548-F30B" 'fat))
+                   (chain-loader "/EFI/Microsoft/Boot/bootmgfw.efi"))))
                 (theme (grub-theme
                         (inherit (grub-theme))
                         (gfxmode '("1600x1200x32" "auto"))))))
