@@ -1,0 +1,15 @@
+
+# History size
+HISTSIZE=10000
+HISTFILESIZE=100000
+
+# No dups in history
+HISTCONTROL=ignoredups:erasedups
+shopt -s histappend
+PROMPT_COMMAND="history -n; history -w; history -c; history -r; $PROMPT_COMMAND"
+
+# History search with arrow keys
+bind '"\e[A": history-search-backward'
+bind '"\eOA": history-search-backward'
+bind '"\e[B": history-search-forward'
+bind '"\eOB": history-search-forward'

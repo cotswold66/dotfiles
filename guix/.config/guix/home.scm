@@ -7,15 +7,6 @@
              (guix gexp)
              (gnu home services shells))
 
-(define %base16-config
-  "\n# Base16 Shell
-BASE16_SHELL=\"$HOME/src/base16-shell/\"
-[ -n \"$PS1\" ] && \\
-    [ -s \"$BASE16_SHELL/profile_helper.sh\" ] && \\
-        source \"$BASE16_SHELL/profile_helper.sh\"
-        
-base16_tomorrow-night")
-
 (home-environment
    (packages  
     (specifications->packages
@@ -73,7 +64,9 @@ base16_tomorrow-night")
                  '(("XDG_DATA_DIRS" . "$XDG_DATA_DIRS:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share")
                    ("PATH" . "$HOME/bin:$PATH")
                    ("PASSWORD_STORE_DIR" . "$HOME/src/password-store")))
-                (bashrc (list (plain-file "base16-config" %base16-config)))))
+                (bashrc (list (local-file "./files/bashrc-base16-config")
+                              (local-file "./files/bashrc-history")
+                              (local-file "./files/bashrc-fzf")))))
       ;; (simple-service 'dotfiles-service
       ;;                 home-files-service-type
       ;;                 `((".gitconfig" ,(local-file "./dot-gitconfig"))))
