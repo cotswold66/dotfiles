@@ -5,7 +5,7 @@
              (gnu system nss)
              (nongnu packages linux))
 (use-package-modules fonts)
-(use-service-modules cups desktop docker networking ssh xorg)
+(use-service-modules cups desktop docker networking ssh xorg nix)
 
 (define cryptroot
   (mapped-device
@@ -70,6 +70,7 @@
                            (unix-sock-group "libvirt")
                            (tls-port "16555")))
                  (service nftables-service-type)
+                 (service nix-service-type)
                  (service virtlog-service-type)
                  (service docker-service-type)
                  ;; (simple-service 'subugid-config etc-service-type
