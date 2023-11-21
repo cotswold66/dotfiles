@@ -3,6 +3,8 @@
 	email = john@lordsonline.org
 [core]
 	editor = emacsclient -c
+[init]
+        defaultBranch = "main"
 [pull]
 	rebase = false
 [filter "lfs"]
