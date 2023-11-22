@@ -3,6 +3,7 @@
              (gnu services avahi)
              (gnu services networking)
              (gnu system nss)
+             (gnu packages firmware)
              (nongnu packages linux))
 (use-package-modules fonts)
 (use-service-modules cups desktop docker networking ssh xorg)
@@ -54,7 +55,8 @@
                          '("nss-certs" 
                            "font-terminus"
                            "intel-media-driver-nonfree"
-                           "libvdpau-va-gl"))
+                           "libvdpau-va-gl"
+                           "ovmf"))
                     %base-packages))
 
   ;; Below is the list of system services.  To search for available
