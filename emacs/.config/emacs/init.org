@@ -452,7 +452,7 @@ Enable org habits
 Define the default org directory.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-directory "~/org")
+  (org-directory "~/src/org")
 #+end_src
 
 Define the sequence of org todo keywords. Those before the ="|"= are
@@ -498,8 +498,8 @@ lists as they are already included in the calendar view.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-agenda-files
-   '("~/org/journal.org"
-     "~/org/todo.org"))
+   '("~/src/org/journal.org"
+     "~/src/org/todo.org"))
   (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
    '(("h" "Agenda and home tasks"
@@ -519,8 +519,8 @@ to narrow down the options.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-outline-path-complete-in-steps nil)
-  (org-refile-targets '(("~/org/journal.org" . (:maxlevel . 3))
-			("~/org/todo.org" . (:maxlevel . 3))))
+  (org-refile-targets '(("~/src/org/journal.org" . (:maxlevel . 3))
+			("~/src/org/todo.org" . (:maxlevel . 3))))
   (org-refile-use-outline-path t)
 #+end_src
 
@@ -534,7 +534,7 @@ visualization in the code.
    `(("f"
       "fleeting note"
       entry 
-      (file+olp+datetree "~/org/journal.org")
+      (file+olp+datetree "~/src/org/journal.org")
       ,(concat "* %? :fleeting:\n"
 	       ":PROPERTIES:\n"
 	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
@@ -544,7 +544,7 @@ visualization in the code.
      ("j"
       "journal"
       entry 
-      (file+olp+datetree "~/org/journal.org")
+      (file+olp+datetree "~/src/org/journal.org")
       ,(concat "* Journal :journal:\n"
 	       ":PROPERTIES:\n"
 	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
@@ -554,7 +554,7 @@ visualization in the code.
      ("m"
       "meeting"
       entry 
-      (file+olp+datetree "~/org/journal.org")
+      (file+olp+datetree "~/src/org/journal.org")
       ,(concat "* %? :meeting:\n"
 	       ":PROPERTIES:\n"
 	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
@@ -572,7 +572,7 @@ visualization in the code.
      ("t"
       "task"
       entry
-      (file+olp+datetree "~/org/journal.org")
+      (file+olp+datetree "~/src/org/journal.org")
       ,(concat "* %?  :task:\n"
 	       ":PROPERTIES:\n"
 	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
@@ -582,7 +582,7 @@ visualization in the code.
      ("d"
       "todo"
       entry
-      (file "~/org/todo.org")
+      (file "~/src/org/todo.org")
       ,(concat "* TODO %?\n"
 	       ":PROPERTIES:\n"
 	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
@@ -630,7 +630,7 @@ Do not ask for confirmation before executing code.
   (use-package org-roam
     ;; :after org				
     :custom
-    (org-roam-directory (file-truename "~/org"))
+    (org-roam-directory (file-truename "~/src/org"))
     (org-roam-capture-templates
      `(("d" "default" plain "%?" 
 	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
@@ -794,7 +794,7 @@ date property to new org roam nodes created at the heading level.
   (use-package emacs
     :custom
     (bibtex-dialect 'biblatex)
-    (org-cite-global-bibliography '("~/git/bibliography/references.bib")))
+    (org-cite-global-bibliography '("~/src/bibliography/references.bib")))
 #+end_src
 
 ** Citar
@@ -803,14 +803,14 @@ date property to new org roam nodes created at the heading level.
       (use-package citar
 	:no-require
 	:custom
-	(org-cite-global-bibliography '("~/git/bibliography/references.bib"))
+	(org-cite-global-bibliography '("~/src/bibliography/references.bib"))
 	(org-cite-insert-processor 'citar)
 	(org-cite-follow-processor 'citar)
 	(org-cite-activate-processor 'citar)
 	(citar-bibliography org-cite-global-bibliography)
 	(citar-at-point-function 'embark-act)
 	(citar-notes-paths
-	 '("~/org"
+	 '("~/src/org"
 	   ))
 	;; optional: org-cite-insert is also bound to C-c C-x C-@
 	:bind
