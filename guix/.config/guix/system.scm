@@ -39,7 +39,7 @@
                   (group "users")
                   (home-directory "/home/john")
                   (supplementary-groups '("wheel" "netdev" "audio" "video"
-                                          "libvirt" "docker" "lp")))
+                                          "kvm" "libvirt" "docker" "lp")))
                 %base-user-accounts))
 
   ;; Packages installed system-wide.  Users can also install packages
