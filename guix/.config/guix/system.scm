@@ -37,7 +37,7 @@
                   (name "john")
                   (comment "John Lord")
                   (group "users")
-                  (home-directory "/home/guix")
+                  (home-directory "/home/john")
                   (supplementary-groups '("wheel" "netdev" "audio" "video"
                                           "libvirt" "docker" "lp")))
                 %base-user-accounts))
