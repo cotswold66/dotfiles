@@ -68,6 +68,10 @@
                  (service nftables-service-type)
                  (service virtlog-service-type)
                  (service docker-service-type)
+                 (extra-special-file "/usr/share/OVMF/OVMF_CODE.fd"
+                    (file-append ovmf "/share/firmware/ovmf_x64.bin"))
+                 (extra-special-file "/usr/share/OVMF/OVMF_VARS.fd"
+                    (file-append ovmf "/share/firmware/ovmf_x64.bin"))
                  ;; (simple-service 'subugid-config etc-service-type
                  ;;                 `(("subuid" ,(plain-file "subuid"
                  ;;                                          "john:100000:65536\n"))
