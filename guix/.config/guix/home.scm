@@ -40,6 +40,7 @@
       "password-store" 
       "pdfarranger"
       "picmi"
+      "power-profiles-daemon"
       "restic"
       "ripgrep"
       "rsync"
