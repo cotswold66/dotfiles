@@ -1,3 +1,4 @@
+
 (use-modules (gnu)
              (gnu services virtualization)
              (gnu services avahi)
@@ -8,24 +9,17 @@
 (use-package-modules fonts)
 (use-service-modules cups desktop docker networking ssh xorg)
 
-(define cryptroot
-  (mapped-device
-   (source (uuid
-            "0161c370-2b8d-4a69-9306-c8f70b005e9a"))
-   (target "guix")
-   (type luks-device-mapping)))
-
-(define crypthome
+(define crypt
   (mapped-device
    (source (uuid
             "230e52a9-59f8-447c-bfa9-b1a17ba397d3"))
-   (target "crypthome")
+   (target "crypt")
    (type luks-device-mapping)))
 
 (define vgpluto
   (mapped-device
    (source "pluto")
-   (targets (list "pluto-home"))
+   (targets (list "pluto-guix" "pluto-home"))
    (type lvm-device-mapping)))
 
 (operating-system
@@ -113,7 +107,7 @@
                                              %default-authorized-guix-keys)))))))
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
-                (targets (list "/boot/efi"))
+                (targets (list "/boot"))
                 (keyboard-layout keyboard-layout)
                 (menu-entries
                  (list
@@ -129,8 +123,7 @@
                         (inherit (grub-theme))
                         (gfxmode '("1600x1200x32" "auto"))))))
 
-  (mapped-devices (list cryptroot
-                        crypthome
+  (mapped-devices (list crypt
                         vgpluto))
 
   ;; The list of file systems that get "mounted".  The unique
@@ -138,16 +131,16 @@
   ;; by running 'blkid' in a terminal.
   (file-systems (cons* (file-system
                          (mount-point "/")
-                         (device "/dev/mapper/guix")
+                         (device "/dev/pluto/guix")
                          (type "ext4")
-                         (dependencies (list cryptroot)))
+                         (dependencies mapped-devices))
                        (file-system
                          (mount-point "/home")
                          (device "/dev/pluto/home")
                          (type "ext4")
-                         (dependencies (list vgpluto)))
+                         (dependencies mapped-devices))
                        (file-system
-                         (mount-point "/boot/efi")
+                         (mount-point "/boot")
                          (device (uuid "2548-F30B"
                                        'fat32))
                          (type "vfat"))
