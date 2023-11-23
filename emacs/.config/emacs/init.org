@@ -1,4 +1,3 @@
-
 #+TITLE: Emacs config file in org format
 #+AUTHOR: John Lord
 #+PROPERTY: header-args :results silent :tangle "~/.emacs"
@@ -96,6 +95,7 @@ Also, do move deleted files to system trash.
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
   (delete-by-moving-to-trash nil)
   (make-backup-files nil)
+  (auto-save-file-name-transforms nil)
 #+end_src
 
 Move focus to help window when help activated, which makes it easy to
