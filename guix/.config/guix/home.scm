@@ -28,6 +28,7 @@
       "git"
       "gnome-mahjongg"
       "gnome-mines"
+      "google-chrome-stable"
       "guile"
       "isync"
       "kmahjongg"
