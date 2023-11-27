@@ -28,3 +28,14 @@ BASE16_SHELL="$HOME/src/base16-shell/"
     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
         source "$BASE16_SHELL/profile_helper.sh"
 base16_tomorrow-night
+
+# History size
+HISTSIZE=10000
+HISTFILESIZE=100000
+
+# No dups in history
+HISTCONTROL=ignoredups:erasedups
+shopt -s histappend
+PROMPT_COMMAND="history -n; history -w; history -c; history -r; $PROMPT_COMMAND"
+
+# Guix environment prompt
