@@ -18,6 +18,7 @@ bind '"\eOA": history-search-backward'
 bind '"\e[B": history-search-forward'
 bind '"\eOB": history-search-forward'
 
+# fzf bindings and completions
 source /usr/share/fzf/key-bindings.bash
 source /usr/share/fzf/completion.bash
 
