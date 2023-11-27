@@ -38,7 +38,6 @@ HISTCONTROL=ignoredups:erasedups
 shopt -s histappend
 PROMPT_COMMAND="history -n; history -w; history -c; history -r; $PROMPT_COMMAND"
 
-# Guix environment prompt
 # Eat shell integration
 [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
   source "$EAT_SHELL_INTEGRATION_DIR/bash"
