@@ -37,7 +37,7 @@
                   (name "john")
                   (comment "John Lord")
                   (group "users")
-                  (home-directory "/home/john")
+                  (home-directory "/home/guix")
                   (supplementary-groups '("wheel" "netdev" "audio" "video"
                                           "kvm" "libvirt" "docker" "lp")))
                 %base-user-accounts))
@@ -111,7 +111,7 @@
                                              %default-authorized-guix-keys)))))))
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
-                (targets (list "/boot"))
+                (targets (list "/boot/efi"))
                 (keyboard-layout keyboard-layout)
                 (menu-entries
                  (list
@@ -144,7 +144,7 @@
                          (type "ext4")
                          (dependencies mapped-devices))
                        (file-system
-                         (mount-point "/boot")
+                         (mount-point "/boot/efi")
                          (device (uuid "2548-F30B"
                                        'fat32))
                          (type "vfat"))
