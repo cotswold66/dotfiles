@@ -1,4 +1,4 @@
-#!/home/guix/.guix-home/profile/bin/bash
+#!/bin/bash
 
 # Setting this, so the repo does not need to be given on the commandline:
 if [ $1 == 'saturn' ]
