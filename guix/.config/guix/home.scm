@@ -42,7 +42,7 @@
       "pdfarranger"
       "picmi"
       "power-profiles-daemon"
-      "restic"
+      ;; "restic"                          ; out of date
       "ripgrep"
       "rsync"
       "stow"
