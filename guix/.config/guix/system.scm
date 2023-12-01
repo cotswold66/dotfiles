@@ -8,19 +8,7 @@
              (nongnu packages linux))
 (use-package-modules fonts)
 (use-service-modules cups desktop docker networking ssh xorg)
-
-(define crypt
-  (mapped-device
-   (source (uuid
-            "230e52a9-59f8-447c-bfa9-b1a17ba397d3"))
-   (target "crypt")
-   (type luks-device-mapping)))
-
-(define vgpluto
-  (mapped-device
-   (source "pluto")
-   (targets (list "pluto-guix" "pluto-home"))
-   (type lvm-device-mapping)))
+(use-service-modules cups desktop docker networking nix ssh xorg)
 
 (operating-system
   (kernel linux)
@@ -37,7 +25,7 @@
                   (name "john")
                   (comment "John Lord")
                   (group "users")
-                  (home-directory "/home/guix")
+                  (home-directory "/home/john")
                   (supplementary-groups '("wheel" "netdev" "audio" "video"
                                           "kvm" "libvirt" "docker" "lp")))
                 %base-user-accounts))
@@ -113,39 +101,26 @@
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
                 (keyboard-layout keyboard-layout)
-                (menu-entries
-                 (list
-                  (menu-entry
-                   (label "Arch Linux")
-                   (device (uuid "2548-F30B" 'fat))
-                   (chain-loader "/EFI/Arch/grubx64.efi"))
-                  (menu-entry
-                   (label "Windows 11")
-                   (device (uuid "2548-F30B" 'fat))
-                   (chain-loader "/EFI/Microsoft/Boot/bootmgfw.efi"))))
                 (theme (grub-theme
                         (inherit (grub-theme))
                         (gfxmode '("1600x1200x32" "auto"))))))
 
-  (mapped-devices (list crypt
-                        vgpluto))
+  (mapped-devices (list (mapped-device
+                          (source (uuid
+                                   "489a6bfb-83a5-4cd2-a35b-fd7f4ab06f0a"))
+                          (target "cryptroot")
+                          (type luks-device-mapping))))
 
   ;; The list of file systems that get "mounted".  The unique
   ;; file system identifiers there ("UUIDs") can be obtained
   ;; by running 'blkid' in a terminal.
   (file-systems (cons* (file-system
-                         (mount-point "/")
-                         (device "/dev/pluto/guix")
-                         (type "ext4")
-                         (dependencies mapped-devices))
-                       (file-system
-                         (mount-point "/home")
-                         (device "/dev/pluto/home")
-                         (type "ext4")
-                         (dependencies mapped-devices))
-                       (file-system
                          (mount-point "/boot/efi")
                          (device (uuid "2548-F30B"
                                        'fat32))
                          (type "vfat"))
-                       %base-file-systems)))
+                       (file-system
+                         (mount-point "/")
+                         (device "/dev/mapper/cryptroot")
+                         (type "ext4")
+                         (dependencies mapped-devices)) %base-file-systems)))
