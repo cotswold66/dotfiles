@@ -7,7 +7,6 @@
              (gnu packages firmware)
              (nongnu packages linux))
 (use-package-modules fonts)
-(use-service-modules cups desktop docker networking ssh xorg)
 (use-service-modules cups desktop docker networking nix ssh xorg)
 
 (operating-system
@@ -56,6 +55,7 @@
                  (service nftables-service-type)
                  (service virtlog-service-type)
                  (service docker-service-type)
+                 (service nix-service-type)
                  (extra-special-file "/usr/share/OVMF/OVMF_CODE.fd"
                     (file-append ovmf "/share/firmware/ovmf_x64.bin"))
                  (extra-special-file "/usr/share/OVMF/OVMF_VARS.fd"

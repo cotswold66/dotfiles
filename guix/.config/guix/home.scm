@@ -63,8 +63,8 @@
                (home-bash-configuration
                 (aliases '(("grep" . "grep --color=auto") ("la" . "ls -al")))
                 (environment-variables 
-                 '(("XDG_DATA_DIRS" . "$XDG_DATA_DIRS:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share")
-                   ("PATH" . "$HOME/bin:$HOME/.local/bin:$PATH")
+                 '(("XDG_DATA_DIRS" . "$XDG_DATA_DIRS:$HOME/.nix-profile/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share")
+                   ("PATH" . "$HOME/.nix-profile/bin:$HOME/bin:$HOME/.local/bin:$PATH")
                    ("PASSWORD_STORE_DIR" . "$HOME/src/password-store")))
                 (bashrc (list (local-file "./files/bashrc-base16-config")
                               (local-file "./files/bashrc-history")
