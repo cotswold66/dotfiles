@@ -130,15 +130,15 @@ Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to
   ("M-Z" . zap-to-char)
 #+end_src
 
-Set the default font.
+# Set the default font.
 
-#+begin_src emacs-lisp
-(set-face-attribute 'default nil
-                    :family "Source Code Pro"
-                    :height 110
-                    :weight 'normal
-                    :width 'normal)
-#+end_src
+# #+begin_src emacs-lisp
+# (set-face-attribute 'default nil
+#                     :family "Source Code Pro"
+#                     :height 110
+#                     :weight 'normal
+#                     :width 'normal)
+# #+end_src
 
 Don't use hard tabs.
 
@@ -868,7 +868,7 @@ date property to new org roam nodes created at the heading level.
     :defer t
     :ensure nil
     :custom
-    (dired-listing-switches "-alh -v --group-directories-first")
+    ;; (dired-listing-switches "-alh -v --group-directories-first")
     (dired-auto-revert-buffer t)
     (dired-dwim-target t)
     (dired-hide-details-hide-symlink-targets nil)
