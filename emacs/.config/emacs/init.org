@@ -1007,6 +1007,33 @@ Use =dired-rsync= for rsync functionality in dired mode.
     ((lsp-mode lsp-ui) . lsp-enable-which-key-integration))
 #+end_src
 
+* ESS
+
+#+begin_src emacs-lisp
+  (use-package ess
+    :config
+    (setq display-buffer-alist
+          `(("^\\*R Dired"
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . right)
+             (slot . -1)
+             (window-width . 0.33)
+             (reusable-frames . nil))
+            ("^\\*R"
+             nil
+             (display-buffer-reuse-window display-buffer-at-bottom)
+             (window-width . 0.5)
+             (dedicated . t)
+             (reusable-frames . nil))
+            ;; ("^\\*Help"
+            ;;  (display-buffer-reuse-window display-buffer-in-side-window)
+            ;;  (side . right)
+            ;;  (slot . 1)
+            ;;  (window-width . 0.4)
+            ;;  (reusable-frames . nil))
+            ))
+    )
+#+end_src
 * Other Packages
 
 #+begin_src emacs-lisp
