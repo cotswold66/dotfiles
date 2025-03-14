@@ -516,7 +516,13 @@ lists as they are already included in the calendar view.
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-agenda-files
    '("~/src/org/journal.org"
-     "~/src/org/todo.org"))
+     "~/src/org/todo.org"
+     "~/src/org/aerorx.org"
+     "~/src/org/gossamer.org"
+     "~/src/org/kiox.org"
+     "~/src/org/lila.org"
+     "~/src/org/maxwell.org"
+     ))
   (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
    '(("h" "Agenda and home tasks"
@@ -537,7 +543,13 @@ to narrow down the options.
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-outline-path-complete-in-steps nil)
   (org-refile-targets '(("~/src/org/journal.org" . (:maxlevel . 3))
-			("~/src/org/todo.org" . (:maxlevel . 3))))
+                        ("~/src/org/todo.org" . (:maxlevel . 3))
+                        ("~/src/org/aerorx.org" . (:maxlevel . 3))
+                        ("~/src/org/gossamer.org" . (:maxlevel . 3))
+                        ("~/src/org/kiox.org" . (:maxlevel . 3))
+                        ("~/src/org/lila.org" . (:maxlevel . 3))
+                        ("~/src/org/maxwell.org" . (:maxlevel . 3))
+                        ))
   (org-refile-use-outline-path t)
 #+end_src
 
@@ -550,61 +562,147 @@ visualization in the code.
   (org-capture-templates
    `(("f"
       "fleeting note"
-      entry 
+      entry
       (file+olp+datetree "~/src/org/journal.org")
       ,(concat "* %? :fleeting:\n"
-	       ":PROPERTIES:\n"
-	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-	       ":END:\n")
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":END:\n")
       :unnarrowed t
       :time-prompt t)
      ("j"
       "journal"
-      entry 
+      entry
       (file+olp+datetree "~/src/org/journal.org")
       ,(concat "* Journal :journal:\n"
-	       ":PROPERTIES:\n"
-	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-	       ":END:\n"
-	       "%?")
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":END:\n"
+               "%?")
       :unnarrowed t)
-     ("m"
-      "meeting"
-      entry 
-      (file+olp+datetree "~/src/org/journal.org")
-      ,(concat "* %? :meeting:\n"
-	       ":PROPERTIES:\n"
-	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-	       ":END:\n"
-	       ":DETAILS:\n"
-	       "- date :: %T\n"
-	       "- attendee :: John Lord\n"
-	       "- company :: \n"
-	       "- attendee :: \n"
-	       "- agenda :: \n"
-	       ":END:\n"
-	       "- ")
+     ("m" "meetings")
+     ("ma"
+      "AeroRx meeting"
+      entry
+      (file+olp+datetree "~/src/org/aerorx.org")
+      ,(concat "* %? :aerorx:meeting:\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":END:\n"
+               ":DETAILS:\n"
+               "- date :: %T\n"
+               "- attendee :: John Lord\n"
+               "- company :: \n"
+               "- attendee :: \n"
+               "- agenda :: \n"
+               ":END:\n"
+               "- ")
       :unnarrowed t
       :time-prompt t)
-     ("t"
-      "task"
+     ("mg"
+      "Gossamer meeting"
+      entry
+      (file+olp+datetree "~/src/org/gossamer.org")
+      ,(concat "* %? :gossamer:meeting:\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":END:\n"
+               ":DETAILS:\n"
+               "- date :: %T\n"
+               "- attendee :: John Lord\n"
+               "- company :: \n"
+               "- attendee :: \n"
+               "- agenda :: \n"
+               ":END:\n"
+               "- ")
+      :unnarrowed t
+      :time-prompt t)
+     ("mk"
+      "Kiox meeting"
+      entry
+      (file+olp+datetree "~/src/org/kiox.org")
+      ,(concat "* %? :kiox:meeting:\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":END:\n"
+               ":DETAILS:\n"
+               "- date :: %T\n"
+               "- attendee :: John Lord\n"
+               "- company :: \n"
+               "- attendee :: \n"
+               "- agenda :: \n"
+               ":END:\n"
+               "- ")
+      :unnarrowed t
+      :time-prompt t)
+     ("mo"
+      "Other meeting"
+      entry
+      (file+olp+datetree "~/src/org/journal.org")
+      ,(concat "* %? :meeting:\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":END:\n"
+               ":DETAILS:\n"
+               "- date :: %T\n"
+               "- attendee :: John Lord\n"
+               "- company :: \n"
+               "- attendee :: \n"
+               "- agenda :: \n"
+               ":END:\n"
+               "- ")
+      :unnarrowed t
+      :time-prompt t)
+     ("t" "tasks")
+     ("ta"
+      "AeroRx task"
+      entry
+      (file+olp+datetree "~/src/org/aerorx.org")
+      ,(concat "* %?  :aerorx:task:\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":SOURCE:   %a\n"
+               ":END:\n")
+      :unnarrowed t)
+     ("tg"
+      "Gossamer task"
+      entry
+      (file+olp+datetree "~/src/org/gossamer.org")
+      ,(concat "* %?  :gossamer:task:\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":SOURCE:   %a\n"
+               ":END:\n")
+      :unnarrowed t)
+     ("tk"
+      "Kiox task"
+      entry
+      (file+olp+datetree "~/src/org/kiox.org")
+      ,(concat "* %?  :kiox:task:\n"
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":SOURCE:   %a\n"
+               ":END:\n")
+      :unnarrowed t)
+     ("to"
+      "Other task"
       entry
       (file+olp+datetree "~/src/org/journal.org")
       ,(concat "* %?  :task:\n"
-	       ":PROPERTIES:\n"
-	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-	       ":SOURCE:   %a\n"
-	       ":END:\n")
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":SOURCE:   %a\n"
+               ":END:\n")
       :unnarrowed t)
      ("d"
       "todo"
       entry
       (file "~/src/org/todo.org")
       ,(concat "* TODO %?\n"
-	       ":PROPERTIES:\n"
-	       ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-	       ":SOURCE:   %a\n"
-	       ":END:\n")
+               ":PROPERTIES:\n"
+               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+               ":SOURCE:   %a\n"
+               ":END:\n")
       :unnarrowed t)))
 #+end_src
 
