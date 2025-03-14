@@ -74,7 +74,7 @@ bars. Show balanced parentheses. Replace default completion with hippie-expand.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
   (global-set-key (kbd "M-/") 'hippie-expand)
-  (menu-bar-mode -1)
+  ;; (menu-bar-mode -1)
   (tool-bar-mode -1)
   (show-paren-mode)
   (electric-pair-mode)
