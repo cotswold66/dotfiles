@@ -923,9 +923,12 @@ date property to new org roam nodes created at the heading level.
     (dired-auto-revert-buffer t)
     (dired-dwim-target t)
     (dired-hide-details-hide-symlink-targets nil)
+    (dired-isearch-filenames t)
     (dired-recursive-copies  'always)
     (dired-recursive-deletes 'top)
     (dired-create-destination-dirs 'ask)
+    (dired-create-destination-dirs-on-trailing-dirsep t)
+    (dired-maybe-use-globstar t)
     (image-dired-thumb-size 150))
 #+end_src
 
