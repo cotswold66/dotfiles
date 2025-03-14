@@ -413,6 +413,23 @@ Enable key completions with =which-key=.
     (which-key-mode))
 #+end_src
 
+* Polymode
+
+#+begin_src elisp :noweb yes
+  (use-package poly-markdown
+    :ensure t)
+  (use-package poly-org
+    :ensure t)
+  (use-package poly-R
+    :ensure t)
+  (use-package polymode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
+    (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode))
+    (add-to-list 'auto-mode-alist '("\\.rmd$" . poly-markdown+r-mode))
+    (add-to-list 'auto-mode-alist '("\\.org$" . poly-org-mode))
+    )
+#+end_src
 * Org
 
 In order to use the latest version, start emacs with =emacs -q= and then
