@@ -1,0 +1,14 @@
+[Unit]
+Description=Bind mount /zmedia/videos/originals to /srv/originals
+After=zfs-mount.service
+Requires=zfs-mount.service
+ConditionPathIsDirectory=/zmedia/videos/originals
+
+[Mount]
+What=/zmedia/videos/originals
+Where=/srv/originals
+Type=none
+Options=rbind
+
+[Install]
+WantedBy=multi-user.target
