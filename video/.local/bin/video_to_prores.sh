@@ -22,12 +22,14 @@
 #   --only-subdirs a,b     Limit mirror processing to listed subdirectories under <input_dir>
 #   --auto-rate            For non-iPhone progressive, auto-pick 29.97 vs 59.94 by folder max fps
 #   --bits-per-mb N        ProRes encoder slice budget (default: 4000)
-#   --jobs N               Process up to N files concurrently (default: 1)
+#   --jobs N               Process up to N files concurrently (default: 3)
 #   --filter-threads N     ffmpeg filter graph threads (default: auto)
 #   --ffmpeg-threads N     ffmpeg encoder threads per process (0=auto; default: 0)
 #   --finalize-per-disk     Serialize finalize per destination mount (default)
 #   --finalize-global       Serialize finalize globally (one at a time)
 #   --finalize-parallel     Do not serialize finalize (parallel copies)
+#   --order MODE            Input order: size-first|size-last|long-first|short-first|as-found (default: size-first)
+#   --mov-tagging MODE      MOV tagging: exiftool|hybrid|ffmpeg (default: hybrid)
 #   --archive-only         Produce only FFV1 MKV (no ProRes)
 #   --prores-only          Produce only ProRes MOV (no FFV1)
 #   --force                Overwrite existing outputs (default is to skip existing)
@@ -43,6 +45,18 @@
 # ---------------------------------------------------------------------------
 set -euo pipefail
 IFS=$'\n\t'
+
+# ---- Elapsed time tracking ----
+START_EPOCH=$(date +%s)
+fmt_elapsed() {
+  local end dur h m s
+  end=$(date +%s)
+  dur=$(( end - START_EPOCH ))
+  h=$(( dur/3600 ))
+  m=$(( (dur%3600)/60 ))
+  s=$(( dur%60 ))
+  printf "%02d:%02d:%02d" "$h" "$m" "$s"
+}
 
 # ---- Usage (detailed) ----
 usage() {
@@ -63,12 +77,15 @@ Options:
   --only-subdirs a,b     Limit mirror processing to listed subdirectories
   --auto-rate            For non-iPhone progressive, auto-pick 29.97 vs 59.94 by folder max fps
   --bits-per-mb N        ProRes encoder slice budget (default: 4000)
-  --jobs N               Process up to N files concurrently (default: 1)
+  --jobs N               Process up to N files concurrently (default: 3)
   --filter-threads N     ffmpeg filter graph threads (default: auto)
   --ffmpeg-threads N     ffmpeg encoder threads per process (0=auto; default: 0)
   --finalize-per-disk     Serialize finalize per destination mount (default)
   --finalize-global       Serialize finalize globally (one at a time)
   --finalize-parallel     Do not serialize finalize (parallel copies)
+  --order MODE            Input order: size-first|size-last|long-first|short-first|as-found (default: size-first)
+  --mov-tagging MODE      MOV tagging: exiftool|hybrid|ffmpeg (default: hybrid)
+  --prores-audio MODE     ProRes audio: first|all (default: first)
   --archive-only         Produce only FFV1 MKV (no ProRes)
   --prores-only          Produce only ProRes MOV (no FFV1)
   --force                Overwrite existing outputs (default is to skip existing)
@@ -106,14 +123,18 @@ SKIP_EXISTING=1          # Default: skip when outputs already exist
 FORCE=0                  # If set, overwrite even if outputs exist
 DRY_RUN=0                # If set, print commands without executing
 RETIME_THRESH=0.005      # Speed-change threshold (relative, e.g. 0.005 = 0.5%)
-JOBS=1                   # Parallelism (files processed concurrently)
+JOBS=3                   # Parallelism (files processed concurrently)
 FILTER_THREADS=0         # ffmpeg -filter_threads (0 means unset)
 FFMPEG_THREADS=0         # ffmpeg -threads per process (0 = auto/all cores)
-FINALIZE_LOCK_MODE="none"  # one of: per-disk | global | none
+FINALIZE_LOCK_MODE="per-disk"  # one of: per-disk | global | none
 HAVE_FLOCK=0
 if command -v flock >/dev/null 2>&1; then HAVE_FLOCK=1; fi
 FF_HAS_FILTER_THREADS=0  # detected at runtime
 FF_HAS_FPS_MODE=0        # detected at runtime
+ORDER_MODE="size-first"      # size-first | size-last | long-first | short-first | as-found
+MOV_TAGGING_MODE="hybrid"   # exiftool | hybrid | ffmpeg
+PRORES_AUDIO_MODE="first"   # first | all
+FFV1_AUDIO_MODE="auto"      # auto | copy | flac | pcm
 
 # Counters for resumability summary
 TOTAL_FILES=0
@@ -146,6 +167,11 @@ while [[ $# -gt 0 ]]; do
     --finalize-per-disk) FINALIZE_LOCK_MODE="per-disk" ;;
     --finalize-global)   FINALIZE_LOCK_MODE="global" ;;
     --finalize-parallel) FINALIZE_LOCK_MODE="none" ;;
+    --order)          shift; ORDER_MODE=${1:?}; case "$ORDER_MODE" in size-first|size-last|long-first|short-first|as-found) ;; *) echo "ERROR: --order must be one of size-first|size-last|long-first|short-first|as-found" >&2; exit 2;; esac ;;
+    --mov-tagging)    shift; MOV_TAGGING_MODE=${1:?}; case "$MOV_TAGGING_MODE" in exiftool|hybrid|ffmpeg) ;; *) echo "ERROR: --mov-tagging must be exiftool|hybrid|ffmpeg" >&2; exit 2;; esac ;;
+    --prores-audio)   shift; PRORES_AUDIO_MODE=${1:?}; case "$PRORES_AUDIO_MODE" in first|all) ;; *) echo "ERROR: --prores-audio must be first|all" >&2; exit 2;; esac ;;
+    --ffv1-audio)     shift; FFV1_AUDIO_MODE=${1:?}; case "$FFV1_AUDIO_MODE" in auto|copy|flac|pcm) ;; *) echo "ERROR: --ffv1-audio must be auto|copy|flac|pcm" >&2; exit 2;; esac ;;
+    # (dedup) old --order/--mov-tagging handlers removed
     -h|--help)       usage; exit 0 ;;
     --) shift; break ;;
     -*) echo "Unknown flag: $1" >&2; exit 2 ;;
@@ -191,6 +217,7 @@ _on_interrupt() {
   _cleanup_partials
   # Cleanup temp tracking files
   [[ -n "${STATS_FILE:-}" && -f "$STATS_FILE" ]] && rm -f "$STATS_FILE" || true
+  log "Elapsed: $(fmt_elapsed)"
   exit 130
 }
 
@@ -200,6 +227,7 @@ _on_error() {
   _kill_bg_jobs
   _cleanup_partials
   [[ -n "${STATS_FILE:-}" && -f "$STATS_FILE" ]] && rm -f "$STATS_FILE" || true
+  log "Elapsed: $(fmt_elapsed)"
   exit "$code"
 }
 
@@ -234,7 +262,11 @@ _finalize_to_dest() {
   run mkdir -p -- "$(dirname -- "$final_tmp")"
   # Tag on scratch for performance and single HDD write
   if [[ "$kind" == mov ]]; then
-    mov_tag_dates_exact "$scratch_path" "$iso_local_w_space" "$iso_local" "$iso_utc"
+    case "$MOV_TAGGING_MODE" in
+      exiftool) mov_tag_dates_exact   "$scratch_path" "$iso_local_w_space" "$iso_local" "$iso_utc" ;;
+      hybrid)   mov_tag_dates_minimal "$scratch_path" "$iso_local_w_space" "$iso_local" "$iso_utc" ;;
+      ffmpeg)   : ;; # skip exiftool tagging for speed
+    esac
   else
     mkv_tag_dates "$scratch_path" "$iso_utc"
   fi
@@ -426,6 +458,19 @@ mov_tag_dates_exact() {
       "$mov" >/dev/null
 }
 
+# Minimal MOV tagging set for speed (hybrid mode)
+mov_tag_dates_minimal() {
+  # $1 MOV path
+  # $2 iso_local_w_space : "YYYY-MM-DD HH:MM:SS-07:00" (not used)
+  # $3 iso_local         : "YYYY-MM-DDTHH:MM:SS-07:00" (for Keys:CreationDate)
+  # $4 iso_utc           : "YYYY-MM-DDTHH:MM:SSZ" (for QuickTime:ModifyDate)
+  local mov="$1" iso_local="$3" iso_utc="$4"
+  run exiftool -overwrite_original_in_place -api LargeFileSupport=1 -api QuickTimeUTC=1 \
+      -Keys:CreationDate="$iso_local" \
+      -QuickTime:ModifyDate="$iso_utc" \
+      "$mov" >/dev/null
+}
+
 # MKV: Segment Date in UTC
 mkv_tag_dates() {
   local mkv="$1" iso_utc="$2"
@@ -490,7 +535,29 @@ make_ffv1_archive() {
   read -r -a _aidx <<< "$(valid_audio_global_indices "$in_f")"
   if (( ${#_aidx[@]} > 0 )); then
     for idx in "${_aidx[@]}"; do audio_maps+=(-map "0:${idx}"); done
-    audio_codec=(-c:a copy)
+    case "$FFV1_AUDIO_MODE" in
+      copy) audio_codec=(-c:a copy) ;;
+      flac) audio_codec=(-c:a flac) ;;
+      pcm)  audio_codec=(-c:a pcm_s24le) ;;
+      auto)
+        # Probe audio codecs/sample formats; choose flac if all PCM <=24-bit, else copy
+        # csv: index,codec_name,sample_fmt,bits
+        local all_pcm_le24=1 line codec fmt bits
+        while IFS=, read -r _idx codec fmt bits; do
+          # Normalize
+          codec=${codec:-}
+          fmt=${fmt:-}
+          bits=${bits:-}
+          if [[ ${codec} != pcm_* ]]; then all_pcm_le24=0; break; fi
+          # Determine bit depth
+          if [[ -z "$bits" || "$bits" == "N/A" ]]; then
+            if [[ $fmt =~ ^s(16|24) ]]; then bits=24; else bits=32; fi
+          fi
+          if [[ $fmt =~ ^flt|^dbl || ${bits} -gt 24 ]]; then all_pcm_le24=0; break; fi
+        done < <(ffprobe -v error -select_streams a -show_entries stream=index,codec_name,sample_fmt,bits_per_raw_sample -of csv=p=0 "$in_f" || true)
+        if (( all_pcm_le24 )); then audio_codec=(-c:a flac); else audio_codec=(-c:a copy); fi
+        ;;
+    esac
   fi
 
   PARTIALS+=("$out_tmp_scr")
@@ -498,14 +565,16 @@ make_ffv1_archive() {
   if (( FILTER_THREADS > 0 )) && (( FF_HAS_FILTER_THREADS )); then threading_args+=(-filter_threads "$FILTER_THREADS"); fi
   # Ensure scratch directory exists
   run mkdir -p -- "$(dirname -- "$out_tmp_scr")"
-  run ffmpeg -hide_banner -y -probesize 50M -analyzeduration 200M -discard:d all -i "$in_f" \
+  # Drop other stream types to avoid warnings about unknown streams
+  local drop_maps_ffv1=(-map -0:s -map -0:d -map -0:t)
+  run ffmpeg -hide_banner -y -probesize 50M -analyzeduration 200M -ignore_unknown -discard:d all -i "$in_f" \
     "${threading_args[@]}" \
     -map 0:v:0 -c:v ffv1 -level 3 -g 1 -slices 24 -slicecrc 1 -coder 1 -context 1 \
     "${color_args[@]}" "${range_flag[@]}" "${pixfmt_args[@]}" \
-    "${audio_maps[@]}" \
+    "${audio_maps[@]}" "${drop_maps_ffv1[@]}" \
     "${audio_codec[@]}" \
-    -map_metadata 0 -metadata "timecode=$tc" \
-    -metadata creation_time="$iso_utc" \
+    -map_metadata 0 -metadata "timecode=$tc" -timecode "$tc" \
+    -metadata creation_time="$iso_utc" -metadata:s:v:0 creation_time="$iso_utc" \
     -metadata date="$iso_local" \
     -f matroska "$out_tmp_scr"
 
@@ -604,17 +673,24 @@ make_prores_edit() {
     fi
   fi
   local audio_maps=() audio_codec=() audio_filter=()
-  read -r -a _aidx2 <<< "$(valid_audio_global_indices "$in_f")"
-  if (( ${#_aidx2[@]} > 0 )); then
-    for idx in "${_aidx2[@]}"; do audio_maps+=(-map "0:${idx}"); done
+  if [[ "$PRORES_AUDIO_MODE" == "first" ]]; then
+    audio_maps=(-map 0:a:0?)
     audio_codec=(-c:a pcm_s16le)
-    # If we chose retime for progressive sources, apply matching atempo per output audio stream
     if [[ "$kind" =~ ^(h264|hevc|prores)$ ]] && (( ${#add_vsync[@]} > 0 )); then
       atempo_factor=$(awk -v s="${src_fps:-0}" -v tn="$TARGET_FPS_NUM" -v td="$TARGET_FPS_DEN" 'BEGIN{t=tn/td; if(s==0) s=t; printf("%.9f", t/s)}')
-      # Apply per audio stream to ensure all mapped audios are retimed
-      for ((i=0; i<${#_aidx2[@]}; i++)); do
-        audio_filter+=( -filter:a:${i} "atempo=${atempo_factor}" )
-      done
+      audio_filter=( -filter:a "atempo=${atempo_factor}" )
+    fi
+  else
+    read -r -a _aidx2 <<< "$(valid_audio_global_indices "$in_f")"
+    if (( ${#_aidx2[@]} > 0 )); then
+      for idx in "${_aidx2[@]}"; do audio_maps+=(-map "0:${idx}"); done
+      audio_codec=(-c:a pcm_s16le)
+      if [[ "$kind" =~ ^(h264|hevc|prores)$ ]] && (( ${#add_vsync[@]} > 0 )); then
+        atempo_factor=$(awk -v s="${src_fps:-0}" -v tn="$TARGET_FPS_NUM" -v td="$TARGET_FPS_DEN" 'BEGIN{t=tn/td; if(s==0) s=t; printf("%.9f", t/s)}')
+        for ((i=0; i<${#_aidx2[@]}; i++)); do
+          audio_filter+=( -filter:a:${i} "atempo=${atempo_factor}" )
+        done
+      fi
     fi
   fi
 
@@ -625,13 +701,15 @@ make_prores_edit() {
   run mkdir -p -- "$(dirname -- "$out_tmp_scr2")"
   debug "edit_out_dir='$edit_out_dir' base='$base' out_mov='$out_mov' out_tmp='$out_tmp_scr2'"
   debug "About to run ffmpeg → $out_tmp_scr2"
-  run ffmpeg -hide_banner -y -probesize 50M -analyzeduration 200M -discard:d all -i "$in_f" \
+  # Drop other stream types to avoid warnings about unknown streams
+  local drop_maps=(-map -0:s -map -0:d -map -0:t)
+  run ffmpeg -hide_banner -y -probesize 50M -analyzeduration 200M -ignore_unknown -discard:d all -i "$in_f" \
     "${threading_args2[@]}" \
     -map 0:v:0 -vf "$vf" -c:v prores_ks -profile:v 3 -bits_per_mb "$BITS_PER_MB" -pix_fmt yuv422p10le "${color_args[@]}" "${add_vsync[@]}" \
-    "${audio_maps[@]}" \
+    "${audio_maps[@]}" "${drop_maps[@]}" \
     "${audio_codec[@]}" "${audio_filter[@]}" \
-    -map_metadata 0 -metadata "timecode=$tc" \
-    -metadata creation_time="$iso_utc" \
+    -map_metadata 0 -metadata "timecode=$tc" -timecode "$tc" \
+    -metadata creation_time="$iso_utc" -metadata:s:v:0 creation_time="$iso_utc" \
     -metadata date="$iso_local" \
     -metadata com.apple.quicktime.creationdate="$iso_local" \
     -f mov "$out_tmp_scr2"
@@ -688,6 +766,55 @@ while IFS= read -r -d '' f; do files+=("$f"); done < <(
 )
 [[ ${#files[@]} -gt 0 ]] || { log "No input files found under: $input_dir"; exit 0; }
 
+# Optional: re-order files to reduce tail latency
+if [[ "$ORDER_MODE" != "as-found" ]]; then
+  tmp_list=$(mktemp)
+  case "$ORDER_MODE" in
+    size-first|size-last)
+      for f in "${files[@]}"; do
+        # Fast: use file size in bytes (stat), with portable fallbacks
+        sz=$(stat -c %s "$f" 2>/dev/null || stat -f %z "$f" 2>/dev/null || wc -c < "$f")
+        printf '%s\t%s\n' "$sz" "$f" >> "$tmp_list"
+      done
+      if [[ "$ORDER_MODE" == "size-first" ]]; then
+        mapfile -t files < <(sort -t $'\t' -k1,1nr "$tmp_list" | awk -F '\t' '{print $2}')
+      else
+        mapfile -t files < <(sort -t $'\t' -k1,1n  "$tmp_list" | awk -F '\t' '{print $2}')
+      fi
+      ;;
+    long-first|short-first)
+      for f in "${files[@]}"; do
+        # Probe width/height; duration in seconds; codec kind (heavier but more accurate)
+        wh=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0:s=x "$f" 2>/dev/null | sed -n '1p' || true)
+        w=${wh%x*}; h=${wh#*x}
+        [[ -z "$w" || "$w" == "$wh" ]] && w=0
+        [[ -z "$h" || "$h" == "$wh" ]] && h=0
+        dur=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$f" 2>/dev/null | tr -d '\r\n' || true)
+        [[ -z "$dur" ]] && dur=0
+        kind=$(source_kind "$f")
+        # Estimate processing area: ensure at least HD (orientation-aware)
+        area_min_portrait=$((1080*1920))
+        area_min_landscape=$((1920*1080))
+        if (( h>0 && w>0 )); then
+          if (( h >= w )); then min_area=$area_min_portrait; else min_area=$area_min_landscape; fi
+          area=$(( w*h )); if (( area < min_area )); then area=$min_area; fi
+        else
+          area=$area_min_landscape
+        fi
+        factor=1.0; [[ "$kind" == dv || "$kind" == mpeg2 ]] && factor=2.0
+        cost=$(awk -v d="$dur" -v a="$area" -v f="$factor" 'BEGIN{mp=a/1000000.0; printf("%.6f", d*mp*f)}')
+        printf '%s\t%s\n' "$cost" "$f" >> "$tmp_list"
+      done
+      if [[ "$ORDER_MODE" == "long-first" ]]; then
+        mapfile -t files < <(sort -t $'\t' -k1,1nr "$tmp_list" | awk -F '\t' '{print $2}')
+      else
+        mapfile -t files < <(sort -t $'\t' -k1,1n  "$tmp_list" | awk -F '\t' '{print $2}')
+      fi
+      ;;
+  esac
+  rm -f "$tmp_list" || true
+fi
+
 # ---- Optional folder auto-rate for non-iPhone ----
 if (( AUTO_RATE )); then
   max_fps=0
@@ -706,7 +833,7 @@ if (( AUTO_RATE )); then
 fi
 
 # ---- Main loop ----
-log "Starting pipeline; default rate: ${TARGET_FPS_LABEL} fps (iPhone clips choose nearest CFR). ARCHIVE_ONLY=${ARCHIVE_ONLY} PRORES_ONLY=${PRORES_ONLY} JOBS=${JOBS} FFMPEG_THREADS=${FFMPEG_THREADS} FILTER_THREADS=${FILTER_THREADS} FINALIZE_MODE=${FINALIZE_LOCK_MODE}"
+log "Starting pipeline; default rate: ${TARGET_FPS_LABEL} fps (iPhone clips choose nearest CFR). ARCHIVE_ONLY=${ARCHIVE_ONLY} PRORES_ONLY=${PRORES_ONLY} JOBS=${JOBS} FFMPEG_THREADS=${FFMPEG_THREADS} FILTER_THREADS=${FILTER_THREADS} FINALIZE_MODE=${FINALIZE_LOCK_MODE} ORDER=${ORDER_MODE} MOV_TAGGING=${MOV_TAGGING_MODE}"
 
 # Concurrency: force single-threaded when dry-run to keep output readable
 if (( DRY_RUN )); then JOBS=1; fi
@@ -853,3 +980,4 @@ fi
 
 # Resumability summary
 log "Summary: files=${TOTAL_FILES} created_prores=${CREATED_PRORES} created_ffv1=${CREATED_FFV1} skipped_whole=${SKIPPED_WHOLE} skipped_outputs=${SKIPPED_EXISTING_OUTPUTS}"
+log "Elapsed: $(fmt_elapsed)"
