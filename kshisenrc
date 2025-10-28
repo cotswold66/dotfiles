@@ -1,0 +1,60 @@
+[Game]
+Solvable=true
+
+[General]
+Background_file=/nix/store/2074vgwpfn9g0gb0r33ajpqmnk9ff76b-libkmahjongg-23.08.3/share/kmahjongglib/backgrounds/chinese_landscape.desktop
+Tileset_file=/nix/store/2074vgwpfn9g0gb0r33ajpqmnk9ff76b-libkmahjongg-23.08.3/share/kmahjongglib/tilesets/default.desktop
+
+[KHighscore_18x8]
+0_LastPlayer=John Lord
+10_Name=John Lord
+10_Score=557
+10_Time=00:08:03
+10_gravity=Yes
+1_Name=John Lord
+1_Score=3291
+1_Time=00:08:11
+1_gravity=Yes
+2_Name=John Lord
+2_Score=2992
+2_Time=00:09:00
+2_gravity=Yes
+3_Name=John Lord
+3_Score=2069
+3_Time=00:13:01
+3_gravity=Yes
+4_Name=John Lord
+4_Score=655
+4_Time=00:06:51
+4_gravity=Yes
+5_Name=John Lord
+5_Score=636
+5_Time=00:07:03
+5_gravity=Yes
+6_Name=John Lord
+6_Score=627
+6_Time=00:07:09
+6_gravity=Yes
+7_Name=John Lord
+7_Score=590
+7_Time=00:07:36
+7_gravity=Yes
+8_Name=John Lord
+8_Score=579
+8_Time=00:07:45
+8_gravity=Yes
+9_Name=John Lord
+9_Score=561
+9_Time=00:08:00
+9_gravity=Yes
+
+[MainWindow]
+1920x1200 screen: Window-Maximized=true
+1920x1200 screen: XPosition=50
+1920x1200 screen: YPosition=119
+3840x2400 screen: Height=1130
+3840x2400 screen: Width=959
+3840x2400 screen: Window-Maximized=true
+State=AAAA/wAAAAD9AAAAAAAAB3oAAAQSAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAA
+ToolBarsMovable=Disabled
+XWAYLAND0=XWAYLAND0

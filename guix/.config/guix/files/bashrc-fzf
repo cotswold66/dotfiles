@@ -1,4 +1,0 @@
-
-# fzf bindings and completions
-source $HOME/.config/guix/files/bashrc-fzf-keybindings.bash
-source $HOME/.guix-home/profile/etc/bash_completion.d/fzf

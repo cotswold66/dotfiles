@@ -1,0 +1,107 @@
+# === SYSTEM NOISE ===
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.fseventsd
+.Spotlight-V100
+.Trashes
+.Trash
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.backupdb
+.lost+found
+Network Trash Folder
+Temporary Items
+
+# === USER CACHE & TEMP ===
+Library/Caches/
+Library/Application Support/**/Cache/
+Library/Application Support/**/tmp/
+Library/Application Support/**/Temp/
+Library/Preferences/**/Cache/
+Library/Saved Application State/
+Library/Autosave Information/
+Library/Containers/**/Data/Library/Caches/
+Library/Containers/**/Data/Library/Saved Application State/
+
+# === LOGS (GENERALIZED) ===
+Library/**/Logs/
+Library/Logs/DiagnosticReports/
+
+# === BROWSER ARTIFACTS ===
+Library/Application Support/Google/Chrome/Default/Cache/
+Library/Application Support/Google/Chrome/Default/Code Cache/
+Library/Application Support/Firefox/Profiles/**/cache2/
+Library/Application Support/Firefox/Profiles/**/startupCache/
+Library/Safari/History.db
+Library/Safari/LastSession.plist
+
+# === EDGE CACHE & TEMP ===
+Library/Application Support/Microsoft Edge/**/Cache/
+Library/Application Support/Microsoft Edge/**/Code Cache/
+Library/Application Support/Microsoft Edge/**/Service Worker/CacheStorage/
+Library/Application Support/Microsoft Edge/**/GrShaderCache/
+Library/Application Support/Microsoft Edge/**/ShaderCache/
+Library/Application Support/Microsoft Edge/**/Crashpad/
+Library/Application Support/Microsoft Edge/**/IndexedDB/
+Library/Application Support/Microsoft Edge/**/Local Storage/
+Library/Application Support/Microsoft Edge/**/Session Storage/
+Library/Application Support/Microsoft Edge/**/Storage/ext/
+Library/Application Support/Microsoft Edge/**/StorageCache/
+Library/Application Support/Microsoft Edge/**/GPUCache/
+
+# === DEV TOOLS & BUILD ARTIFACTS ===
+Library/Developer/Xcode/DerivedData/
+Library/Developer/Xcode/Archives/
+Library/Application Support/Code/CachedData/
+Library/Application Support/Code/Service Worker/CacheStorage/
+Library/Application Support/Code/User/workspaceStorage/
+
+# === VIRTUALIZATION & CONTAINERS ===
+Library/Containers/com.docker.docker/
+Library/Group Containers/group.com.docker/
+Library/Containers/**/Data/tmp/
+
+# === OTHER MISCELLANEOUS ===
+Library/Application Support/**/CrashReports/
+Library/Application Support/FileProvider
+Downloads/
+Library/WebKit
+Library/Preferences/com.apple.spotlight.plist
+Library/CloudStorage
+Library/Group Containers/group.com.apple.CoreSpeech
+Library/Group Containers/group.com.apple.secure-control-center-preferences
+Library/Metadata
+tmp/
+Library/Containers/nz.co.pixeleyes.AutoMounter/Data/Mounts
+Library/Application Support/Steam
+Library/Containers/com.firecore.infuse
+Pictures/iPhone Media
+Library/DuetExpertCenter
+Library/Daemon Containers
+Google/GoogleUpdater
+Application Support/Jabra Direct
+Application Support/com.apple.wallpaper
+Containers/com.apple.NeptuneOneExtension
+
+# === FINAL CUT PRO ===
+Proxy Media
+Optimized Media
+Final Cut Pro Backups
+Movies/Final Cut Media
+Transcoded Media
+Render Files
+Analysis Files
+Original Media
+Library/Containers/com.apple.FinalCut/
+
+# === LIGHTROOM CLASSIC ===
+**/*.lrdata
+**/*.lrcat-data
+Pictures/Lightroom/Backups
+
+# === INFUSE ===
+**/Containers/Infuse/**
+
