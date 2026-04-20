@@ -80,6 +80,8 @@ bars. Show balanced parentheses. Replace default completion with hippie-expand.
   (electric-pair-mode)
   (delete-selection-mode 1)
   (global-hl-line-mode)
+  (scroll-bar-mode -1)
+  (pixel-scroll-precision-mode 1)
 #+end_src
 
 Inhibit the startup screen and provide an empty scratch buffer.
@@ -172,14 +174,21 @@ interfaces with the external =pass= program.
 
 * Themes
 
-Enable the tomorrow night theme from the base16 collection.
+Enable the modus-operandi theme.
 
 #+begin_src emacs-lisp
-  (use-package base16-theme
-    :custom
-    (base16-theme-256-color-source 'colors)
+  (use-package modus-themes
+    :ensure t
     :config
-    (load-theme 'base16-tomorrow-night t))
+    (load-theme 'modus-operandi t))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package spaceline
+      :ensure t
+      :config
+      (require 'spaceline-config)
+      (spaceline-spacemacs-theme))
 #+end_src
 
 * Corfu
