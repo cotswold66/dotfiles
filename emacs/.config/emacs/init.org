@@ -1114,25 +1114,39 @@ date property to new org roam nodes created at the heading level.
 # :header-args: :tangle no
 :END:
 
-#+begin_src emacs-lisp :results none
+#+begin_src emacs-lisp
   (use-package ess
     :ensure nil)
-  (setopt display-buffer-alist
-          `(("^\\*R Dired"
-             (display-buffer-reuse-window display-buffer-in-side-window)
-             (side . right)
-             (slot . -1)
-             (window-width . 0.4)
-             (reusable-frames . nil))
-            ("^\\*R"
-             nil
-             (dedicated . t))
-            ("^\\*Help"
-             (display-buffer-reuse-window display-buffer-in-side-window)
-             (side . right)
-             (slot . 1)
-             (window-width . 0.4)
-             (reusable-frames . nil))))
+  (add-to-list 'display-buffer-alist
+               '("^\\*R Dired"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (slot . -1)
+                 (window-width . 0.4)
+                 (window-parameters (no-delete-other-windows . t))
+                 (reusable-frames . nil)))
+  (add-to-list 'display-buffer-alist
+               '("^\\*R"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (slot . 0)
+                 (window-parameters (no-delete-other-windows . t))
+                 (window-width . 0.4)))
+  (add-to-list 'display-buffer-alist
+               '("\\*Help\\*"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (slot . 1)
+                 (window-width . 0.4)
+                 (window-parameters (no-delete-other-windows . t))
+                 (reusable-frames . nil)))
+  (add-to-list 'display-buffer-alist
+               '("\\*Info\\*"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (slot . 1)
+                 (window-parameters (no-delete-other-windows . t))
+                 (window-width . 0.4)))
 #+end_src
 
 ** Python
