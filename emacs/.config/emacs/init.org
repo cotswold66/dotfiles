@@ -439,7 +439,7 @@ Set the narrow key.
 Use =consult-completion-in-region= if =vertico= is enabled. Otherwise use
 the default =completion--in-region= function.
 
-#+begin_src emacs-lisp :tangle no ;; :noweb-ref consult-config
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-config
   (setq completion-in-region-function
         (lambda (&rest args)
           (apply (if vertico-mode
