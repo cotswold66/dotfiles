@@ -1111,7 +1111,7 @@ date property to new org roam nodes created at the heading level.
 
 ** R
 :PROPERTIES:
-:header-args: :tangle yes
+# :header-args: :tangle no
 :END:
 
 #+begin_src emacs-lisp :results none
