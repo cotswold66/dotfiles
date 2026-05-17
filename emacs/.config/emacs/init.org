@@ -255,7 +255,8 @@ Use =corfu= instead of company for completions.
   (use-package corfu
     :defer 2
     :init
-    (global-corfu-mode))
+    (global-corfu-mode)
+    (corfu-popupinfo-mode))
 #+end_src
 
 Enable TAB cycling on completions if 3 or less candidates. Also, TAB
@@ -266,7 +267,32 @@ completes if line already indented.
   (tab-always-indent 'complete)
 #+end_src
 
-* Vertico, orderless, and marginalia
+** Cape
+
+#+begin_src emacs-lisp
+  (use-package cape
+    ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+    ;; Press C-c p ? to for help.
+    :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+    ;; Alternatively bind Cape commands individually.
+    ;; :bind (("C-c p d" . cape-dabbrev)
+    ;;        ("C-c p h" . cape-history)
+    ;;        ("C-c p f" . cape-file)
+    ;;        ...)
+    :init
+    ;; Add to the global default value of `completion-at-point-functions' which is
+    ;; used by `completion-at-point'.  The order of the functions matters, the
+    ;; first function returning a result wins.  Note that the list of buffer-local
+    ;; completion functions takes precedence over the global list.
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    ;; (add-hook 'completion-at-point-functions #'cape-history)
+    ;; ...
+  )
+#+end_src
+
+** Vertico
 
 Use =vertico= to provide vertical display of completion candidates.
 
@@ -276,6 +302,8 @@ Use =vertico= to provide vertical display of completion candidates.
     :init
     (vertico-mode))
 #+end_src
+
+** Orderless
 
 Use =orderless= to provide completion styles, including ordering.
 Specifcally, allow the use of wildcard searches in file paths.
@@ -289,6 +317,8 @@ Specifcally, allow the use of wildcard searches in file paths.
     (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 
+** Marginalia
+
 Use =marginalia= to provide additional details in the minibuffer like
 file modes, etc.
 
@@ -300,7 +330,7 @@ file modes, etc.
     (marginalia-mode))
 #+end_src
 
-* Embark
+** Embark
 
 Use =embark= to provide minibuffer actions.  
 
@@ -323,106 +353,93 @@ Hide the mode line of the Embark live/completions buffers.
                  (window-parameters (mode-line-format . none))))
 #+end_src
 
-* Consult
+** Consult
 
 #+begin_src emacs-lisp :noweb yes
   ;; Example configuration for Consult
   (use-package consult
-    :bind
-    ("C-c h" . consult-history)
-    ("C-c m" . consult-mode-command)
-    ("C-c b" . consult-bookmark)
-    ("C-c k" . consult-kmacro)
-    ;; C-x bindings (ctl-x-map)
-    ("C-x M-:" . consult-complex-command)	;; orig. repeat-complex-command
-    ("C-x b" . consult-buffer)		;; orig. switch-to-buffer
-    ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-    ("C-x 5 b" . consult-buffer-other-frame) ;; orig. switch-to-buffer-other-frame
-    ;; Custom M-# bindings for fast register access
-    ("M-#" . consult-register-load)
-    ("M-'" . consult-register-store) ;; orig. abbrev-prefix-mark (unrelated)
-    ("C-M-#" . consult-register)
-    ;; Other custom bindings
-    ("M-y" . consult-yank-pop)	 ;; orig. yank-pop
-    ("<help> a" . consult-apropos) ;; orig. apropos-command
-    ;; M-g bindings (goto-map)
-    ("M-g e" . consult-compile-error)
-    ("M-g f" . consult-flymake)	  ;; Alternative: consult-flycheck
-    ("M-g g" . consult-goto-line)	  ;; orig. goto-line
-    ("M-g M-g" . consult-goto-line) ;; orig. goto-line
-    ("M-g o" . consult-outline)	  ;; Alternative: consult-org-heading
-    ("M-g m" . consult-mark)
-    ("M-g k" . consult-global-mark)
-    ("M-g i" . consult-imenu)
-    ("M-g I" . consult-imenu-multi)
-    ;; M-s bindings (search-map)
-    ("M-s f" . consult-find)
-    ("M-s F" . consult-locate)
-    ("M-s g" . consult-grep)
-    ("M-s G" . consult-git-grep)
-    ("M-s r" . consult-ripgrep)
-    ("M-s l" . consult-line)
-    ("M-s L" . consult-line-multi)
-    ("M-s m" . consult-multi-occur)
-    ("M-s k" . consult-keep-lines)
-    ("M-s u" . consult-focus-lines)
-    ;; Isearch integration
-    ("M-s e" . consult-isearch)
-    (:map isearch-mode-map
-          ("M-e" . consult-isearch) ;; orig. isearch-edit-string
-          ("M-s e" . consult-isearch) ;; orig. isearch-edit-string
-          ("M-s l" . consult-line) ;; needed by consult-line to detect isearch
-          ("M-s L" . consult-line-multi))	;; needed by consult-line to detect isearch
+    :bind (;; C-c bindings in `mode-specific-map'
+           ("C-c M-x" . consult-mode-command)
+           ("C-c h" . consult-history)
+           ("C-c k" . consult-kmacro)
+           ("C-c m" . consult-man)
+           ("C-c i" . consult-info)
+           ("C-c b" . consult-bookmark)
+           ([remap Info-search] . consult-info)
+           ;; C-x bindings in `ctl-x-map'
+           ("C-x M-:" . consult-complex-command)
+           ("C-x b" . consult-buffer)
+           ("C-x 4 b" . consult-buffer-other-window)
+           ("C-x r b" . consult-bookmark)
+           ("C-x p b" . consult-project-buffer)
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)
+           ;; M-g bindings (goto-map)
+           ("M-g e" . consult-compile-error)
+           ("M-g r" . consult-grep-match)
+           ("M-g g" . consult-goto-line)
+           ("M-g M-g" . consult-goto-line)
+           ("M-g o" . consult-org-heading)
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings (search-map)
+           ("M-s d" . consult-find)
+           ("M-s c" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)
+           ("M-s e" . consult-isearch-history)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)
+           ("M-r" . consult-history))
     :init
     <<consult-init>>
-    :custom
-    <<consult-custom>>
     :config
-    <<consult-config>>)
+    <<consult-config>>) 
 #+end_src
 
-Optionally configure the register formatting. This improves the
-register preview for =consult-register=, =consult-register-load=,
-=consult-register-store= and the Emacs built-ins. Also, tweak the
-register preview window. This adds thin lines, sorting and hides the
-mode line of the window. Finally, replace =completing-read-multiple=
-with an enhanced version.
+Optionally configure the register formatting. This improves the register preview for =consult-register=, =consult-register-load=, =consult-register-store= and the Emacs built-ins. Also, tweak the register preview window. This adds thin lines, sorting and hides the mode line of the window. Finally, replace =completing-read-multiple= with an enhanced version.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref consult-init
-  (setq register-preview-function #'consult-register-format)
-  (advice-add 'register-preview
-              :override #'consult-register-window)
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
-  (register-preview-delay 0)
+    (advice-add #'register-preview :override #'consult-register-window)
+    (setq register-preview-delay 0.5)
 #+end_src
 
 Use =consult= to select xref locations with preview.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
-  (xref-show-xrefs-function 'consult-xref)
-  (xref-show-definitions-function 'consult-xref)
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-init
+  (setq xref-show-xrefs-function 'consult-xref
+        xref-show-definitions-function 'consult-xref)
 #+end_src
 
 Set the narrow key.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
-  (consult-narrow-key "<")
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-config
+  (setq consult-narrow-key "<")
 #+end_src
 
-Set =consult= to use =project= for project completions.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref consult-custom
-  (consult-project-root-function
-   (lambda () (when-let (project (project-current))
-                (car (project-roots project)))))
-#+end_src
 
 Use =consult-completion-in-region= if =vertico= is enabled. Otherwise use
 the default =completion--in-region= function.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref config
+#+begin_src emacs-lisp :tangle no ;; :noweb-ref consult-config
   (setq completion-in-region-function
         (lambda (&rest args)
           (apply (if vertico-mode
@@ -448,54 +465,25 @@ Use the =embark-consult= package.
 
 #+begin_src emacs-lisp
   (use-package embark-consult
-    :after (embark consult)
-    :demand t
-    :hook (embark-collect-mode . consult-preview-at-point-mode))
+    :ensure t)
 #+end_src
 
-* Savehist and which-key
-
-Remember search histories between sessions with =savehist=.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
-  (savehist-mode)
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package recentf
-    :init
-    (recentf-mode)
-    :custom
-    (recentf-max-saved-items 50))
-#+end_src
+** Which-key
 
 Enable key completions with =which-key=.
 
 #+begin_src emacs-lisp
   (use-package which-key
-    :defer 3
+    :ensure nil
     :init
     (which-key-mode))
 #+end_src
 
-* Polymode
-
-#+begin_src elisp :noweb yes
-  (use-package poly-markdown
-    :ensure t)
-  (use-package poly-org
-    :ensure t)
-  (use-package poly-R
-    :ensure t)
-  (use-package polymode
-    :config
-    (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
-    (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode))
-    (add-to-list 'auto-mode-alist '("\\.rmd$" . poly-markdown+r-mode))
-    (add-to-list 'auto-mode-alist '("\\.org$" . poly-org-mode))
-    )
-#+end_src
 * Org
+** Core
+:PROPERTIES:
+:ID:       6317EDF8-F90D-484B-9B99-1C130CE0D5F0
+:END:
 
 In order to use the latest version, start emacs with =emacs -q= and then
 install org for the ="M-x list-packages"= menu.
