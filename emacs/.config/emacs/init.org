@@ -162,30 +162,30 @@ Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to
   ("M-Z" . zap-to-char)
 #+end_src
 
-# Set the default font.
+** Session
 
-# #+begin_src emacs-lisp
-# (set-face-attribute 'default nil
-#                     :family "Source Code Pro"
-#                     :height 110
-#                     :weight 'normal
-#                     :width 'normal)
-# #+end_src
+Remember search histories between sessions with =savehist=.
 
-Don't use hard tabs.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (indent-tabs-mode nil)
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (savehist-mode)
 #+end_src
 
-* Privilege and Authentication
+#+begin_src emacs-lisp
+  (use-package recentf
+    :ensure nil
+    :init
+    (recentf-mode))
+#+end_src
+
+** Security
 
 Install =sudo-edit= to allow for easier editing of read-only system
 files. Do not provide a key-binding to reduce risk.
 
 #+begin_src emacs-lisp
   (use-package sudo-edit
-    :commands sudo-edit)
+    :commands sudo-edit
+    :bind ("C-c C-r" . sudo-edit))
 #+end_src
 
 Configure =auth-source-pass= to provide passwords to Emacs. This
