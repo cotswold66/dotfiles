@@ -46,6 +46,7 @@ get clobbered by other messages during startup.
   (add-hook
    'emacs-startup-hook
    (lambda ()
+   (setq gc-cons-threshold (* 16 1024 1024))
      (message
       "Emacs ready in %s with %d garbage collections."
       (format "%.2f seconds"
@@ -77,61 +78,59 @@ of the config file.
   (use-package emacs
     :init
     <<emacs-init>>
-    :bind
-    <<emacs-bind>>
+    ;; :hook (emacs-startup . split-window-right)
+    :bind (
+           <<emacs-bind>>)
     :custom
     <<emacs-custom>>
     :config
     <<emacs-config>>)
 #+end_src
 
-Clean up the interface by removing the menu bar, tool bar, and scroll
-bars. Show balanced parentheses. Replace default completion with hippie-expand.
+Show balanced parentheses. Replace default completion with hippie-expand.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
-  (global-set-key (kbd "M-/") 'hippie-expand)
-  ;; (menu-bar-mode -1)
-  (tool-bar-mode -1)
+  (keymap-global-set "M-/" 'hippie-expand)
   (show-paren-mode)
   (electric-pair-mode)
-  (delete-selection-mode 1)
+  (delete-selection-mode)
   (global-hl-line-mode)
-  (scroll-bar-mode -1)
-  (pixel-scroll-precision-mode 1)
+  (keymap-global-unset "C-x C-z")
+  (keymap-global-unset "C-<wheel-up>")
+  (keymap-global-unset "C-<wheel-down>")
+  (keymap-global-unset "C-z")
 #+end_src
 
-Inhibit the startup screen and provide an empty scratch buffer.
+Create backup files and auto-save files in dedicated directories. Keep multiple versions even if under version control since I do not do version control frequently enough.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (inhibit-startup-screen t)
-  (initial-scratch-message "")
-#+end_src
-
-Do not create backup files since files are under version control.
-Also, do move deleted files to system trash.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (delete-by-moving-to-trash nil)
-  (make-backup-files nil)
-  (auto-save-file-name-transforms nil)
+#+begin_src emacs-lisp
+  (setopt auto-save-file-name-transforms
+          '((".*" "~/.config/emacs/auto-saves/" t))
+          backup-by-copying t
+          backup-directory-alist '(("." . "~/.config/emacs/backups/"))
+          delete-old-versions t
+          kept-new-versions 10
+          kept-old-versions 5
+          version-control t
+          vc-make-backup-files t
+          delete-old-versions t)
 #+end_src
 
 Move focus to help window when help activated, which makes it easy to
 close them with a 'q'.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (help-window-select t)
+#+begin_src emacs-lisp
+  (setopt help-window-select t)
 #+end_src
 
-Define a sentence as only having one space after the final
-punctuation.
+Define a sentence as only having one space after the final punctuation.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (sentence-end-double-space nil)
+#+begin_src emacs-lisp
+  (setopt sentence-end-double-space nil)
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
-  (electric-indent-mode nil)
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (electric-indent-mode -1)
 #+end_src
 
 Enable various non-beginner functions.
@@ -139,6 +138,21 @@ Enable various non-beginner functions.
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
   (put 'narrow-to-region 'disabled nil)
 #+end_src
+
+Don't use hard tabs.
+
+#+begin_src emacs-lisp
+  (setopt indent-tabs-mode nil)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+#+end_src
+
+** Keybindings
 
 Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to
 =M-Z=.
