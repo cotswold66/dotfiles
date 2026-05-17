@@ -1212,6 +1212,24 @@ Use =peep-dired= to show dired file previews.
     (peep-dired-cleanup-on-disable t))
 #+end_src
 
+** Dired Sidebar
+
+#+begin_src emacs-lisp
+  (use-package nerd-icons
+    :ensure t
+    :defer t)
+  (use-package nerd-icons-dired
+    :ensure t
+    :commands (nerd-icons-dired-mode))
+  (setopt dired-sidebar-theme 'nerd-icons)
+  (use-package dired-sidebar
+    :ensure t
+    :commands dired-sidebar-toggle-sidebar
+    :bind ("C-c d" . dired-sidebar-toggle-sidebar)
+    :custom
+    (dired-sidebar-width 25))
+#+end_src
+
 ** Dired Rsync
 
 Use =dired-rsync= for rsync functionality in dired mode.
