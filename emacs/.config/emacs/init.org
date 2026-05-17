@@ -533,8 +533,9 @@ and '@' means request a note.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w@/!)" "SOMETIME(s)" "|"
-               "DONE(d!)" "CANCELLED(c@)")))
+   '((sequence "TODO(t)" "|" "DONE(d!)")
+     (sequence "NEXT(n)" "WAITING(w@)" "SOMETIME(s)" "|")
+     (sequence "|" "CANCELLED(c@)")))
 #+end_src
 
 Place the time of completion in a log
