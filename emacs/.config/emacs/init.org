@@ -983,35 +983,191 @@ date property to new org roam nodes created at the heading level.
     :config (citar-org-roam-mode))
 #+end_src
 
-* Tex
+* Writing
+** LaTex
 #+name: auctex
 #+begin_src emacs-lisp
-    (use-package auctex
-      :defer t
-      :custom
-      (TeX-engine 'luatex)
-      (ConTeXt-Mark-version "IV") 
-      :config
-      (setq TeX-auto-save t
-	    TeX-parse-self t)
-      (setq TeX-view-program-list
-      '(("zathura" 
-	 ("zathura" (mode-io-correlate "-sync.sh")
-	  " "
-	  (mode-io-correlate "%n:1:%t ")
-	  "%o")))))
-	  
+  (use-package auctex
+    :defer t
+    :custom
+    (TeX-engine 'luatex)
+    (ConTeXt-Mark-version "IV") 
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t)
+    (setq TeX-view-program-list
+    '(("zathura" 
+       ("zathura" (mode-io-correlate "-sync.sh")
+        " "
+        (mode-io-correlate "%n:1:%t ")
+        "%o")))))
+
+  (setopt org-latex-src-block-backend 'minted
+          org-latex-pdf-process
+          '("lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+            "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f")) 
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
   (use-package cdlatex
     :hook (org-mode . turn-on-org-cdlatex))  
 #+end_src
+** Visual Fill Column
 
-* Dired
+#+begin_src emacs-lisp
+  (use-package visual-fill-column
+    :hook (visual-line-mode . visual-fill-column-mode)
+    :custom
+    (visual-fill-column-width 80))        ; your preferred max width
+#+end_src
+
+** Adaptive Wrap
+
+#+begin_src emacs-lisp :tangle no
+(use-package adaptive-wrap
+  :hook (visual-line-mode . adaptive-wrap-prefix-mode))
+#+end_src
+
+* Languages
+** Treesitter
+
+#+begin_src emacs-lisp
+  (use-package treesit
+    :ensure nil
+    :custom
+    (treesit-language-source-alist
+     '((yaml    . ("https://github.com/ikatyang/tree-sitter-yaml"))
+       (json    . ("https://github.com/tree-sitter/tree-sitter-json"))
+       (python  . ("https://github.com/tree-sitter/tree-sitter-python"))
+       (bash    . ("https://github.com/tree-sitter/tree-sitter-bash"))
+       (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
+       (r       . ("https://github.com/r-lib/tree-sitter-r"))
+       (toml    . ("https://github.com/tree-sitter/tree-sitter-toml")))))
+
+  (mapc (lambda (lang)
+          (unless (treesit-language-available-p lang)
+            (treesit-install-language-grammar lang)))
+        (mapcar #'car treesit-language-source-alist))
+#+end_src
+
+** Smartparens
+
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :ensure smartparens
+    :config
+    (require 'smartparens-config)
+    (sp-use-smartparens-bindings)
+    :hook
+    ((emacs-lisp-mode
+     ielm-mode
+     lisp-mode
+     lisp-interaction-mode
+     markdown-mode
+     prog-mode
+     scheme-mode
+     text-mode) . smartparens-mode)
+  )
+#+end_src
+** Polymode
 :PROPERTIES:
-# :header-args: :tangle no
+:header-args: :tangle no
 :END:
+
+#+begin_src emacs-lisp
+  (use-package polymode
+    :ensure t)
+  (use-package poly-R
+    :ensure t)
+  (use-package poly-markdown
+    :ensure t)
+  (add-to-list 'auto-mode-alist '("\\.Rmd\\'" . poly-gfm+r-mode))
+  (add-to-list 'auto-mode-alist '("\\.qmd\\'" . poly-gfm+r-mode))
+#+end_src
+
+** Clojure
+:PROPERTIES:
+:header-args: :tangle no
+:END:
+
+#+begin_src emacs-lisp 
+  (use-package clojure-ts-mode
+    :hook
+    (clojure-ts-mode . smartparens-mode)
+    (clojure-ts-mode . lsp))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package cider
+    :hook
+    (cider-repl-mode . smartparens-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :hook
+    (lsp-mode . lsp-enable-which-key-integration))
+#+end_src
+
+** R
+:PROPERTIES:
+:header-args: :tangle yes
+:END:
+
+#+begin_src emacs-lisp :results none
+  (use-package ess
+    :ensure nil)
+  (setopt display-buffer-alist
+          `(("^\\*R Dired"
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . right)
+             (slot . -1)
+             (window-width . 0.4)
+             (reusable-frames . nil))
+            ("^\\*R"
+             nil
+             (dedicated . t))
+            ("^\\*Help"
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . right)
+             (slot . 1)
+             (window-width . 0.4)
+             (reusable-frames . nil))))
+#+end_src
+
+** Python
+
+#+name: python
+#+begin_src emacs-lisp :tangle no
+  (use-package python
+    :ensure nil
+    :hook (python-mode . eglot-ensure)
+    :config
+    (setq python-indent-offset 4)
+    (setenv "WORKON_HOME" "~/src")
+    (setq python-shell-interpreter "jupyter"
+          python-shell-interpreter-args "console --simple-prompt"
+          python-shell-prompt-detect-failure-warning nil)
+    (add-to-list 'python-shell-completion-native-disabled-interpreters
+                 "jupyter"))
+#+end_src
+
+#+name: ein
+#+begin_src emacs-lisp :tangle no
+  (use-package ein
+    :ensure t) 
+#+end_src
+
+** Yaml
+
+#+begin_src emacs-lisp
+  (use-package yaml-ts-mode
+    :ensure nil
+    :mode "\\.ya?ml\\'")
+src
+
+* Files
+** Dired
 
 #+begin_src emacs-lisp
   (use-package dired
@@ -1031,6 +1187,8 @@ date property to new org roam nodes created at the heading level.
     (image-dired-thumb-size 150))
 #+end_src
 
+** Peep Dired
+
 Use =peep-dired= to show dired file previews.
 
 #+begin_src emacs-lisp
@@ -1039,6 +1197,8 @@ Use =peep-dired= to show dired file previews.
     :custom
     (peep-dired-cleanup-on-disable t))
 #+end_src
+
+** Dired Rsync
 
 Use =dired-rsync= for rsync functionality in dired mode.
 
@@ -1049,96 +1209,33 @@ Use =dired-rsync= for rsync functionality in dired mode.
           ("C-c C-r" . dired-rsync))) 
 #+end_src
 
-* Python
-#+name: python
-#+begin_src emacs-lisp :tangle no
-  (use-package elpy
-    :init
-    (elpy-enable)
-    :config
-    (setq python-indent-offset 4)
-    (setenv "WORKON_HOME" "~/src")
-    (setq python-shell-interpreter "jupyter"
-          python-shell-interpreter-args "console --simple-prompt"
-          python-shell-prompt-detect-failure-warning nil)
-    (add-to-list 'python-shell-completion-native-disabled-interpreters
-                 "jupyter"))
-#+end_src
-
-#+name: ein
-#+begin_src emacs-lisp :tangle no
-  (use-package ein
-    :ensure t) 
-#+end_src
-
-* Paredit
+** Magit
 
 #+begin_src emacs-lisp
-  (use-package paredit
-    :hook
-    ((emacs-lisp-mode
-      ielm-mode
-      lisp-mode
-      lisp-interaction-mode
-      scheme-mode) . paredit-mode))
-#+end_src
-* Clojure
-:PROPERTIES:
-# :header-args: :tangle no
-:END:
-
-#+begin_src emacs-lisp 
-  (use-package clojure-mode
-    :hook
-    (clojure-mode . paredit-mode)
-    (clojure-mode . lsp))
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package cider
-    :hook
-    (cider-repl-mode . paredit-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package lsp-mode
-    :hook
-    ((lsp-mode lsp-ui) . lsp-enable-which-key-integration))
-#+end_src
-
-* ESS
-
-#+begin_src emacs-lisp
-  (use-package ess
-    :config
-    (setq display-buffer-alist
-          `(("^\\*R Dired"
-             (display-buffer-reuse-window display-buffer-in-side-window)
-             (side . right)
-             (slot . -1)
-             (window-width . 0.33)
-             (reusable-frames . nil))
-            ("^\\*R"
-             nil
-             (display-buffer-reuse-window display-buffer-at-bottom)
-             (window-width . 0.5)
-             (dedicated . t)
-             (reusable-frames . nil))
-            ;; ("^\\*Help"
-            ;;  (display-buffer-reuse-window display-buffer-in-side-window)
-            ;;  (side . right)
-            ;;  (slot . 1)
-            ;;  (window-width . 0.4)
-            ;;  (reusable-frames . nil))
-            ))
-    )
-#+end_src
-* Other Packages
-
-#+begin_src emacs-lisp
-  (use-package yaml-mode
-    :defer t)
   (use-package magit
     :defer t)
 #+end_src
 
+* Email
+ #+begin_src emacs-lisp
+   (add-to-list 'load-path "/opt/homebrew/opt/notmuch/share/emacs/site-lisp/notmuch")
+   (require 'notmuch)
+ #+end_src
+
+#+begin_src emacs-lisp
+  (use-package ol-notmuch
+    :ensure t
+    :after (notmuch org))
+#+end_src
+
+#+begin_src emacs-lisp
+  (setopt sendmail-program "/opt/homebrew/bin/msmtp"
+          mail-user-agent 'message-user-agent
+          user-full-name "John Lord"
+          user-mail-address "john@lordsonline.org"
+          mail-specify-envelope-from t
+          mail-envelope-from 'header
+          message-sendmail-envelope-from 'header
+          send-mail-function 'sendmail-send-it
+          message-send-mail-function 'message-send-mail-with-sendmail)
+#+end_src
