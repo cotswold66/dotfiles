@@ -56,35 +56,18 @@ get clobbered by other messages during startup.
 
 * Package Management
 
-Declare the package repositories.
+Declare the package repositories, initialize the package system and use =use-package=.
 
 #+begin_src emacs-lisp
   (require 'package)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-#+end_src
-
-Initialize the package system, refresh the list of packages and
-install =use-package= if needed.
-
-#+begin_src emacs-lisp
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (package-initialize)
-  (unless package-archive-contents
-    (package-refresh-contents))
-  (unless (package-installed-p 'use-package)
-    (package-install 'use-package))
+  (setq use-package-always-ensure t
+        use-package-verbose t)
 #+end_src
 
-Finally, load =use-package= and ensure packages are installed by
-default. Later, system packages and already installed packages can
-include an =:ensure nil= clause.
-
-#+begin_src emacs-lisp
-  (require 'use-package)
-  (custom-set-variables '(use-package-always-ensure t)
-                        '(use-package-verbose t))
-#+end_src
-
-* Global defaults and custom variables
+* Editor
+** Defaults
 
 Setup a noweb template to allow calling emacs functions and setting
 emacs custom variables with =use-package= for consistency with the rest
