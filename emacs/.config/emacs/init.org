@@ -496,8 +496,9 @@ install org for the ="M-x list-packages"= menu.
     ("C-c c" . org-capture)
     :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
     :hook
-    (org-mode . auto-fill-mode)
-    (org-mode . org-table-header-line-mode) ;always show table headers
+    (org-mode . org-indent-mode)
+    (org-mode . visual-line-mode)
+    (org-mode . org-fold-hide-drawer-all)
     :config
     <<org-config>>
     :custom
