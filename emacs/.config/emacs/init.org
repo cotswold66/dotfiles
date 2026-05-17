@@ -560,218 +560,31 @@ Make latex greek letters and sub and superscripts show visually.
   (org-pretty-entities-include-sub-superscripts t)
 #+end_src
 
-Define the files used to create the agenda. For formatting, prefer to
-have a compact view which removes extra lines. Add a custom agenda
-view which splits todos into the sub-todo headings, e.g. "TODO",
-"NEXT", etc.. Load the agenda into the current window, which prevents
-agenda messing up window layout. Finally, ensure that todos with
-scheduled or deadlined timestamps are not included in the sub-todo
-lists as they are already included in the calendar view.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-agenda-files
-   '("~/src/org/journal.org"
-     "~/src/org/todo.org"
-     "~/src/org/aerorx.org"
-     "~/src/org/gossamer.org"
-     "~/src/org/kiox.org"
-     "~/src/org/lila.org"
-     "~/src/org/maxwell.org"
-     ))
-  (org-agenda-compact-blocks t)
-  (org-agenda-custom-commands
-   '(("h" "Agenda and home tasks"
-      ((agenda "")
-       (todo "NEXT" ((org-agenda-overriding-header "Next")))
-       (todo "TODO" ((org-agenda-overriding-header "Todo")))
-       (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
-       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))))))
-  (org-agenda-window-setup 'current-window)
-  (org-agenda-todo-ignore-scheduled 'all)
-  (org-agenda-todo-ignore-deadlines 'all)
-#+end_src
-
 Define refile targets and how outline paths are displayed.
 Specifically, allow all paths to be visualized since we use completion
 to narrow down the options.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-outline-path-complete-in-steps nil)
-  (org-refile-targets '(("~/src/org/journal.org" . (:maxlevel . 3))
-                        ("~/src/org/todo.org" . (:maxlevel . 3))
-                        ("~/src/org/aerorx.org" . (:maxlevel . 3))
-                        ("~/src/org/gossamer.org" . (:maxlevel . 3))
-                        ("~/src/org/kiox.org" . (:maxlevel . 3))
-                        ("~/src/org/lila.org" . (:maxlevel . 3))
-                        ("~/src/org/maxwell.org" . (:maxlevel . 3))
-                        ))
+  (org-refile-targets '((org-agenda-files . (:maxlevel . 3))))
   (org-refile-use-outline-path t)
 #+end_src
 
-Define various capture templates. The list starts with =`(= instead of
-='(= which enables the inclusion of the =concat= function (the =concat= list
-also needs to be proceeded by a comma) for improved template
-visualization in the code.
+Ensure clocktable does not print days
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-capture-templates
-   `(("f"
-      "fleeting note"
-      entry
-      (file+olp+datetree "~/src/org/journal.org")
-      ,(concat "* %? :fleeting:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n")
-      :unnarrowed t
-      :time-prompt t)
-     ("j"
-      "journal"
-      entry
-      (file+olp+datetree "~/src/org/journal.org")
-      ,(concat "* Journal :journal:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n"
-               "%?")
-      :unnarrowed t)
-     ("m" "meetings")
-     ("ma"
-      "AeroRx meeting"
-      entry
-      (file+olp+datetree "~/src/org/aerorx.org")
-      ,(concat "* %? :aerorx:meeting:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n"
-               ":DETAILS:\n"
-               "- date :: %T\n"
-               "- attendee :: John Lord\n"
-               "- company :: \n"
-               "- attendee :: \n"
-               "- agenda :: \n"
-               ":END:\n"
-               "- ")
-      :unnarrowed t
-      :time-prompt t)
-     ("mg"
-      "Gossamer meeting"
-      entry
-      (file+olp+datetree "~/src/org/gossamer.org")
-      ,(concat "* %? :gossamer:meeting:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n"
-               ":DETAILS:\n"
-               "- date :: %T\n"
-               "- attendee :: John Lord\n"
-               "- company :: \n"
-               "- attendee :: \n"
-               "- agenda :: \n"
-               ":END:\n"
-               "- ")
-      :unnarrowed t
-      :time-prompt t)
-     ("mk"
-      "Kiox meeting"
-      entry
-      (file+olp+datetree "~/src/org/kiox.org")
-      ,(concat "* %? :kiox:meeting:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n"
-               ":DETAILS:\n"
-               "- date :: %T\n"
-               "- attendee :: John Lord\n"
-               "- company :: \n"
-               "- attendee :: \n"
-               "- agenda :: \n"
-               ":END:\n"
-               "- ")
-      :unnarrowed t
-      :time-prompt t)
-     ("mo"
-      "Other meeting"
-      entry
-      (file+olp+datetree "~/src/org/journal.org")
-      ,(concat "* %? :meeting:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":END:\n"
-               ":DETAILS:\n"
-               "- date :: %T\n"
-               "- attendee :: John Lord\n"
-               "- company :: \n"
-               "- attendee :: \n"
-               "- agenda :: \n"
-               ":END:\n"
-               "- ")
-      :unnarrowed t
-      :time-prompt t)
-     ("t" "tasks")
-     ("ta"
-      "AeroRx task"
-      entry
-      (file+olp+datetree "~/src/org/aerorx.org")
-      ,(concat "* %?  :aerorx:task:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":SOURCE:   %a\n"
-               ":END:\n")
-      :unnarrowed t)
-     ("tg"
-      "Gossamer task"
-      entry
-      (file+olp+datetree "~/src/org/gossamer.org")
-      ,(concat "* %?  :gossamer:task:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":SOURCE:   %a\n"
-               ":END:\n")
-      :unnarrowed t)
-     ("tk"
-      "Kiox task"
-      entry
-      (file+olp+datetree "~/src/org/kiox.org")
-      ,(concat "* %?  :kiox:task:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":SOURCE:   %a\n"
-               ":END:\n")
-      :unnarrowed t)
-     ("to"
-      "Other task"
-      entry
-      (file+olp+datetree "~/src/org/journal.org")
-      ,(concat "* %?  :task:\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":SOURCE:   %a\n"
-               ":END:\n")
-      :unnarrowed t)
-     ("d"
-      "todo"
-      entry
-      (file "~/src/org/todo.org")
-      ,(concat "* TODO %?\n"
-               ":PROPERTIES:\n"
-               ":CREATED:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-               ":SOURCE:   %a\n"
-               ":END:\n")
-      :unnarrowed t)))
-#+end_src
-
-Do not round timestamps.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-time-stamp-rounding-minutes '(0 1))
+  (org-duration-format 'h:mm)
 #+end_src
 
 Set some standard tags.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-tag-alist '(("@work" . ?w)
-                   ("@home" . ?h)))
+  (org-tag-alist '((:startgroup)
+                   ("Context")
+                   (:grouptags)
+                   ("@work" . ?w)
+                   ("@home" . ?h)
+                   (:endgroup)))
 #+end_src
 
 Load org code block language support.
@@ -782,7 +595,7 @@ Load org code block language support.
    '((emacs-lisp . t)
      (R . t)
      (latex . t)
-     ;; (python .t)
+     (python .t)
      (shell .t)
      (org . t)
      ))
@@ -791,16 +604,259 @@ Load org code block language support.
 Do not ask for confirmation before executing code.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-confirm-babel-evaluate nil)
+  (org-confirm-babel-evaluate
+   (lambda (lang body)
+     (not (member lang '("emacs-lisp" "shell" "R" "latex")))))
 #+end_src
 
-* Org roam
+
+Enable binding so that longtables can be applied just to specified
+files e.g. clocktables.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-export-allow-bind-keywords t)
+#+end_src
+
+** Capture
+
+Define various capture templates. The list starts with =`(= instead of
+='(= which enables the inclusion of the =concat= function (the =concat= list
+also needs to be proceeded by a comma) for improved template
+visualization in the code.
+
+#+begin_src emacs-lisp :tangle no :noweb yes :noweb-ref org-custom
+  (org-capture-templates
+   (list
+    <<org-capture-templates>>))
+#+end_src
+
+#+name: template-fleeting-note
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "f" "fleeting note" 'entry
+        `(file+olp+datetree "~/src/org/journal.org")
+        (concat "* %? :fleeting:\n"
+                ":PROPERTIES:\n"
+                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                ":END:\n")
+        :unnarrowed t
+        :time-prompt t)
+#+end_src
+
+#+name: template-journal
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "j" "journal" 'entry
+        `(file+olp+datetree "~/src/org/journal.org")
+        (concat "* Journal :journal:\n"
+                ":PROPERTIES:\n"
+                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                ":END:\n"
+                "%?\n")
+        :unnarrowed t
+        :time-prompt t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "d" "todo" 'entry
+        `(file "~/src/org/todo.org")
+        (concat "* TODO %?\n"
+                ":PROPERTIES:\n"
+                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                ":END:\n")
+        :unnarrowed t)
+#+end_src
+
+#+name: template-meeting
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "m" "meetings")
+#+end_src
+
+#+name: meeting-template-helper
+#+begin_src emacs-lisp
+  (defun make-meeting-template (key name file company-id)
+    "Create a meeting capture template for the given key, name, file, and company ID."
+    (list key name 'entry
+          `(file+olp+datetree ,file)
+          (concat "* %? :meeting:\n"
+                  ":PROPERTIES:\n"
+                  ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                  ":Meeting_Date: %T\n"
+                  ":Attendee: John Lord\n"
+                  ":Company: [[id:" company-id "][" name "]]\n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Company+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":END:\n"
+                  "** Agenda\n"
+                  "*** Subject\n"
+                  "- \n"
+                  "** Action Items\n"
+                  "*** Item\n")
+          :unnarrowed t
+          :time-prompt t))
+#+end_src
+
+#+name: meeting-templates
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (make-meeting-template "ma" "AeroRx" "~/src/org/aerorx.org" "D8F97D29-ACA3-46C7-A2FF-AFA502FE736A")
+  (make-meeting-template "mg" "Gossamer" "~/src/org/gossamer.org" "6CDB8AA1-9899-43D6-848B-4780229B4196")
+  (make-meeting-template "mk" "Kiox" "~/src/org/kiox.org" "5F8689B7-E7B6-42D6-839C-34CFCDF6A960")
+  (make-meeting-template "me" "Equillium" "~/src/org/equillium.org" "89F8D120-BE47-4FDF-BF7C-673963559B4A")
+  (make-meeting-template "mo" "Other" "~/src/org/journal.org" "")
+#+end_src
+
+
+#+name: template-tasks
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "t" "tasks")
+#+end_src
+
+#+name: task-template-helper
+#+begin_src emacs-lisp
+  (defun make-task-template (key name file)
+    (list key name 'entry
+          `(file+olp+datetree ,file)
+          (concat "* %? :task:\n"
+                  ":PROPERTIES:\n"
+                  ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                  ":END:\n"
+                  "** Notes\n"
+                  "- \n"
+                  "** Action Items\n"
+                  "*** Item 1\n")
+          :unnarrowed t
+          :time-prompt t))
+#+end_src
+
+#+name: task-templates
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (make-task-template "ta" "AeroRx task" "~/src/org/aerorx.org")
+  (make-task-template "tg" "Gossamer task" "~/src/org/gossamer.org")
+  (make-task-template "tk" "Kiox task" "~/src/org/kiox.org")
+  (make-task-template "te" "Equillium task" "~/src/org/equillium.org")
+  (make-task-template "to" "Other task" "~/src/org/journal.org")
+#+end_src
+
+** Agenda
+
+Define the files used to create the agenda. For formatting, prefer to
+have a compact view which removes extra lines. Add a custom agenda
+view which splits todos into the sub-todo headings, e.g. "TODO",
+"NEXT", etc.. Load the agenda into the current window, which prevents
+agenda messing up window layout. Finally, ensure that todos with
+scheduled or deadlined timestamps are not included in the sub-todo
+lists as they are already included in the calendar view.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-agenda-files '("~/src/org/"))
+  (org-agenda-compact-blocks t)
+  (org-timestamp-rounding-minutes '(0 1))
+  (org-agenda-custom-commands
+   '(("h" "Agenda and home tasks"
+      ((agenda "")
+       (todo "NEXT" ((org-agenda-overriding-header "Next")))
+       (todo "TODO" ((org-agenda-overriding-header "Todo")))
+       (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
+       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))))))
+  (org-agenda-window-setup 'current-window)
+  (org-agenda-todo-ignore-scheduled 'all)
+  (org-agenda-todo-ignore-deadlines 'all)
+  (org-agenda-tags-column 0)
+  (org-agenda-block-separator ?─)
+  (org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
+  (org-agenda-current-time-string
+   "⭠ now ─────────────────────────────────────────────────")
+
+#+end_src
+
+Integrate Emacs diary into Org agenda.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-agenda-include-diary t)
+#+end_src
+
+** Appearance
+
+#+begin_src emacs-lisp
+(use-package org-appear
+  :hook     (org-mode . org-appear-mode)
+  :config 
+  (setq org-hide-emphasis-markers t)  ;; Must be activated for org-appear to work
+  (setq org-appear-autoemphasis   t   ;; Show bold, italics, verbatim, etc.
+        org-appear-autolinks      t   ;; Show links
+        org-appear-autosubmarkers t)) ;; Show sub- and superscripts
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package org-indent
+    :ensure nil
+    :after org
+    :config
+    (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch)))
+#+end_src
+
+
+#+begin_src emacs-lisp
+  (use-package org-modern
+    :init
+    (global-org-modern-mode)
+    :custom-face
+    (org-modern-label ((t (:height 1.0))))
+    (org-modern-tag   ((t (:background "#d0e8ff" :foreground "#000000"))))
+    :config
+    (setq
+     org-fold-catch-invisible-edits 'show-and-error
+     org-special-ctrl-a/e t
+     org-insert-heading-respect-content t)
+    :custom
+    (org-modern-tag t)
+    (org-modern-priority t)
+    (org-modern-todo t)
+    ;; (org-modern-table nil)
+    (org-modern-table-vertical 1)
+    (org-modern-block-name nil)
+    (org-modern-timestamp nil)
+    (org-modern-keyword nil)
+    )
+#+end_src
+
+** Links
+
+#+begin_src emacs-lisp
+  (use-package org-id
+    :ensure nil
+    :after org
+    :config
+    (setq org-id-link-to-org-use-id 'create-if-interactive-and-target-id-less)
+    (org-link-set-parameters "id" :store #'org-id-store-link)) 
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
+;; DEVONthink link handler for org-mode
+(org-link-set-parameters "x-devonthink-item"
+  :follow (lambda (link _desc)
+            (shell-command (format "open 'x-devonthink-item://%s'"
+            link))))
+#+end_src
+
+** Roam
 
 #+begin_src emacs-lisp :noweb yes
   (use-package org-roam
     ;; :after org				
     :custom
-    (org-roam-directory (file-truename "~/src/org"))
+    (org-roam-directory (file-truename "~/src/org/roam"))
     (org-roam-capture-templates
      `(("d" "default" plain "%?" 
 	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
@@ -846,10 +902,8 @@ Do not ask for confirmation before executing code.
     ("C-c n t" . org-roam-tag-add)
     ("C-c n r" . org-roam-ref-add)
     :hook
-    (org-roam-mode . visual-line-mode)
-    (org-capture-mode . org-align-all-tags)
-    :init
-    (setq org-roam-v2-ack t)
+    (org-roam-mode . org-indent-mode)
+    (org-capture-mode . org-align-tags)
     :config
     (org-roam-db-autosync-enable)
     <<org-roam-config>>
@@ -893,34 +947,24 @@ date property to new org roam nodes created at the heading level.
        "CREATED")))	
   (advice-add  'org-id-get-create :before 'jdl/add-other-auto-props-to-org-roam-properties)
 #+end_src
+
 * Reference management
-** Org cite
-
-#+begin_src emacs-lisp
-  (use-package emacs
-    :custom
-    (bibtex-dialect 'biblatex)
-    (org-cite-global-bibliography '("~/src/bibliography/references.bib")))
-#+end_src
-
 ** Citar
 
 #+begin_src emacs-lisp
-      (use-package citar
-	:no-require
-	:custom
-	(org-cite-global-bibliography '("~/src/bibliography/references.bib"))
-	(org-cite-insert-processor 'citar)
-	(org-cite-follow-processor 'citar)
-	(org-cite-activate-processor 'citar)
-	(citar-bibliography org-cite-global-bibliography)
-	(citar-at-point-function 'embark-act)
-	(citar-notes-paths
-	 '("~/src/org"
-	   ))
-	;; optional: org-cite-insert is also bound to C-c C-x C-@
-	:bind
-	(:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
+  (use-package citar
+    :no-require
+    :custom
+    (bibtex-dialect 'biblatex)
+    (org-cite-global-bibliography '("~/src/bibliography/references.bib"))
+    (org-cite-insert-processor 'citar)
+    (org-cite-follow-processor 'citar)
+    (org-cite-activate-processor 'citar)
+    (citar-bibliography org-cite-global-bibliography)
+    (citar-at-point-function 'embark-act)
+    (citar-notes-paths
+     '("~/src/org"
+       )))
 #+end_src
 
 #+begin_src emacs-lisp
