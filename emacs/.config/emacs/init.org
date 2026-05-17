@@ -3,7 +3,40 @@
 #+PROPERTY: header-args :results silent :tangle "~/.config/emacs/init.el"
 #+STARTUP: overview
 
-* Early init
+* Early Init
+:PROPERTIES:
+:header-args: :tangle "~/.config/emacs/early-init.el"
+:END:
+
+Clean up the interface by removing the menu bar, tool bar, and scroll
+bars. Inhibit the startup screen and provide an empty scratch buffer.
+
+#+begin_src emacs-lisp
+  (setq gc-cons-threshold most-positive-fixnum) ; Prevent garbage collection
+  (setopt frame-inhibit-implied-resize t
+          ;; HACK: Don't show size info (or anything else) in frame title
+          frame-title-format "\n"
+          ;; Disable start-up screen
+          inhibit-startup-screen t
+          inhibit-startup-message t
+          ;; We'll provide our own splash screen, thanks
+          inhibit-splash-screen t
+          ;; No message in initial scratch buffer
+          initial-scratch-message nil)
+
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+  (tooltip-mode -1)
+#+end_src
+
+Open Emacs in full screen.
+
+#+begin_src emacs-lisp
+  (add-to-list 'default-frame-alist     '(fullscreen . maximized))
+#+end_src
+
+* Startup Reporting
 
 Add a hook that reports how long and how many garbage collections the
 startup took. The hook is run at the very end, so the message doesn't
