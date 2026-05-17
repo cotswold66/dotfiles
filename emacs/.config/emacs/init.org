@@ -1,0 +1,1241 @@
+#+TITLE: Emacs config file in org format
+#+AUTHOR: John Lord
+#+PROPERTY: header-args :results silent :tangle "~/.config/emacs/init.el"
+#+STARTUP: overview
+
+* Early Init
+:PROPERTIES:
+:header-args: :tangle "~/.config/emacs/early-init.el"
+:END:
+
+Clean up the interface by removing the menu bar, tool bar, and scroll
+bars. Inhibit the startup screen and provide an empty scratch buffer.
+
+#+begin_src emacs-lisp
+  (setq gc-cons-threshold most-positive-fixnum) ; Prevent garbage collection
+  (setopt frame-inhibit-implied-resize t
+          ;; HACK: Don't show size info (or anything else) in frame title
+          frame-title-format "\n"
+          ;; Disable start-up screen
+          inhibit-startup-screen t
+          inhibit-startup-message t
+          ;; We'll provide our own splash screen, thanks
+          inhibit-splash-screen t
+          ;; No message in initial scratch buffer
+          initial-scratch-message nil)
+
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+  (tooltip-mode -1)
+#+end_src
+
+Open Emacs in full screen.
+
+#+begin_src emacs-lisp
+  (add-to-list 'default-frame-alist     '(fullscreen . maximized))
+#+end_src
+
+* Startup Reporting
+
+Add a hook that reports how long and how many garbage collections the
+startup took. The hook is run at the very end, so the message doesn't
+get clobbered by other messages during startup.
+
+#+begin_src emacs-lisp
+  (add-hook
+   'emacs-startup-hook
+   (lambda ()
+   (setq gc-cons-threshold (* 16 1024 1024))
+     (message
+      "Emacs ready in %s with %d garbage collections."
+      (format "%.2f seconds"
+              (float-time
+               (time-subtract after-init-time before-init-time)))
+      gcs-done)))
+#+end_src
+
+* Package Management
+
+Declare the package repositories, initialize the package system and use =use-package=.
+
+#+begin_src emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (package-initialize)
+  (setq use-package-always-ensure t
+        use-package-verbose t)
+#+end_src
+
+* Editor
+** Defaults
+
+Setup a noweb template to allow calling emacs functions and setting
+emacs custom variables with =use-package= for consistency with the rest
+of the config file.
+
+#+begin_src emacs-lisp :noweb yes
+  (use-package emacs
+    :init
+    <<emacs-init>>
+    ;; :hook (emacs-startup . split-window-right)
+    :bind (
+           <<emacs-bind>>)
+    :custom
+    <<emacs-custom>>
+    :config
+    <<emacs-config>>)
+#+end_src
+
+Show balanced parentheses. Replace default completion with hippie-expand.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (keymap-global-set "M-/" 'hippie-expand)
+  (show-paren-mode)
+  (electric-pair-mode)
+  (delete-selection-mode)
+  (global-hl-line-mode)
+  (keymap-global-unset "C-x C-z")
+  (keymap-global-unset "C-<wheel-up>")
+  (keymap-global-unset "C-<wheel-down>")
+  (keymap-global-unset "C-z")
+#+end_src
+
+Create backup files and auto-save files in dedicated directories. Keep multiple versions even if under version control since I do not do version control frequently enough.
+
+#+begin_src emacs-lisp
+  (setopt auto-save-file-name-transforms
+          '((".*" "~/.config/emacs/auto-saves/" t))
+          backup-by-copying t
+          backup-directory-alist '(("." . "~/.config/emacs/backups/"))
+          delete-old-versions t
+          kept-new-versions 10
+          kept-old-versions 5
+          version-control t
+          vc-make-backup-files t
+          delete-old-versions t)
+#+end_src
+
+Move focus to help window when help activated, which makes it easy to
+close them with a 'q'.
+
+#+begin_src emacs-lisp
+  (setopt help-window-select t)
+#+end_src
+
+Define a sentence as only having one space after the final punctuation.
+
+#+begin_src emacs-lisp
+  (setopt sentence-end-double-space nil)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (electric-indent-mode -1)
+#+end_src
+
+Enable various non-beginner functions.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (put 'narrow-to-region 'disabled nil)
+#+end_src
+
+Don't use hard tabs.
+
+#+begin_src emacs-lisp
+  (setopt indent-tabs-mode nil)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+#+end_src
+
+** Keybindings
+
+Change =zap-to-char= binding to =zap-up-to-char= and bind =zap-to-char= to
+=M-Z=.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-bind
+  ("M-z" . zap-up-to-char)
+  ("M-Z" . zap-to-char)
+#+end_src
+
+** Session
+
+Remember search histories between sessions with =savehist=.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
+  (savehist-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package recentf
+    :ensure nil
+    :init
+    (recentf-mode))
+#+end_src
+
+** Security
+
+Install =sudo-edit= to allow for easier editing of read-only system
+files. Do not provide a key-binding to reduce risk.
+
+#+begin_src emacs-lisp
+  (use-package sudo-edit
+    :commands sudo-edit
+    :bind ("C-c C-r" . sudo-edit))
+#+end_src
+
+Configure =auth-source-pass= to provide passwords to Emacs. This
+interfaces with the external =pass= program.
+
+#+begin_src emacs-lisp
+  (use-package auth-source-pass
+    :ensure nil
+    :defer t
+    :init
+    (auth-source-pass-enable))
+  (setopt auth-source-do-cache nil
+          auth-sources '(password-store))
+#+end_src
+
+** Location
+
+#+begin_src emacs-lisp
+  (setopt calendar-latitude 30.3
+          calendar-longitude -97.8
+          calendar-location-name "West Lake Hills, TX"
+          calendar-time-zone -360
+          calendar-standard-time-zone-name "CST"
+          calendar-daylight-time-zone-name "CDT")
+#+end_src
+
+* Appearance
+** Fonts
+Set the default font.
+
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil
+                      :family "Noto Sans Mono"
+                      :height 130
+                      :weight 'normal
+                      :width 'normal)
+  (set-face-attribute 'variable-pitch nil
+                      :family "Noto Sans"
+                      :weight 'normal
+                      :height 1.0)
+  (set-face-attribute 'fixed-pitch nil
+                      :family "Noto Sans Mono"
+                      :weight 'medium
+                      :height 1.0)
+#+end_src
+
+** Themes
+
+Enable the modus-operandi theme.
+
+#+begin_src emacs-lisp
+  (require-theme 'modus-themes)
+  (setopt modus-themes-italic-constructs t
+          modus-themes-bold-constructs t
+          modus-themes-mixed-fonts t
+          ;; modus-themes-variable-pitch-ui t
+          )
+  (modus-themes-load-theme 'modus-operandi)
+#+end_src
+
+* Completion
+** Corfu
+
+Use =corfu= instead of company for completions.
+
+#+begin_src emacs-lisp
+  (use-package corfu
+    :defer 2
+    :init
+    (global-corfu-mode)
+    (corfu-popupinfo-mode))
+#+end_src
+
+Enable TAB cycling on completions if 3 or less candidates. Also, TAB
+completes if line already indented.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref emacs-custom
+  (completion-cycle-threshold 3)
+  (tab-always-indent 'complete)
+#+end_src
+
+** Cape
+
+#+begin_src emacs-lisp
+  (use-package cape
+    ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+    ;; Press C-c p ? to for help.
+    :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+    ;; Alternatively bind Cape commands individually.
+    ;; :bind (("C-c p d" . cape-dabbrev)
+    ;;        ("C-c p h" . cape-history)
+    ;;        ("C-c p f" . cape-file)
+    ;;        ...)
+    :init
+    ;; Add to the global default value of `completion-at-point-functions' which is
+    ;; used by `completion-at-point'.  The order of the functions matters, the
+    ;; first function returning a result wins.  Note that the list of buffer-local
+    ;; completion functions takes precedence over the global list.
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    ;; (add-hook 'completion-at-point-functions #'cape-history)
+    ;; ...
+  )
+#+end_src
+
+** Vertico
+
+Use =vertico= to provide vertical display of completion candidates.
+
+#+begin_src emacs-lisp
+  (use-package vertico
+    :defer 2
+    :init
+    (vertico-mode))
+#+end_src
+
+** Orderless
+
+Use =orderless= to provide completion styles, including ordering.
+Specifcally, allow the use of wildcard searches in file paths.
+
+#+begin_src emacs-lisp
+  (use-package orderless
+    :defer t
+    :custom
+    (completion-styles '(orderless basic))
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+
+** Marginalia
+
+Use =marginalia= to provide additional details in the minibuffer like
+file modes, etc.
+
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :bind (:map minibuffer-local-map
+                ("M-A" . marginalia-cycle))
+    :init
+    (marginalia-mode))
+#+end_src
+
+** Embark
+
+Use =embark= to provide minibuffer actions.  
+
+#+begin_src emacs-lisp :noweb yes
+  (use-package embark
+    :bind
+    ("C-," . embark-act)	      ;; pick some comfortable binding
+    ("C-;" . embark-dwim)	      ;; good alternative: M-.
+    ("C-h B" . embark-bindings) ;; alternative for `describe-bindings'
+    :config
+    <<embark-config>>)
+#+end_src
+
+Hide the mode line of the Embark live/completions buffers.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref embark-config
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp :noweb yes
+  ;; Example configuration for Consult
+  (use-package consult
+    :bind (;; C-c bindings in `mode-specific-map'
+           ("C-c M-x" . consult-mode-command)
+           ("C-c h" . consult-history)
+           ("C-c k" . consult-kmacro)
+           ("C-c m" . consult-man)
+           ("C-c i" . consult-info)
+           ("C-c b" . consult-bookmark)
+           ([remap Info-search] . consult-info)
+           ;; C-x bindings in `ctl-x-map'
+           ("C-x M-:" . consult-complex-command)
+           ("C-x b" . consult-buffer)
+           ("C-x 4 b" . consult-buffer-other-window)
+           ("C-x r b" . consult-bookmark)
+           ("C-x p b" . consult-project-buffer)
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)
+           ;; M-g bindings (goto-map)
+           ("M-g e" . consult-compile-error)
+           ("M-g r" . consult-grep-match)
+           ("M-g g" . consult-goto-line)
+           ("M-g M-g" . consult-goto-line)
+           ("M-g o" . consult-org-heading)
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings (search-map)
+           ("M-s d" . consult-find)
+           ("M-s c" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)
+           ("M-s e" . consult-isearch-history)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)
+           ("M-r" . consult-history))
+    :init
+    <<consult-init>>
+    :config
+    <<consult-config>>) 
+#+end_src
+
+Optionally configure the register formatting. This improves the register preview for =consult-register=, =consult-register-load=, =consult-register-store= and the Emacs built-ins. Also, tweak the register preview window. This adds thin lines, sorting and hides the mode line of the window. Finally, replace =completing-read-multiple= with an enhanced version.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-init
+    (advice-add #'register-preview :override #'consult-register-window)
+    (setq register-preview-delay 0.5)
+#+end_src
+
+Use =consult= to select xref locations with preview.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-init
+  (setq xref-show-xrefs-function 'consult-xref
+        xref-show-definitions-function 'consult-xref)
+#+end_src
+
+Set the narrow key.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref consult-config
+  (setq consult-narrow-key "<")
+#+end_src
+
+
+Use =consult-completion-in-region= if =vertico= is enabled. Otherwise use
+the default =completion--in-region= function.
+
+#+begin_src emacs-lisp :tangle no ;; :noweb-ref consult-config
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args)))
+#+end_src
+
+Use =consult-dir= for easy switching of directories and projects.
+
+#+begin_src emacs-lisp
+  (use-package consult-dir
+    :ensure t
+    :bind (("C-x C-d" . consult-dir)
+           :map minibuffer-local-completion-map
+           ("C-x C-d" . consult-dir)
+           ("C-x C-j" . consult-dir-jump-file))
+    :custom
+    (consult-dir-project-list-function 'consult-dir-project-dirs))
+#+end_src
+
+Use the =embark-consult= package.
+
+#+begin_src emacs-lisp
+  (use-package embark-consult
+    :ensure t)
+#+end_src
+
+** Which-key
+
+Enable key completions with =which-key=.
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure nil
+    :init
+    (which-key-mode))
+#+end_src
+
+* Org
+** Core
+:PROPERTIES:
+:ID:       6317EDF8-F90D-484B-9B99-1C130CE0D5F0
+:END:
+
+In order to use the latest version, start emacs with =emacs -q= and then
+install org for the ="M-x list-packages"= menu.
+
+#+begin_src emacs-lisp :noweb yes
+  (use-package org
+    :bind 
+    ("C-c l" . org-store-link)
+    ("C-c a" . org-agenda)
+    ("C-c c" . org-capture)
+    :mode ("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode)
+    :hook
+    (org-mode . org-indent-mode)
+    (org-mode . visual-line-mode)
+    (org-mode . org-fold-hide-drawer-all)
+    :config
+    <<org-config>>
+    :custom
+    <<org-custom>>)
+#+end_src
+
+Ensure that sparse regex and tag searches show entry details and not
+just the headings. This is very handy for browsing journal entries in
+a multipurpose file.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
+  (add-to-list 'org-show-context-detail '(occur-tree . local))
+  (add-to-list 'org-show-context-detail '(tags-tree . local))
+#+end_src
+
+Enable org habits
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
+  (add-to-list 'org-modules 'org-habit t)
+#+end_src
+
+Define the default org directory.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-directory "~/src/org")
+#+end_src
+
+Define the sequence of org todo keywords. Those before the ="|"= are
+todo items and those after are done items. The '!' means set a
+timestamp on change, '/!' means seat a timestamp on leaving the state,
+and '@' means request a note.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-todo-keywords
+   '((sequence "TODO(t)" "|" "DONE(d!)")
+     (sequence "NEXT(n)" "WAITING(w@)" "SOMETIME(s)" "|")
+     (sequence "|" "CANCELLED(c@)")))
+#+end_src
+
+Place the time of completion in a log
+drawer.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-log-into-drawer t)
+#+end_src
+
+Improve the visual style of org buffers by indenting and hiding
+emphasis markers.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-hide-emphasis-markers t)
+  ;; (org-startup-indented t)
+#+end_src
+
+Make latex greek letters and sub and superscripts show visually.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-pretty-entities t)
+  (org-pretty-entities-include-sub-superscripts t)
+#+end_src
+
+Define refile targets and how outline paths are displayed.
+Specifically, allow all paths to be visualized since we use completion
+to narrow down the options.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-outline-path-complete-in-steps nil)
+  (org-refile-targets '((org-agenda-files . (:maxlevel . 3))))
+  (org-refile-use-outline-path t)
+#+end_src
+
+Ensure clocktable does not print days
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-duration-format 'h:mm)
+#+end_src
+
+Set some standard tags.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-tag-alist '((:startgroup)
+                   ("Context")
+                   (:grouptags)
+                   ("@work" . ?w)
+                   ("@home" . ?h)
+                   (:endgroup)))
+#+end_src
+
+Load org code block language support.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (R . t)
+     (latex . t)
+     (python .t)
+     (shell .t)
+     (org . t)
+     ))
+#+end_src
+
+Do not ask for confirmation before executing code.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-confirm-babel-evaluate
+   (lambda (lang body)
+     (not (member lang '("emacs-lisp" "shell" "R" "latex")))))
+#+end_src
+
+
+Enable binding so that longtables can be applied just to specified
+files e.g. clocktables.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-export-allow-bind-keywords t)
+#+end_src
+
+** Capture
+
+Define various capture templates. The list starts with =`(= instead of
+='(= which enables the inclusion of the =concat= function (the =concat= list
+also needs to be proceeded by a comma) for improved template
+visualization in the code.
+
+#+begin_src emacs-lisp :tangle no :noweb yes :noweb-ref org-custom
+  (org-capture-templates
+   (list
+    <<org-capture-templates>>))
+#+end_src
+
+#+name: template-fleeting-note
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "f" "fleeting note" 'entry
+        `(file+olp+datetree "~/src/org/journal.org")
+        (concat "* %? :fleeting:\n"
+                ":PROPERTIES:\n"
+                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                ":END:\n")
+        :unnarrowed t
+        :time-prompt t)
+#+end_src
+
+#+name: template-journal
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "j" "journal" 'entry
+        `(file+olp+datetree "~/src/org/journal.org")
+        (concat "* Journal :journal:\n"
+                ":PROPERTIES:\n"
+                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                ":END:\n"
+                "%?\n")
+        :unnarrowed t
+        :time-prompt t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "d" "todo" 'entry
+        `(file "~/src/org/todo.org")
+        (concat "* TODO %?\n"
+                ":PROPERTIES:\n"
+                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                ":END:\n")
+        :unnarrowed t)
+#+end_src
+
+#+name: template-meeting
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "m" "meetings")
+#+end_src
+
+#+name: meeting-template-helper
+#+begin_src emacs-lisp
+  (defun make-meeting-template (key name file company-id)
+    "Create a meeting capture template for the given key, name, file, and company ID."
+    (list key name 'entry
+          `(file+olp+datetree ,file)
+          (concat "* %? :meeting:\n"
+                  ":PROPERTIES:\n"
+                  ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                  ":Meeting_Date: %T\n"
+                  ":Attendee: John Lord\n"
+                  ":Company: [[id:" company-id "][" name "]]\n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Company+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":Attendee+: \n"
+                  ":END:\n"
+                  "** Agenda\n"
+                  "*** Subject\n"
+                  "- \n"
+                  "** Action Items\n"
+                  "*** Item\n")
+          :unnarrowed t
+          :time-prompt t))
+#+end_src
+
+#+name: meeting-templates
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (make-meeting-template "ma" "AeroRx" "~/src/org/aerorx.org" "D8F97D29-ACA3-46C7-A2FF-AFA502FE736A")
+  (make-meeting-template "mg" "Gossamer" "~/src/org/gossamer.org" "6CDB8AA1-9899-43D6-848B-4780229B4196")
+  (make-meeting-template "mk" "Kiox" "~/src/org/kiox.org" "5F8689B7-E7B6-42D6-839C-34CFCDF6A960")
+  (make-meeting-template "me" "Equillium" "~/src/org/equillium.org" "89F8D120-BE47-4FDF-BF7C-673963559B4A")
+  (make-meeting-template "mo" "Other" "~/src/org/journal.org" "")
+#+end_src
+
+
+#+name: template-tasks
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (list "t" "tasks")
+#+end_src
+
+#+name: task-template-helper
+#+begin_src emacs-lisp
+  (defun make-task-template (key name file)
+    (list key name 'entry
+          `(file+olp+datetree ,file)
+          (concat "* %? :task:\n"
+                  ":PROPERTIES:\n"
+                  ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
+                  ":END:\n"
+                  "** Notes\n"
+                  "- \n"
+                  "** Action Items\n"
+                  "*** Item 1\n")
+          :unnarrowed t
+          :time-prompt t))
+#+end_src
+
+#+name: task-templates
+#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+  (make-task-template "ta" "AeroRx task" "~/src/org/aerorx.org")
+  (make-task-template "tg" "Gossamer task" "~/src/org/gossamer.org")
+  (make-task-template "tk" "Kiox task" "~/src/org/kiox.org")
+  (make-task-template "te" "Equillium task" "~/src/org/equillium.org")
+  (make-task-template "to" "Other task" "~/src/org/journal.org")
+#+end_src
+
+** Agenda
+
+Define the files used to create the agenda. For formatting, prefer to
+have a compact view which removes extra lines. Add a custom agenda
+view which splits todos into the sub-todo headings, e.g. "TODO",
+"NEXT", etc.. Load the agenda into the current window, which prevents
+agenda messing up window layout. Finally, ensure that todos with
+scheduled or deadlined timestamps are not included in the sub-todo
+lists as they are already included in the calendar view.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-agenda-files '("~/src/org/"))
+  (org-agenda-compact-blocks t)
+  (org-timestamp-rounding-minutes '(0 1))
+  (org-agenda-custom-commands
+   '(("h" "Agenda and home tasks"
+      ((agenda "")
+       (todo "NEXT" ((org-agenda-overriding-header "Next")))
+       (todo "TODO" ((org-agenda-overriding-header "Todo")))
+       (todo "WAITING" ((org-agenda-overriding-header "Waiting")))
+       (todo "SOMETIME" ((org-agenda-overriding-header "Sometime")))))))
+  (org-agenda-window-setup 'current-window)
+  (org-agenda-todo-ignore-scheduled 'all)
+  (org-agenda-todo-ignore-deadlines 'all)
+  (org-agenda-tags-column 0)
+  (org-agenda-block-separator ?─)
+  (org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
+  (org-agenda-current-time-string
+   "⭠ now ─────────────────────────────────────────────────")
+
+#+end_src
+
+Integrate Emacs diary into Org agenda.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
+  (org-agenda-include-diary t)
+#+end_src
+
+** Appearance
+
+#+begin_src emacs-lisp
+(use-package org-appear
+  :hook     (org-mode . org-appear-mode)
+  :config 
+  (setq org-hide-emphasis-markers t)  ;; Must be activated for org-appear to work
+  (setq org-appear-autoemphasis   t   ;; Show bold, italics, verbatim, etc.
+        org-appear-autolinks      t   ;; Show links
+        org-appear-autosubmarkers t)) ;; Show sub- and superscripts
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package org-indent
+    :ensure nil
+    :after org
+    :config
+    (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch)))
+#+end_src
+
+
+#+begin_src emacs-lisp
+  (use-package org-modern
+    :init
+    (global-org-modern-mode)
+    :custom-face
+    (org-modern-label ((t (:height 1.0))))
+    (org-modern-tag   ((t (:background "#d0e8ff" :foreground "#000000"))))
+    :config
+    (setq
+     org-fold-catch-invisible-edits 'show-and-error
+     org-special-ctrl-a/e t
+     org-insert-heading-respect-content t)
+    :custom
+    (org-modern-tag t)
+    (org-modern-priority t)
+    (org-modern-todo t)
+    ;; (org-modern-table nil)
+    (org-modern-table-vertical 1)
+    (org-modern-block-name nil)
+    (org-modern-timestamp nil)
+    (org-modern-keyword nil)
+    )
+#+end_src
+
+** Links
+
+#+begin_src emacs-lisp
+  (use-package org-id
+    :ensure nil
+    :after org
+    :config
+    (setq org-id-link-to-org-use-id 'create-if-interactive-and-target-id-less)
+    (org-link-set-parameters "id" :store #'org-id-store-link)) 
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
+;; DEVONthink link handler for org-mode
+(org-link-set-parameters "x-devonthink-item"
+  :follow (lambda (link _desc)
+            (shell-command (format "open 'x-devonthink-item://%s'"
+            link))))
+#+end_src
+
+** Roam
+
+#+begin_src emacs-lisp :noweb yes
+  (use-package org-roam
+    ;; :after org				
+    :custom
+    (org-roam-directory (file-truename "~/src/org/roam"))
+    (org-roam-capture-templates
+     `(("d" "default" plain "%?" 
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+	:unnarrowed t)
+       ("a" "article" plain "%?"
+	:target (file+head "%<%Y%m%d%H%M%S>-${citekey}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :source:\n"
+				    "- author :: ${author-or-editor}\n"
+				    "- journal :: ${journal}\n"
+				    "- year :: ${year}\n"
+				    "- doi :: ${doi}\n\n"))
+	:unnarrowed t)
+       ("c" "company" plain "%?" 
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :company:\n"))
+	:unnarrowed t)
+       ("p" "person" plain "%?" 
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :person:\n"
+				    "- company :: \n"
+				    "- dob :: \n"
+				    "- interest :: \n"))
+	:unnarrowed t)))
+    (org-roam-capture-ref-templates
+     `(("r" "ref" plain "%?"
+	:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+			   ,(concat "#+title: ${title}\n"
+				    "#+filetags: :source:\n"
+				    "- author :: ${author-or-editor}\n"
+				    "- journal :: ${journal}\n"
+				    "- year :: ${year}\n\n"))
+	:unnarrowed t)))
+    :bind
+    ("C-c n l" . org-roam-buffer-toggle)
+    ("C-c n f" . org-roam-node-find)
+    ("C-c n g" . org-roam-graph)
+    ("C-c n i" . org-roam-node-insert)
+    ("C-c n c" . org-roam-capture)
+    ("C-c n o" . org-id-get-create)
+    ("C-c n t" . org-roam-tag-add)
+    ("C-c n r" . org-roam-ref-add)
+    :hook
+    (org-roam-mode . org-indent-mode)
+    (org-capture-mode . org-align-tags)
+    :config
+    (org-roam-db-autosync-enable)
+    <<org-roam-config>>
+    (require 'org-roam-protocol)
+    ;; (add-to-list 'display-buffer-alist
+    ;;              '("\\*org-roam\\*"
+    ;;                (display-buffer-in-direction)
+    ;;                (direction . right)
+    ;;                (window-width . 0.33)
+    ;;                (window-height . fit-window-to-buffer)))
+    (add-to-list 'display-buffer-alist
+		 '("\\*org-roam\\*"
+		   (display-buffer-in-side-window)
+		   (side . right)
+		   (slot . 0)
+		   (window-width . 0.33)
+		   (window-parameters . ((no-other-window . t)
+					 (no-delete-other-windows . t))))))
+#+end_src
+
+The following function was borrowed online and adds a CREATED date
+property to new org roam nodes created at the file level.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-roam-config
+  (defun bms/add-other-auto-props-to-org-roam-properties (&optional ARG PRED)
+    (unless (org-find-property "CREATED")
+      (org-roam-add-property
+       (format-time-string "%Y-%m-%dT%H:%M:%S")
+       "CREATED")))	
+  (add-hook 'org-roam-capture-new-node-hook 'bms/add-other-auto-props-to-org-roam-properties)
+#+end_src
+
+The following function was modified from the above and adds a CREATED
+date property to new org roam nodes created at the heading level.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-roam-config
+  (defun jdl/add-other-auto-props-to-org-roam-properties (&optional ARG PRED)
+    (unless (org--property-local-values "CREATED" nil)
+      (org-roam-add-property
+       (format-time-string "%Y-%m-%dT%H:%M:%S")
+       "CREATED")))	
+  (advice-add  'org-id-get-create :before 'jdl/add-other-auto-props-to-org-roam-properties)
+#+end_src
+
+* Reference management
+** Citar
+
+#+begin_src emacs-lisp
+  (use-package citar
+    :no-require
+    :custom
+    (bibtex-dialect 'biblatex)
+    (org-cite-global-bibliography '("~/src/bibliography/references.bib"))
+    (org-cite-insert-processor 'citar)
+    (org-cite-follow-processor 'citar)
+    (org-cite-activate-processor 'citar)
+    (citar-bibliography org-cite-global-bibliography)
+    (citar-at-point-function 'embark-act)
+    (citar-notes-paths
+     '("~/src/org"
+       )))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package citar-embark
+    :after citar embark
+    :no-require
+    :config (citar-embark-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package citar-org-roam
+    :after citar org-roam
+    :no-require
+    :custom
+    (citar-org-roam-capture-template-key "a")
+    :config (citar-org-roam-mode))
+#+end_src
+
+* Writing
+** LaTex
+#+name: auctex
+#+begin_src emacs-lisp
+  (use-package auctex
+    :defer t
+    :custom
+    (TeX-engine 'luatex)
+    (ConTeXt-Mark-version "IV") 
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t)
+    (setq TeX-view-program-list
+    '(("zathura" 
+       ("zathura" (mode-io-correlate "-sync.sh")
+        " "
+        (mode-io-correlate "%n:1:%t ")
+        "%o")))))
+
+  (setopt org-latex-src-block-backend 'minted
+          org-latex-pdf-process
+          '("lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+            "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f")) 
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+  (use-package cdlatex
+    :hook (org-mode . turn-on-org-cdlatex))  
+#+end_src
+** Visual Fill Column
+
+#+begin_src emacs-lisp
+  (use-package visual-fill-column
+    :hook (visual-line-mode . visual-fill-column-mode)
+    :custom
+    (visual-fill-column-width 80))        ; your preferred max width
+#+end_src
+
+** Adaptive Wrap
+
+#+begin_src emacs-lisp :tangle no
+(use-package adaptive-wrap
+  :hook (visual-line-mode . adaptive-wrap-prefix-mode))
+#+end_src
+
+* Languages
+** Treesitter
+
+#+begin_src emacs-lisp
+  (use-package treesit
+    :ensure nil
+    :custom
+    (treesit-language-source-alist
+     '((yaml    . ("https://github.com/ikatyang/tree-sitter-yaml"))
+       (json    . ("https://github.com/tree-sitter/tree-sitter-json"))
+       (python  . ("https://github.com/tree-sitter/tree-sitter-python"))
+       (bash    . ("https://github.com/tree-sitter/tree-sitter-bash"))
+       (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
+       (r       . ("https://github.com/r-lib/tree-sitter-r"))
+       (toml    . ("https://github.com/tree-sitter/tree-sitter-toml")))))
+
+  (mapc (lambda (lang)
+          (unless (treesit-language-available-p lang)
+            (treesit-install-language-grammar lang)))
+        (mapcar #'car treesit-language-source-alist))
+#+end_src
+
+** Smartparens
+
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :ensure smartparens
+    :config
+    (require 'smartparens-config)
+    (sp-use-smartparens-bindings)
+    :hook
+    ((emacs-lisp-mode
+     ielm-mode
+     lisp-mode
+     lisp-interaction-mode
+     markdown-mode
+     prog-mode
+     scheme-mode
+     text-mode) . smartparens-mode)
+  )
+#+end_src
+** Polymode
+:PROPERTIES:
+:header-args: :tangle no
+:END:
+
+#+begin_src emacs-lisp
+  (use-package polymode
+    :ensure t)
+  (use-package poly-R
+    :ensure t)
+  (use-package poly-markdown
+    :ensure t)
+  (add-to-list 'auto-mode-alist '("\\.Rmd\\'" . poly-gfm+r-mode))
+  (add-to-list 'auto-mode-alist '("\\.qmd\\'" . poly-gfm+r-mode))
+#+end_src
+
+** Clojure
+:PROPERTIES:
+:header-args: :tangle no
+:END:
+
+#+begin_src emacs-lisp 
+  (use-package clojure-ts-mode
+    :hook
+    (clojure-ts-mode . smartparens-mode)
+    (clojure-ts-mode . lsp))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package cider
+    :hook
+    (cider-repl-mode . smartparens-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :hook
+    (lsp-mode . lsp-enable-which-key-integration))
+#+end_src
+
+** R
+:PROPERTIES:
+:header-args: :tangle yes
+:END:
+
+#+begin_src emacs-lisp :results none
+  (use-package ess
+    :ensure nil)
+  (setopt display-buffer-alist
+          `(("^\\*R Dired"
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . right)
+             (slot . -1)
+             (window-width . 0.4)
+             (reusable-frames . nil))
+            ("^\\*R"
+             nil
+             (dedicated . t))
+            ("^\\*Help"
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . right)
+             (slot . 1)
+             (window-width . 0.4)
+             (reusable-frames . nil))))
+#+end_src
+
+** Python
+
+#+name: python
+#+begin_src emacs-lisp :tangle no
+  (use-package python
+    :ensure nil
+    :hook (python-mode . eglot-ensure)
+    :config
+    (setq python-indent-offset 4)
+    (setenv "WORKON_HOME" "~/src")
+    (setq python-shell-interpreter "jupyter"
+          python-shell-interpreter-args "console --simple-prompt"
+          python-shell-prompt-detect-failure-warning nil)
+    (add-to-list 'python-shell-completion-native-disabled-interpreters
+                 "jupyter"))
+#+end_src
+
+#+name: ein
+#+begin_src emacs-lisp :tangle no
+  (use-package ein
+    :ensure t) 
+#+end_src
+
+** Yaml
+
+#+begin_src emacs-lisp
+  (use-package yaml-ts-mode
+    :ensure nil
+    :mode "\\.ya?ml\\'")
+src
+
+* Files
+** Dired
+
+#+begin_src emacs-lisp
+  (use-package dired
+    :defer t
+    :ensure nil
+    :custom
+    ;; (dired-listing-switches "-alh -v --group-directories-first")
+    (dired-auto-revert-buffer t)
+    (dired-dwim-target t)
+    (dired-hide-details-hide-symlink-targets nil)
+    (dired-isearch-filenames t)
+    (dired-recursive-copies  'always)
+    (dired-recursive-deletes 'top)
+    (dired-create-destination-dirs 'ask)
+    (dired-create-destination-dirs-on-trailing-dirsep t)
+    (dired-maybe-use-globstar t)
+    (image-dired-thumb-size 150))
+#+end_src
+
+** Peep Dired
+
+Use =peep-dired= to show dired file previews.
+
+#+begin_src emacs-lisp
+  (use-package peep-dired
+    :commands 'peep-dired
+    :custom
+    (peep-dired-cleanup-on-disable t))
+#+end_src
+
+** Dired Rsync
+
+Use =dired-rsync= for rsync functionality in dired mode.
+
+#+begin_src emacs-lisp
+  (use-package dired-rsync
+    :bind
+    (:map dired-mode-map
+          ("C-c C-r" . dired-rsync))) 
+#+end_src
+
+** Magit
+
+#+begin_src emacs-lisp
+  (use-package magit
+    :defer t)
+#+end_src
+
+* Email
+ #+begin_src emacs-lisp
+   (add-to-list 'load-path "/opt/homebrew/opt/notmuch/share/emacs/site-lisp/notmuch")
+   (require 'notmuch)
+ #+end_src
+
+#+begin_src emacs-lisp
+  (use-package ol-notmuch
+    :ensure t
+    :after (notmuch org))
+#+end_src
+
+#+begin_src emacs-lisp
+  (setopt sendmail-program "/opt/homebrew/bin/msmtp"
+          mail-user-agent 'message-user-agent
+          user-full-name "John Lord"
+          user-mail-address "john@lordsonline.org"
+          mail-specify-envelope-from t
+          mail-envelope-from 'header
+          message-sendmail-envelope-from 'header
+          send-mail-function 'sendmail-send-it
+          message-send-mail-function 'message-send-mail-with-sendmail)
+#+end_src
