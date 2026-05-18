@@ -1131,9 +1131,10 @@ date property to new org roam nodes created at the heading level.
                  (side . right)
                  (slot . 0)
                  (window-parameters (no-delete-other-windows . t))
-                 (window-width . 0.4)))
+                 (window-width . 0.4)
+                 (reusable-frames . nil)))
   (add-to-list 'display-buffer-alist
-               '("\\*Help\\*"
+               '("^\\*Help"
                  (display-buffer-in-side-window)
                  (side . right)
                  (slot . 1)
