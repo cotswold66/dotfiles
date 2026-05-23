@@ -36,6 +36,16 @@ Open Emacs in full screen.
   (add-to-list 'default-frame-alist     '(fullscreen . maximized))
 #+end_src
 
+* Lexical Binding
+
+Enable lexical binding for the entire init file. This must be the first
+line of the tangled output, so we use =:comments no= to prevent
+org-tangle from inserting a file-link comment above it.
+
+#+begin_src emacs-lisp :comments no
+;;; -*- lexical-binding: t -*-
+#+end_src
+
 * Startup Reporting
 
 Add a hook that reports how long and how many garbage collections the
@@ -64,11 +74,18 @@ Declare the package repositories, initialize the package system and use =use-pac
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (package-initialize)
   (setq use-package-always-ensure t
-        use-package-verbose t)
+        use-package-verbose nil)
 #+end_src
 
 * Editor
 ** Defaults
+
+#+begin_src emacs-lisp
+  (use-package benchmark-init
+    :ensure t
+    :config
+    (add-hook 'after-init-hook #'benchmark-init/deactivate))
+#+end_src
 
 Setup a noweb template to allow calling emacs functions and setting
 emacs custom variables with =use-package= for consistency with the rest
@@ -87,10 +104,17 @@ of the config file.
     <<emacs-config>>)
 #+end_src
 
+#+begin_src emacs-lisp
+  (when (eq system-type 'darwin)
+    (setopt insert-directory-program "gls"
+            dired-use-ls-dired t))
+#+end_src
+
 Show balanced parentheses. Replace default completion with hippie-expand.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref emacs-init
   (keymap-global-set "M-/" 'hippie-expand)
+  (keymap-global-set "C-x C-b" 'ibuffer)
   (show-paren-mode)
   (electric-pair-mode)
   (delete-selection-mode)
@@ -148,6 +172,7 @@ Don't use hard tabs.
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
   :ensure t
+  :defer 1
   :config
   (exec-path-from-shell-initialize))
 #+end_src
@@ -337,7 +362,7 @@ Use =embark= to provide minibuffer actions.
 #+begin_src emacs-lisp :noweb yes
   (use-package embark
     :bind
-    ("C-," . embark-act)	      ;; pick some comfortable binding
+    ("C-." . embark-act)	      ;; pick some comfortable binding
     ("C-;" . embark-dwim)	      ;; good alternative: M-.
     ("C-h B" . embark-bindings) ;; alternative for `describe-bindings'
     :config
@@ -499,6 +524,7 @@ install org for the ="M-x list-packages"= menu.
     (org-mode . org-indent-mode)
     (org-mode . visual-line-mode)
     (org-mode . org-fold-hide-drawer-all)
+    (org-capture-mode . (lambda () (org-align-tags t)))
     :config
     <<org-config>>
     :custom
@@ -514,6 +540,24 @@ a multipurpose file.
   (add-to-list 'org-show-context-detail '(tags-tree . local))
 #+end_src
 
+Bypass the ~org-element-cache-map~ call in ~org-get-buffer-tags~ which
+causes a freeze in large buffers by replacing it with a fast regexp scan.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-config
+  (advice-add 'org-get-buffer-tags :override
+              (lambda ()
+                (let (tags)
+                  (org-with-wide-buffer
+                   (goto-char (point-min))
+                   (while (re-search-forward
+                           "^\\*+.*[ \t]\\(:[[:alnum:]_@#%:]+:\\)[ \t]*$"
+                           nil t)
+                     (dolist (tag (split-string
+                                   (match-string-no-properties 1) ":" t))
+                       (cl-pushnew (list tag) tags :test #'equal))))
+                  tags)))
+#+end_src
+
 Enable org habits
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-config
@@ -524,6 +568,7 @@ Define the default org directory.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-directory "~/src/org")
+  (org-element-use-cache nil)
 #+end_src
 
 Define the sequence of org todo keywords. Those before the ="|"= are
@@ -564,10 +609,28 @@ Define refile targets and how outline paths are displayed.
 Specifically, allow all paths to be visualized since we use completion
 to narrow down the options.
 
+#+begin_src emacs-lisp
+(defun jdl/refile-to-notes-file ()
+  "Refile subtree at point to the top level of a file in the notes directory."
+  (interactive)
+  (let* ((dir (expand-file-name vulpea-default-notes-directory))
+         (files (directory-files dir t "\\.org$"))
+         (target (completing-read "Refile to: "
+                                  (mapcar #'file-name-nondirectory files)
+                                  nil t)))
+    (org-cut-subtree)
+    (with-current-buffer (find-file-noselect (expand-file-name target dir))
+      (goto-char (point-max))
+      (unless (bolp) (insert "\n"))
+      (org-paste-subtree 1)
+      (save-buffer))
+    (message "Refiled to %s" target)))
+#+end_src
+
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
   (org-outline-path-complete-in-steps nil)
+  (org-refile-use-outline-path 'file)
   (org-refile-targets '((org-agenda-files . (:maxlevel . 3))))
-  (org-refile-use-outline-path t)
 #+end_src
 
 Ensure clocktable does not print days
@@ -578,13 +641,13 @@ Ensure clocktable does not print days
 
 Set some standard tags.
 
-#+begin_src emacs-lisp :tangle no :noweb-ref org-custom
-  (org-tag-alist '((:startgroup)
-                   ("Context")
-                   (:grouptags)
-                   ("@work" . ?w)
-                   ("@home" . ?h)
-                   (:endgroup)))
+#+begin_src emacs-lisp
+  (setopt org-tag-alist '((:startgrouptag)
+                          ("Context" . nil)
+                          (:grouptags)
+                          ("@work" . ?w)
+                          ("@home" . ?h)
+                          (:endgrouptag)))
 #+end_src
 
 Load org code block language support.
@@ -618,6 +681,9 @@ files e.g. clocktables.
 #+end_src
 
 ** Capture
+:PROPERTIES:
+:ID:       D230BD45-711E-4592-BFD9-D855117EE69C
+:END:
 
 Define various capture templates. The list starts with =`(= instead of
 ='(= which enables the inclusion of the =concat= function (the =concat= list
@@ -633,36 +699,46 @@ visualization in the code.
 #+name: template-fleeting-note
 #+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
   (list "f" "fleeting note" 'entry
-        `(file+olp+datetree "~/src/org/journal.org")
-        (concat "* %? :fleeting:\n"
-                ":PROPERTIES:\n"
-                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-                ":END:\n")
-        :unnarrowed t
+        `(file "~/src/org/inbox.org")
+        (string-join
+         (list (concat "* %^{Note: } " ":fleeting:")
+               ":PROPERTIES:"
+               (format org-property-format ":ID:" (org-id-uuid))
+               (format org-property-format ":CREATED:"
+                       (format-time-string "%Y-%m-%dT%H:%M:%S"))
+               ":END:"
+               "%?")
+         "\n")
         :time-prompt t)
 #+end_src
 
 #+name: template-journal
-#+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
+#+begin_src emacs-lisp :tangle no
   (list "j" "journal" 'entry
         `(file+olp+datetree "~/src/org/journal.org")
-        (concat "* Journal :journal:\n"
-                ":PROPERTIES:\n"
-                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-                ":END:\n"
-                "%?\n")
-        :unnarrowed t
+        (string-join
+         (list (concat "* Journal " " :journal:")
+               ":PROPERTIES:"
+               (format org-property-format ":ID:" (org-id-uuid))
+               (format org-property-format ":CREATED:"
+                       (format-time-string "%Y-%m-%dT%H:%M:%S"))
+               ":END:"
+               "%?")
+         "\n")
         :time-prompt t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
   (list "d" "todo" 'entry
         `(file "~/src/org/todo.org")
-        (concat "* TODO %?\n"
-                ":PROPERTIES:\n"
-                ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-                ":END:\n")
-        :unnarrowed t)
+        (string-join
+         (list "* TODO %?"
+               ":PROPERTIES:"
+               (format org-property-format ":ID:" (org-id-uuid))
+               (format org-property-format ":CREATED:"
+                       (format-time-string "%Y-%m-%dT%H:%M:%S"))
+               ":END:")
+        "\n"))
 #+end_src
 
 #+name: template-meeting
@@ -676,33 +752,27 @@ visualization in the code.
     "Create a meeting capture template for the given key, name, file, and company ID."
     (list key name 'entry
           `(file+olp+datetree ,file)
-          (concat "* %? :meeting:\n"
-                  ":PROPERTIES:\n"
-                  ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-                  ":Meeting_Date: %T\n"
-                  ":Attendee: John Lord\n"
-                  ":Company: [[id:" company-id "][" name "]]\n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Company+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":Attendee+: \n"
-                  ":END:\n"
-                  "** Agenda\n"
-                  "*** Subject\n"
-                  "- \n"
-                  "** Action Items\n"
-                  "*** Item\n")
-          :unnarrowed t
+          (string-join
+           (list (concat "* %^{Meeting Title?}"  " :meeting:")
+                  ":PROPERTIES:"
+                  (format org-property-format ":ID:" (org-id-uuid))
+                  (format org-property-format ":CREATED:"
+                          (format-time-string "%Y-%m-%dT%H:%M:%S"))
+                  ":END:"
+                  "- date :: %T"
+                  "- attendee :: John Lord"
+                  (concat "- company :: [[id:" company-id "][" name "]]")
+                  "- attendee :: "
+                  ""
+                  "** Agenda"
+                  "*** Subject 1"
+                  "- %?"
+                  "** Action Items"
+                  "*** Item 1")
+           "\n")
           :time-prompt t))
 #+end_src
+
 
 #+name: meeting-templates
 #+begin_src emacs-lisp :tangle no :noweb-ref org-capture-templates
@@ -710,7 +780,7 @@ visualization in the code.
   (make-meeting-template "mg" "Gossamer" "~/src/org/gossamer.org" "6CDB8AA1-9899-43D6-848B-4780229B4196")
   (make-meeting-template "mk" "Kiox" "~/src/org/kiox.org" "5F8689B7-E7B6-42D6-839C-34CFCDF6A960")
   (make-meeting-template "me" "Equillium" "~/src/org/equillium.org" "89F8D120-BE47-4FDF-BF7C-673963559B4A")
-  (make-meeting-template "mo" "Other" "~/src/org/journal.org" "")
+  (make-meeting-template "mo" "Other" "~/src/org/meetings.org" "")
 #+end_src
 
 
@@ -724,15 +794,18 @@ visualization in the code.
   (defun make-task-template (key name file)
     (list key name 'entry
           `(file+olp+datetree ,file)
-          (concat "* %? :task:\n"
-                  ":PROPERTIES:\n"
-                  ":Created:  %(format-time-string \"%Y-%m-%dT%H:%M:%S\")\n"
-                  ":END:\n"
-                  "** Notes\n"
-                  "- \n"
-                  "** Action Items\n"
-                  "*** Item 1\n")
-          :unnarrowed t
+          (string-join
+           (list (concat "* %^{Task name} " " :task:")
+                  ":PROPERTIES:"
+                  (format org-property-format ":ID:" (org-id-uuid))
+                  (format org-property-format ":CREATED:"
+                          (format-time-string "%Y-%m-%dT%H:%M:%S"))
+                  ":END:"
+                  "** Notes"
+                  "- %?"
+                  "** Action Items"
+                  "*** Item 1")
+           "\n")
           :time-prompt t))
 #+end_src
 
@@ -742,7 +815,7 @@ visualization in the code.
   (make-task-template "tg" "Gossamer task" "~/src/org/gossamer.org")
   (make-task-template "tk" "Kiox task" "~/src/org/kiox.org")
   (make-task-template "te" "Equillium task" "~/src/org/equillium.org")
-  (make-task-template "to" "Other task" "~/src/org/journal.org")
+  (make-task-template "to" "Other task" "~/src/org/inbox.org")
 #+end_src
 
 ** Agenda
@@ -780,6 +853,12 @@ lists as they are already included in the calendar view.
 
 #+end_src
 
+Set =org-habit= defaults
+
+#+begin_src emacs-lisp
+  (setopt org-habit-following-days 1)
+#+end_src
+
 Integrate Emacs diary into Org agenda.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-custom
@@ -809,14 +888,14 @@ Integrate Emacs diary into Org agenda.
 
 #+begin_src emacs-lisp
   (use-package org-modern
-    :init
-    (global-org-modern-mode)
+    :after org
+    :hook (org-mode . org-modern-mode)
     :custom-face
     (org-modern-label ((t (:height 1.0))))
     (org-modern-tag   ((t (:background "#d0e8ff" :foreground "#000000"))))
     :config
     (setq
-     org-fold-catch-invisible-edits 'show-and-error
+     org-fold-catch-invisible-edits 'smart
      org-special-ctrl-a/e t
      org-insert-heading-respect-content t)
     :custom
@@ -851,6 +930,10 @@ Integrate Emacs diary into Org agenda.
 #+end_src
 
 ** Roam
+:PROPERTIES:
+:header-args: :tangle no
+:ID:       DE8415D6-AE38-4466-AE05-D7D8929DC2EF
+:END:
 
 #+begin_src emacs-lisp :noweb yes
   (use-package org-roam
@@ -903,7 +986,7 @@ Integrate Emacs diary into Org agenda.
     ("C-c n r" . org-roam-ref-add)
     :hook
     (org-roam-mode . org-indent-mode)
-    (org-capture-mode . org-align-tags)
+    (org-capture-mode . (lambda () (org-align-tags t)))
     :config
     (org-roam-db-autosync-enable)
     <<org-roam-config>>
@@ -948,12 +1031,343 @@ date property to new org roam nodes created at the heading level.
   (advice-add  'org-id-get-create :before 'jdl/add-other-auto-props-to-org-roam-properties)
 #+end_src
 
+** Vulpea
+:PROPERTIES:
+:ID:       07CC367F-9F5A-4BD6-AEAF-262E7142A3E7
+:END:
+
+Load =vulpea= and enable its SQLite database autosync on startup. The database indexes note titles, tags, links, and =- key :: value= metadata lines, making them queryable without visiting each file. Key bindings follow the =C-c n= prefix: find a note, insert a link, create an ID, or find backlinks. =consult-vulpea= integrates the note finder with consult's live-preview interface. =vulpea-ui= provides a sidebar overview of the note graph, and =vulpea-journal= adds daily journal navigation.
+
+#+begin_src emacs-lisp
+  (use-package vulpea
+    :ensure t
+    :hook (after-init . (lambda () (run-with-idle-timer 3 nil #'vulpea-db-autosync-mode)))
+    :bind (("C-c n f" . vulpea-find)
+           ("C-c n i" . vulpea-insert)
+           ("C-c n a" . jdl/vulpea-capture-article-from-citar)
+           ("C-c n o" . org-id-get-create)
+           ("C-c n b" . vulpea-find-backlink)
+           ("C-c n e" . jdl/vulpea-extract-subtree))
+    :init
+    (setq vulpea-db-sync-directories
+          '("~/src/org/")))
+
+  (setopt vulpea-default-notes-directory 
+          "~/src/org/notes")
+
+  (use-package consult-vulpea
+    :ensure t
+    :after vulpea
+    :config
+    (consult-vulpea-mode 1))
+
+  (use-package vulpea-ui
+    :bind (("C-c n s" . vulpea-ui-sidebar-open)))
+
+  (use-package vulpea-journal
+    :bind (("C-c n j" . vulpea-journal)
+           ("C-c n n" . vulpea-journal-next)
+           ("C-c n p" . vulpea-journal-previous))
+    :config
+    (vulpea-journal-setup)
+    ;; vulpea-journal calls vulpea-create internally, which would trigger
+    ;; the custom vulpea-create-default-function and show the type prompt.
+    ;; Suppress it for journal functions so they always use the plain default.
+    (dolist (fn '(vulpea-journal vulpea-journal-next vulpea-journal-previous))
+      (advice-add fn :around
+                  (lambda (orig &rest args)
+                    (let ((vulpea-create-default-function nil))
+                      (apply orig args)))))
+    :custom
+    (vulpea-journal-default-template
+     '(:file-name "../journal/%Y-%m-%d.org" 
+       :title "%Y-%m-%d %A"
+       :tags ("journal") 
+       :head "#+created: %<[%Y-%m-%d]>")))
+#+end_src
+
+=jdl/journal-find= opens the journal finder with date-descending sort so recent entries appear first. It bypasses vertico's default alphabetical sorting by binding =vertico-sort-function= to nil for the duration of the call.
+
+#+begin_src emacs-lisp
+  (defun jdl/journal-find ()
+    (interactive)
+    (let ((vertico-sort-function nil))
+      (vulpea-find
+       :candidates-fn
+       (lambda (_)
+         (sort
+          (vulpea-db-query-by-tags-every '("journal"))
+          (lambda (a b)
+            (string> (vulpea-note-title a)
+                     (vulpea-note-title b)))))
+       :require-match t)))
+#+end_src
+
+=jdl/vulpea-extract-subtree= is the vulpea equivalent of =org-roam-extract-subtree=. It promotes the heading at point to a standalone vulpea note: the heading becomes the =#+title=, any tags on the heading become =#+filetags=, and the subtree body (including all subheadings) is carried across with heading levels promoted so they read naturally at the top level. The original subtree is removed and replaced with an =[[id:...]]=  link to the new file. =jdl/vulpea--promote-body= is the private helper that reduces all heading star counts in a string by a given amount.
+
+The body is captured by snapshotting the raw subtree text while point is pinned at the target heading (via an explicit =org-back-to-heading= call), then stripping the heading line and property drawer in a temp buffer. This avoids a subtle bug where =org-id-get-create= — called earlier in the =let*= chain — can leave point displaced, causing =org-end-of-meta-data='s internal =org-back-to-heading= to snap to the first subheading rather than the target heading, which made only the first subheading's content appear in the extracted file.
+
+After the subtree is cut and the new file written, =org-id-add-location= is called to register the ID against the new file in =org-id-locations=. Without this, =org-id-get-create= leaves the ID registered against the source file; after =org-cut-subtree= removes the heading, vulpea and =id:= links cannot resolve it.
+
+#+begin_src emacs-lisp
+(defun jdl/vulpea--promote-body (content level)
+  "Return CONTENT string with all org heading levels reduced by LEVEL."
+  (with-temp-buffer
+    (insert content)
+    (goto-char (point-min))
+    (while (re-search-forward "^\\(\\*+\\)" nil t)
+      (let* ((n   (length (match-string 1)))
+             (new (make-string (max 1 (- n level)) ?*)))
+        (replace-match new nil nil nil 1)))
+    (buffer-string)))
+
+(defun jdl/vulpea-extract-subtree ()
+  "Promote the heading at point to a standalone vulpea note file.
+Creates a new .org file in `vulpea-default-notes-directory' with the
+heading as title, the heading's tags as #+filetags, and the subtree
+body (with heading levels promoted) as note content.  The subtree is
+removed from the current buffer and replaced with an [[id:...]] link."
+  (interactive)
+  (org-back-to-heading t)
+  (let* ((title  (org-get-heading t t t t))
+         (tags   (org-get-tags nil t))
+         (id     (org-id-get-create))
+         (level  (org-current-level))
+         ;; Capture body: grab the full raw subtree text while point is
+         ;; guaranteed at the heading (org-id-get-create may have moved it),
+         ;; then strip the heading line and property drawer in a temp buffer
+         ;; so that org-end-of-meta-data and org-back-to-heading always
+         ;; operate on predictable content with no risk of snapping to a
+         ;; subheading in the live buffer.
+         (body   (save-excursion
+                   (org-back-to-heading t)
+                   (let* ((raw-end (save-excursion (org-end-of-subtree t) (point)))
+                          (raw     (buffer-substring-no-properties (point) raw-end)))
+                     (with-temp-buffer
+                       (org-mode)
+                       (insert raw)
+                       (goto-char (point-min))
+                       (org-end-of-meta-data t)
+                       (buffer-substring-no-properties (point) (point-max))))))
+         (ts     (format-time-string "%Y%m%d%H%M%S"))
+         (slug   (replace-regexp-in-string
+                  "[^a-z0-9]+" "_"
+                  (downcase (string-trim title))))
+         (file   (expand-file-name
+                  (concat ts "_" slug ".org")
+                  (expand-file-name vulpea-default-notes-directory))))
+    ;; Write the new vulpea-format file
+    (with-temp-file file
+      (insert ":PROPERTIES:\n"
+              ":ID:       " id "\n"
+              ":CREATED:  " (format-time-string "%Y-%m-%dT%H:%M:%S") "\n"
+              ":END:\n"
+              "#+title: " title "\n")
+      (when tags
+        (insert "#+filetags: :" (string-join tags ":") ":\n"))
+      (insert "#+created: " (format-time-string "[%Y-%m-%d]") "\n")
+      (let ((promoted (jdl/vulpea--promote-body body level)))
+        (unless (string-empty-p (string-trim promoted))
+          (insert "\n" (string-trim promoted) "\n"))))
+    ;; Replace the subtree with an id: link and open the new file
+    (org-cut-subtree)
+    (insert (format "[[id:%s][%s]]\n" id title))
+    ;; org-id-get-create registered this ID against the source file.
+    ;; Now that the content lives in the new file, update org-id-locations
+    ;; so that id: links and vulpea can resolve it correctly.
+    (org-id-add-location id (expand-file-name file))
+    (vulpea-db-sync)
+    (find-file file)))
+#+end_src
+
+=vulpea-create-default-function= controls the note template used by =vulpea-create= when no template is specified. This customisation prompts for a note type and returns the appropriate plist of file name, tags, header, properties, and body for person, company, or plain default notes.
+
+#+begin_src emacs-lisp
+  (setq vulpea-create-default-function
+      (lambda (title)
+        (let ((type (completing-read "Note type: "
+                                     '("default" "person" "company")
+                                     nil t)))
+          (pcase type
+            ("person"
+             (list :file-name "${timestamp}_${slug}.org"
+                   :tags '("person")
+                   :head "#+created: %<[%Y-%m-%d]>"
+                   :properties '(("CREATED" . "%<[%Y-%m-%d]>"))
+                   :meta '(("company" . ""))
+                   :body "* Notes\n- "))
+            ("company"
+             (list :file-name "${timestamp}_${slug}.org"
+                   :tags '("company")
+                   :head "#+created: %<[%Y-%m-%d]>"
+                   :properties '(("CREATED" . "%<[%Y-%m-%d]>"))))
+            (_
+             (list :file-name "${timestamp}_${slug}.org"
+                   :head "#+created: %<[%Y-%m-%d]>"
+                   :properties '(("CREATED" . "%<[%Y-%m-%d]>"))))))))
+#+end_src
+
+=jdl/migrate-article-notes= is a one-shot migration command for notes originally created with =citar-org-roam=. It scans all =.org= files in =vulpea-default-notes-directory=, and for each file that has a =:ROAM_REFS:= property but no =- citekey ::= meta line it performs four changes: adds =:CITEKEY:= to the property drawer (so org-mode can find it), inserts =- citekey ::= as the first meta line (so the vulpea db query can match it), changes the =:source:= filetag to =:article:=, and renames =- year ::= to =- date ::=. Filenames and note content are left untouched. Run it once with =M-x jdl/migrate-article-notes= then call =M-x vulpea-db-sync= to reindex.
+
+#+begin_src emacs-lisp
+(defun jdl/migrate-article-notes ()
+  "Migrate citar-org-roam article notes to vulpea format.
+For each .org file in `vulpea-default-notes-directory' that has a
+:ROAM_REFS: [cite:@KEY] property but no '- citekey ::' meta line:
+  - Adds :CITEKEY: KEY to the property drawer
+  - Inserts '- citekey :: KEY' as the first meta line
+  - Changes #+filetags: :source: to :article:
+  - Renames '- year ::' to '- date ::'
+Run M-x vulpea-db-sync afterwards to reindex."
+  (interactive)
+  (let ((notes-dir (expand-file-name vulpea-default-notes-directory))
+        (migrated '()))
+    (dolist (file (directory-files notes-dir t "\\.org$"))
+      (with-current-buffer (find-file-noselect file)
+        (save-excursion
+          (goto-char (point-min))
+          ;; Skip files that already have a citekey meta line
+          (unless (re-search-forward "^- citekey ::" nil t)
+            (goto-char (point-min))
+            ;; Extract citekey from :ROAM_REFS: [cite:@KEY]
+            (when (re-search-forward
+                   ":ROAM_REFS:[ \t]+\\[cite:@\\([^]]+\\)\\]" nil t)
+              (let ((citekey (match-string 1)))
+                ;; 1. Add :CITEKEY: to property drawer (before :END:)
+                (goto-char (point-min))
+                (when (re-search-forward "^:END:" nil t)
+                  (beginning-of-line)
+                  (insert (format ":CITEKEY:  %s\n" citekey)))
+                ;; 2. Insert '- citekey ::' after #+filetags (or #+title)
+                (goto-char (point-min))
+                (if (re-search-forward "^#\\+filetags:.*$" nil t)
+                    (end-of-line)
+                  (re-search-forward "^#\\+title:.*$" nil t)
+                  (end-of-line))
+                (insert (format "\n- citekey :: %s" citekey))
+                ;; 3. Change :source: tag to :article:
+                (goto-char (point-min))
+                (when (re-search-forward "^\\(#\\+filetags:.*\\):source:\\(.*\\)$" nil t)
+                  (replace-match "\\1:article:\\2"))
+                ;; 4. Rename '- year ::' to '- date ::'
+                (goto-char (point-min))
+                (while (re-search-forward "^- year ::" nil t)
+                  (replace-match "- date ::"))
+                (save-buffer)
+                (push (file-name-nondirectory file) migrated)))))))
+    (if migrated
+        (message "Migrated %d note(s):\n%s"
+                 (length migrated)
+                 (mapconcat #'identity (sort migrated #'string<) "\n"))
+      (message "No notes needed migration."))))
+#+end_src
+
+The core citar–vulpea integration lives here. =jdl/vulpea-open-or-create-article= is the single entry point: it queries the vulpea database for a note whose =citekey= metadata field matches the given key, opening it if found or creating it (tagged =article=, with bibliographic metadata pre-filled) if not. =jdl/vulpea-capture-article-from-citar= wraps it as an interactive command that first prompts for a reference via citar. =jdl/citar-vulpea-open= is the hook called by citar's notes source: when an existing note is found via =:items=, citar passes its file path, so we branch on that; an unknown string is treated as a citekey and handed to the create path. =jdl/citar-vulpea-get-notes= and =jdl/citar-vulpea-has-notes= are the two callbacks citar uses to build its candidate list and show the "has notes" indicator respectively.
+
+#+begin_src emacs-lisp
+;; Declare as special so `let' binds it dynamically under lexical-binding.
+(defvar vulpea-create-default-function)
+
+(defun jdl/citar-entry-get (field entry)
+  "Get FIELD from a citar ENTRY, handling both alist and hash-table formats."
+  (if (hash-table-p entry)
+      (gethash field entry)
+    (cdr (assoc field entry))))
+
+(defun jdl/vulpea-open-or-create-article (key)
+  "Open existing vulpea note for citar KEY, or create one."
+  (let ((existing (car (vulpea-db-query
+                        (lambda (n)
+                          (string-equal
+                           (vulpea-note-meta-get n "citekey" 'string)
+                           key))))))
+    (if existing
+        (find-file (vulpea-note-path existing))
+      (let* ((entry   (or (citar-get-entry key)
+                          (user-error "No bibliography entry for key: %s" key)))
+             (title  (or (jdl/citar-entry-get "title"        entry) key))
+             (authors (mapcar #'string-trim
+                              (split-string
+                               (or (jdl/citar-entry-get "author" entry) "")
+                               " and " t)))
+             (date   (or (jdl/citar-entry-get "date"         entry)
+                         (jdl/citar-entry-get "year"         entry) ""))
+             (doi    (let ((d (jdl/citar-entry-get "doi" entry)))
+                       (if d (format "[[https://doi.org/%s][%s]]" d d) "")))
+             (url    (or (jdl/citar-entry-get "url"          entry) ""))
+             (journal (or (jdl/citar-entry-get "journaltitle" entry)
+                          (jdl/citar-entry-get "journal"      entry) ""))
+             (note (let ((vulpea-create-default-function
+                         (lambda (_title)
+                           (list :file-name (concat "${timestamp}_" key ".org")))))
+                     (vulpea-create
+                      title
+                      nil
+                      :tags '("article")
+                      :head "#+created: %<[%Y-%m-%d]>"
+                      :properties `(("CREATED" . "%<[%Y-%m-%d]>")
+                                    ("CITEKEY" . ,key))
+                      :meta `(("citekey" . ,key)
+                              ,@(mapcar (lambda (a) (cons "author" a)) authors)
+                              ("date" . ,date)
+                              ("journal" . ,journal)
+                              ("doi" . ,doi)
+                              ("url" . ,url))
+                      :body "* Notes\n\n* References\n"))))
+        (find-file (vulpea-note-path note))))))
+
+(defun jdl/vulpea-capture-article-from-citar ()
+  "Select a reference and open or create a vulpea note for it."
+  (interactive)
+  (jdl/vulpea-open-or-create-article (citar-select-ref)))
+
+(defun jdl/citar-vulpea-open (key)
+  "Open a vulpea note for KEY from citar/embark.
+When a note already exists, citar passes its file path; otherwise KEY
+is the citekey and we create a new note."
+  (if (file-exists-p (expand-file-name key))
+      (find-file key)
+    (jdl/vulpea-open-or-create-article key)))
+
+(defun jdl/citar-vulpea-get-notes (&optional keys)
+  "Return a hash table mapping citekeys to lists of vulpea note paths.
+If KEYS is non-nil, restrict results to those keys."
+  (let ((result (make-hash-table :test #'equal))
+        (notes (vulpea-db-query
+                (lambda (note)
+                  (vulpea-note-meta-get note "citekey" 'string)))))
+    (dolist (note notes)
+      (let ((key (vulpea-note-meta-get note "citekey" 'string)))
+        (when (or (null keys) (member key keys))
+          (puthash key
+                   (cons (vulpea-note-path note)
+                         (gethash key result nil))
+                   result))))
+    result))
+
+(defun jdl/citar-vulpea-has-notes ()
+  "Return a predicate checking whether a citekey has a vulpea note.
+Citar calls this with no arguments and calls the result with each citekey."
+  (let ((keys (delq nil
+                    (mapcar (lambda (note)
+                              (vulpea-note-meta-get note "citekey" 'string))
+                            (vulpea-db-query
+                             (lambda (note)
+                               (vulpea-note-meta-get note "citekey" 'string)))))))
+    (lambda (key) (member key keys))))
+
+#+end_src
+
 * Reference management
 ** Citar
 
+Configure =citar= as the processor for all three org-cite roles: inserting, following, and activating citations. =citar-capf-setup= is added to =org-mode= and =latex-mode= hooks to enable in-buffer completion of citation keys. =citar-at-point-function= is set to =embark-act= so that invoking the follow action on a citation opens the embark action menu rather than jumping directly. The vulpea notes source is registered in =:config= before =citar-notes-source= is set to it — order matters because citar validates the key against the alist at the time it is assigned.
+
 #+begin_src emacs-lisp
   (use-package citar
-    :no-require
+    :hook
+    ((latex-mode . citar-capf-setup)
+     (org-mode . citar-capf-setup))
     :custom
     (bibtex-dialect 'biblatex)
     (org-cite-global-bibliography '("~/src/bibliography/references.bib"))
@@ -962,10 +1376,21 @@ date property to new org roam nodes created at the heading level.
     (org-cite-activate-processor 'citar)
     (citar-bibliography org-cite-global-bibliography)
     (citar-at-point-function 'embark-act)
-    (citar-notes-paths
-     '("~/src/org"
-       )))
+    :config
+    ;; Register the vulpea notes source first, then select it.
+    ;; (Order matters: citar-notes-source must reference a key that exists
+    ;; in citar-notes-sources, so we add the entry before setting the source.)
+    (add-to-list 'citar-notes-sources
+             '(vulpea :name "Vulpea"
+                      :category file
+                      :hasitems jdl/citar-vulpea-has-notes
+                      :open jdl/citar-vulpea-open
+                      :create jdl/vulpea-capture-article-from-citar
+                      :items jdl/citar-vulpea-get-notes))
+    (setq citar-notes-source 'vulpea))
 #+end_src
+
+=citar-embark= wires citar actions into embark's dispatch menu. With this enabled, using embark on a citation key offers options such as opening files, opening notes, and inserting citations.
 
 #+begin_src emacs-lisp
   (use-package citar-embark
@@ -974,7 +1399,9 @@ date property to new org roam nodes created at the heading level.
     :config (citar-embark-mode))
 #+end_src
 
-#+begin_src emacs-lisp
+=citar-org-roam= is an alternative notes integration for users of org-roam instead of vulpea. It is disabled here (=:tangle no=) since vulpea is used as the notes backend.
+
+#+begin_src emacs-lisp :tangle no
   (use-package citar-org-roam
     :after citar org-roam
     :no-require
@@ -1012,6 +1439,7 @@ date property to new org roam nodes created at the heading level.
   (use-package cdlatex
     :hook (org-mode . turn-on-org-cdlatex))  
 #+end_src
+
 ** Visual Fill Column
 
 #+begin_src emacs-lisp
@@ -1044,10 +1472,13 @@ date property to new org roam nodes created at the heading level.
        (r       . ("https://github.com/r-lib/tree-sitter-r"))
        (toml    . ("https://github.com/tree-sitter/tree-sitter-toml")))))
 
-  (mapc (lambda (lang)
-          (unless (treesit-language-available-p lang)
-            (treesit-install-language-grammar lang)))
-        (mapcar #'car treesit-language-source-alist))
+  (run-with-idle-timer
+   5 nil
+   (lambda ()
+     (mapc (lambda (lang)
+             (unless (treesit-language-available-p lang)
+               (treesit-install-language-grammar lang)))
+           (mapcar #'car treesit-language-source-alist))))
 #+end_src
 
 ** Smartparens
@@ -1116,7 +1547,8 @@ date property to new org roam nodes created at the heading level.
 
 #+begin_src emacs-lisp
   (use-package ess
-    :ensure nil)
+    :ensure nil
+    :defer t)
   (add-to-list 'display-buffer-alist
                '("^\\*R Dired"
                  (display-buffer-in-side-window)
@@ -1136,9 +1568,9 @@ date property to new org roam nodes created at the heading level.
   (add-to-list 'display-buffer-alist
                '("^\\*Help"
                  (display-buffer-in-side-window)
-                 (side . right)
-                 (slot . 1)
-                 (window-width . 0.4)
+                 (side . bottom)
+                 (slot . 0)
+                 (window-height . 0.4)
                  (window-parameters (no-delete-other-windows . t))
                  (reusable-frames . nil)))
   (add-to-list 'display-buffer-alist
@@ -1179,7 +1611,7 @@ date property to new org roam nodes created at the heading level.
   (use-package yaml-ts-mode
     :ensure nil
     :mode "\\.ya?ml\\'")
-src
+#+end_src
 
 * Files
 ** Dired
@@ -1242,6 +1674,16 @@ Use =dired-rsync= for rsync functionality in dired mode.
           ("C-c C-r" . dired-rsync))) 
 #+end_src
 
+** Wgrep
+
+Allow editing in grep buffers.
+
+#+begin_src emacs-lisp
+  (use-package wgrep
+    :commands wgrep-change-to-wgrep-mode
+    :ensure t)
+#+end_src
+
 ** Magit
 
 #+begin_src emacs-lisp
@@ -1249,10 +1691,33 @@ Use =dired-rsync= for rsync functionality in dired mode.
     :defer t)
 #+end_src
 
+** Butterfile
+
+=Butterfile= is a tool that enables concurrent buffer and file deletion, copy, and rename.
+
+#+begin_src emacs-lisp
+  (use-package bufferfile
+    :ensure t
+    :commands (bufferfile-copy
+               bufferfile-rename
+               bufferfile-delete)
+    :custom
+    ;; If non-nil, display messages during file renaming operations
+    (bufferfile-verbose nil)
+    
+    ;; If non-nil, enable using version control (VC) when available
+    (bufferfile-use-vc nil)
+    
+    ;; Specifies the action taken after deleting a file and killing its bufferfile.
+    (bufferfile-delete-switch-to 'parent-directory))
+#+end_src
+
 * Email
  #+begin_src emacs-lisp
-   (add-to-list 'load-path "/opt/homebrew/opt/notmuch/share/emacs/site-lisp/notmuch")
-   (require 'notmuch)
+   (use-package notmuch
+     :ensure nil
+     :defer t
+     :load-path "/opt/homebrew/opt/notmuch/share/emacs/site-lisp/notmuch")
  #+end_src
 
 #+begin_src emacs-lisp
@@ -1272,3 +1737,7 @@ Use =dired-rsync= for rsync functionality in dired mode.
           send-mail-function 'sendmail-send-it
           message-send-mail-function 'message-send-mail-with-sendmail)
 #+end_src
+
+
+
+
